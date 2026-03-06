@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Niveau 3 — Station Électrique | The Backrooms</title>
+  <link rel="stylesheet" href="../shared.css"/>
+  <style>
+    .lore-quote{border:1px solid #1a1400;background:#0a0800;padding:24px 32px;margin-bottom:0;position:relative;}
+    .lore-quote::before{content:'"';font-size:80px;color:rgba(255,140,0,0.1);position:absolute;top:-10px;left:14px;font-family:serif;line-height:1;}
+    .lore-quote p{font-style:italic;color:#ffcc00;font-size:15px;line-height:2;margin:0;padding-left:30px;}
+    .lore-quote .source{display:block;text-align:right;font-size:12px;color:#555;margin-top:10px;letter-spacing:2px;}
+
+    .full-img{width:100%;max-height:320px;object-fit:cover;object-position:center;filter:brightness(0.75) saturate(0.4) contrast(1.2);border:1px solid #2a1a00;border-top:none;display:block;margin-bottom:28px;transition:filter 0.4s;}
+    .full-img:hover{filter:brightness(0.9) saturate(0.6);}
+    .mid-img{width:100%;max-height:260px;object-fit:cover;filter:brightness(0.78) saturate(0.45) contrast(1.15);border:1px solid #2a1a00;display:block;margin:20px 0 28px;transition:filter 0.4s;}
+    .mid-img:hover{filter:brightness(0.92) saturate(0.65);}
+
+    .img-duo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 0 28px;}
+    .img-duo a{display:block;}
+    .img-duo img{width:100%;height:200px;object-fit:cover;filter:brightness(0.75) saturate(0.4) contrast(1.15);border:1px solid #2a1a00;display:block;transition:filter 0.4s;}
+    .img-duo img:hover{filter:brightness(0.92) saturate(0.65);}
+    .img-duo .cap{font-size:10px;color:#444;letter-spacing:2px;text-align:center;margin-top:4px;}
+
+    .float-right{float:right;width:260px;margin:0 0 18px 26px;}
+    .float-right img{width:100%;height:auto;filter:brightness(0.78) saturate(0.45) contrast(1.1);border:1px solid #2a1a00;display:block;transition:filter 0.4s;}
+    .float-right img:hover{filter:brightness(0.92) saturate(0.65);}
+    .float-right .cap{font-size:10px;color:#444;letter-spacing:2px;text-align:center;margin-top:4px;}
+    .float-left{float:left;width:240px;margin:0 26px 18px 0;}
+    .float-left img{width:100%;height:auto;filter:brightness(0.78) saturate(0.45) contrast(1.1);border:1px solid #2a1a00;display:block;transition:filter 0.4s;}
+    .float-left img:hover{filter:brightness(0.92) saturate(0.65);}
+    .float-left .cap{font-size:10px;color:#444;letter-spacing:2px;text-align:center;margin-top:4px;}
+    .clearfix::after{content:'';display:table;clear:both;}
+
+    .access-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #2a1a00;margin:14px 0;}
+    .access-col{padding:20px 24px;}
+    .access-col:first-child{border-right:1px solid #2a1a00;}
+    .access-col h3{font-size:15px;letter-spacing:3px;margin-bottom:14px;}
+    .access-col:first-child h3{color:#00cc66;}
+    .access-col:last-child h3{color:orange;}
+    .access-col li{font-size:13px;line-height:1.8;}
+
+    .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid #2a1a00;margin:18px 0;}
+    .stat-cell{padding:14px 16px;border-right:1px solid #2a1a00;text-align:center;}
+    .stat-cell:last-child{border-right:none;}
+    .stat-label{font-size:10px;letter-spacing:3px;color:#555;text-transform:uppercase;margin-bottom:5px;}
+    .stat-value{font-size:16px;color:orange;}
+  </style>
+</head>
+<body>
+    <nav class="navbar">
+      <a href="../index0.html">Accueil</a>
+      <a href="../niveaux.html" class="nav-active">Niveaux</a>
+      <a href="../entites.html">Entités</a>
+      <a href="../objets.html">Objets</a>
+    </nav>
+
+  <section class="entity">
+
+    <h1>Niveau 3 — Station Électrique</h1>
+    <hr class="sep">
+    <div class="lore-quote">
+      <p>Une décharge m'a traversé l'épaule alors que je frôlais le mur. Je n'ai pas crié — j'avais trop peur d'attirer ce qui rôdait derrière les câbles.</p>
+      <span class="source">— Survivant anonyme, Forum des Vagabonds</span>
+    </div>
+    <a href="https://backrooms-wiki.wikidot.com/level-3" target="_blank">
+      <img class="full-img" src="https://preview.redd.it/h6087dkamxw61.jpg?width=1060&format=pjpg&auto=webp&s=cb3325b960d3225dac1ed7935f9a63a8644a6721" alt="Niveau 3 — Station électrique" onerror="this.style.display='none'">
+    </a>
+    <div class="info-bar">
+      <span>CLASSE : <span class="hostile">Sécurité 3</span></span>
+      <span>DANGER : <span class="hostile">Électrocution permanente</span></span>
+      <span>LUMIÈRE : <span class="hostile">Quasi nulle</span></span>
+      <span>ENTITÉS : <span class="hostile">Hostiles</span></span>
+    </div>
+    <div class="stat-row">
+      <div class="stat-cell"><div class="stat-label">Superficie</div><div class="stat-value">Infinie</div></div>
+      <div class="stat-cell"><div class="stat-label">Tension câbles</div><div class="stat-value">Variable</div></div>
+      <div class="stat-cell"><div class="stat-label">Risque électrique</div><div class="stat-value">Permanent</div></div>
+      <div class="stat-cell"><div class="stat-label">Survie moy.</div><div class="stat-value">~6 jours</div></div>
+    </div>
+
+    <h2>Description</h2>
+    <p>Le <strong>Niveau 3</strong> ressemble à une vaste station électrique souterraine abandonnée. Les couloirs sont jonchés de <em>câbles électriques épais</em>, de panneaux de contrôle hors service et de machinerie incompréhensible. Tout est plongé dans une obscurité quasi totale, ponctuée d'<em>arcs électriques sporadiques</em> qui zèbrent les murs et le plafond.</p>
+    <div class="img-duo">
+      <div>
+        <a href="https://backrooms-wiki.wikidot.com/level-3" target="_blank">
+          <img src="https://static.wikia.nocookie.net/backrooms/images/f/ff/Level_3_new.jpg/revision/latest/scale-to-width-down/600?cb=20221025140157" alt="Câbles électriques" onerror="this.parentNode.style.display='none'">
+        </a>
+        <div class="cap">RÉSEAU CÂBLES — SECTION NORD</div>
+      </div>
+      <div>
+        <a href="https://backrooms-wiki.wikidot.com/level-3" target="_blank">
+          <img src="https://static.wikia.nocookie.net/thebackroomscanon/images/3/31/Level_3.jpg/revision/latest?cb=20230908000247" alt="Couloir sombre câbles" onerror="this.parentNode.style.display='none'">
+        </a>
+        <div class="cap">COULOIR PRINCIPAL — ARC ÉLECTRIQUE</div>
+      </div>
+    </div>
+    <p>Marcher sans précaution mène presque toujours à une <em>décharge électrique</em>. Selon la zone, ces décharges peuvent être légères — un picotement — ou mortelles. Les panneaux de contrôle semblent actifs mais leurs interfaces sont incompréhensibles. Personne n'a jamais pu les désactiver.</p>
+
+    <h2>Entités</h2>
+    <p>Les <a href="../entites/Entity3.html">Smilers</a> prolifèrent ici plus que partout ailleurs — l'obscurité quasi totale leur est idéale. Les <a href="../entites/EntityDullers.html">Dullers</a> errent dans les couloirs principaux, attirés par les arcs électriques. Des rapports non confirmés mentionnent des entités capables de <em>se déplacer dans les câbles eux-mêmes</em>.</p>
+
+    <div class="warning-block">⚠ Tout équipement électronique standard tombe en panne dans les 10 premières minutes. Utiliser des <a href="../objets/objet-lampes.html">lampes à filament</a> uniquement — les lampes LED grillent instantanément. Rester au centre des couloirs.</div>
+
+    <h2>Entrées &amp; Sorties</h2>
+    <div class="access-grid">
+      <div class="access-col">
+        <h3>▸ ENTRER</h3>
+        <ul>
+          <li>Portes de métal lourd depuis le <a href="niveau-2.html">Niveau 2</a>.</li>
+          <li>Escaliers électrifiés dans certains recoins du Niveau 2.</li>
+          <li>Noclip depuis des couloirs inondés.</li>
+        </ul>
+      </div>
+      <div class="access-col">
+        <h3>▸ SORTIR</h3>
+        <ul>
+          <li>Salle de contrôle principale → <a href="niveau-4.html">Niveau 4</a>.</li>
+          <li>Trappe dans le plafond → <a href="niveau-2.html">Niveau 2</a>.</li>
+          <li>Extinction totale du niveau — très rare.</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+</body>
+</html>

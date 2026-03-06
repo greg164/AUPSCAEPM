@@ -1,0 +1,106 @@
+{
+  "sections": [
+    {
+      "titre": "Synopsis",
+      "sous_sections": [
+        { "titre": "L'entretien" },
+        { "titre": "Le jour de fermeture" },
+        {
+          "titre": "L'overlook est maléfique",
+          "sous_sections": [
+            { "sections": "note 2" }
+          ]
+        },
+        { "titre": "Le labyrinthe" }
+      ]
+    },
+    { "titre": "Fiche technique" },
+    { "titre": "Distribution" },
+    {
+      "titre": "Production",
+      "sous_sections": [
+        {
+          "titre": "Inspiration et scénario",
+          "sous_sections": [
+            { "titre": "L'avis de Stephen King" },
+            { "titre": "L'avis de Stanley Kubrick" }
+          ]
+        }
+      ]
+    },
+    { "titre": "Attribution des rôles" },
+    {
+      "titre": "Tournage",
+      "sous_sections": [
+        { "titre": "Lieux de tournage" },
+        { "titre": "Steadicam" }
+      ]
+    },
+    {
+      "titre": "Musique",
+      "sous_sections": [
+        { "titre": "Musique pré-existantes" },
+        { "titre": "Bandes originale" }
+      ]
+    },
+    {
+      "titre": "Sortie",
+      "sous_sections": [
+        { "titre": "Campagne d'affichage" },
+        { "titre": "Diffusion en salles" },
+        { "titre": "Premières nationales" },
+        { "titre": "Autres médias" }
+      ]
+    },
+    {
+      "titre": "Accueil",
+      "sous_sections": [
+        { "titre": "Critique" },
+        { "titre": "Box-office" }
+      ]
+    },
+    {
+      "titre": "Distinctions",
+      "sous_sections": [
+        { "titre": "Hommages" }
+      ]
+    },
+    {
+      "titre": "Analyse",
+      "sous_sections": [
+        { "titre": "Les différences avec le livre" },
+        { "titre": "Un film complexe à analyser" },
+        { "titre": "L'hôtel" },
+        { "titre": "Les cartons-titres" },
+        { "titre": "Le labyrinthe" },
+        { "titre": "Les mirroirs" },
+        { "titre": "Les doubles" },
+        { "titre": "La photo finale" },
+        { "titre": "Fin alternative" },
+        { "titre": "Références à d'autres oeuvres" }
+      ]
+    },
+    {
+      "titre": "Autour du film",
+      "sous_sections": [
+        { "titre": "Références dans d'autres oeuvres" },
+        { "titre": "Suite" }
+      ]
+    },
+    {
+      "titre": "Notes et références",
+      "sous_sections": [
+        { "titre": "Notes" },
+        { "titre": "Références" }
+      ]
+    },
+    {
+      "titre": "Voir aussi",
+      "sous_sections": [
+        { "titre": "Bibliographie" },
+        { "titre": "Articles connexes" },
+        { "titre": "Liens externes" }
+      ]
+    }
+  ]
+}

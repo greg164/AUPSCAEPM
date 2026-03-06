@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Niveau 1 — Zone Habitable | The Backrooms</title>
+    <link rel="stylesheet" href="../shared.css"/>
+    <style>
+      /* Image pleine largeur en haut */
+      .hero-img {
+        width: 100%;
+        max-height: 300px;
+        object-fit: cover;
+        object-position: center;
+        filter: brightness(0.75) saturate(0.4) contrast(1.2);
+        border: 1px solid #2a1a00;
+        display: block;
+        margin-bottom: 28px;
+      }
+      /* Deuxième image flottée à gauche dans Entités */
+      .float-left {
+        float: left;
+        width: 220px;
+        margin: 4px 24px 16px 0;
+      }
+      .float-left img {
+        width: 100%;
+        height: auto;
+        filter: brightness(0.8) saturate(0.5) contrast(1.1);
+        border: 1px solid #2a1a00;
+        display: block;
+      }
+      .float-left .caption {
+        font-size: 11px; color: #555;
+        letter-spacing: 2px; text-align: center; margin-top: 5px;
+      }
+      .clearfix::after { content:''; display:table; clear:both; }
+
+      .access-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+        border: 1px solid #2a1a00; margin: 14px 0;
+      }
+      .access-col { padding: 20px 24px; }
+      .access-col:first-child { border-right: 1px solid #2a1a00; }
+      .access-col h3 { font-size: 16px; letter-spacing: 3px; margin-bottom: 14px; }
+      .access-col:first-child h3 { color: #00cc66; }
+      .access-col:last-child h3  { color: orange; }
+      .access-col li { font-size: 13px; line-height: 1.8; }
+      .zone-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+        border: 1px solid #2a1a00; margin: 14px 0 24px;
+      }
+      .zone-card { padding: 20px 24px; border-right: 1px solid #2a1a00; }
+      .zone-card:last-child { border-right: none; }
+      .zone-card h3 { color: orange; font-size: 15px; margin-bottom: 10px; }
+      .zone-card p  { font-size: 13px; line-height: 1.7; margin: 0; }
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar">
+      <a href="../index0.html">Accueil</a>
+      <a href="../niveaux.html" class="nav-active">Niveaux</a>
+      <a href="../entites.html">Entités</a>
+      <a href="../objets.html">Objets</a>
+    </nav>
+
+    <section class="entity">
+
+      <h1>Niveau 1 — Zone Habitable</h1>
+      <hr class="sep">
+
+      <div class="info-bar">
+        <span>CLASSE : <span class="loc">Sécurité 1</span></span>
+        <span>ÉCLAIRAGE : <span class="loc">Partiel</span></span>
+        <span>BASE M.E.G. : <span class="danger-low">PRÉSENTE</span></span>
+      </div>
+
+      <!-- Image pleine largeur en haut, avant la description -->
+      <img class="hero-img"
+           src="https://backrooms-wiki.wdfiles.com/local--files/level-1/artistlivesinme.jpg"
+           alt="Niveau 1 — Zone Habitable"
+           onerror="this.style.display='none'">
+
+      <h2>Description</h2>
+      <p>
+        Le <strong>Niveau 1</strong> est le premier niveau accessible depuis le
+        <a href="niveau-0.html">Niveau 0</a>. Il prend la forme d'un réseau infini
+        d'entrepôts industriels et de couloirs de maintenance plongés dans un
+        <em>éclairage partiel et intermittent</em>. Contrairement au Niveau 0,
+        il est possible d'y rencontrer d'autres vagabonds — ce qui en fait l'un
+        des premiers lieux de vie organisée des Backrooms.
+        Le <strong>M.E.G.</strong> y a établi plusieurs bases et avant-postes, avec de l'
+        <a href="../objets/objet-eau-amande.html">Eau d'Amande</a> disponible.
+      </p>
+
+      <h2>Zones du niveau</h2>
+      <div class="zone-grid">
+        <div class="zone-card">
+          <h3>Le Parking</h3>
+          <p>Zone d'entrée principale. Vastes espaces ouverts.
+          Des véhicules abandonnés s'y trouvent parfois — fonctionnels sans clé.</p>
+        </div>
+        <div class="zone-card">
+          <h3>Les Couloirs</h3>
+          <p>Zones sécurisées euclidiennes avec fournitures et bases du M.E.G.
+          Ne pas verrouiller les portes — les verrous disparaissent après usage.</p>
+        </div>
+      </div>
+
+      <div class="clearfix">
+        <div class="float-left">
+          <img src="https://praetor.wdfiles.com/local--files/level-1/carrousel%20suncon%205.png"
+               alt="Couloir Niveau 1"
+               onerror="this.parentNode.style.display='none'">
+          <div class="caption">COULOIR — ZONE SÉCURISÉE</div>
+        </div>
+
+        <h2>Entités présentes</h2>
+        <p>
+          Le Niveau 1 abrite plusieurs entités : les
+          <a href="../entites/Entity9.html">Facelings</a> dans les zones habitées,
+          les <a href="../entites/Entity8.html">Hounds</a> dans les entrepôts sombres,
+          et les <a href="../entites/Entity3.html">Smilers</a> dans les recoins sans lumière.
+          Les couloirs sécurisés du M.E.G. en sont généralement exempts.
+        </p>
+      </div>
+
+      <h2>Entrées &amp; Sorties</h2>
+      <div class="access-grid">
+        <div class="access-col">
+          <h3>▸ COMMENT Y ENTRER</h3>
+          <ul>
+            <li>Noclip depuis le <a href="niveau-0.html">Niveau 0</a>.</li>
+            <li>Certaines portes des niveaux adjacents.</li>
+          </ul>
+        </div>
+        <div class="access-col">
+          <h3>▸ COMMENT EN SORTIR</h3>
+          <ul>
+            <li>Les couloirs fusionnent avec le <a href="../enconstruction.html">Niveau 2</a>.</li>
+            <li>Certaines portes mènent au <a href="../enconstruction.html">Niveau 3</a>.</li>
+            <li>Noclip dans le plafond → <a href="niveau-fun.html">Niveau Fun</a> <span style="color:#ff3300;">⚠ Danger extrême</span>.</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+  </body>
+</html>

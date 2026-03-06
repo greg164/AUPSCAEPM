@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Objet n°8 — Lampes | The Backrooms</title>
+  <link rel="stylesheet" href="../shared.css"/>
+  <style>
+    .obj-portrait{display:flex;justify-content:center;margin-bottom:28px;}
+    .obj-portrait a{display:block;}
+    .obj-portrait img{max-width:380px;width:100%;filter:brightness(0.85) saturate(0.6) contrast(1.1);border:1px solid #2a1a00;display:block;transition:filter 0.4s;}
+    .obj-portrait img:hover{filter:brightness(1) saturate(0.8);}
+    .obj-portrait .cap{font-size:10px;color:#444;letter-spacing:2px;text-align:center;margin-top:5px;}
+    .desc-block{display:flex;gap:28px;align-items:flex-start;margin-bottom:16px;}
+    .desc-img{flex-shrink:0;width:240px;}
+    .desc-img img{width:100%;height:auto;filter:brightness(0.83) saturate(0.55) contrast(1.1);border:1px solid #2a1a00;display:block;transition:filter 0.4s;}
+    .desc-img img:hover{filter:brightness(0.97) saturate(0.75);}
+    .desc-img .cap{font-size:10px;color:#444;letter-spacing:2px;text-align:center;margin-top:4px;}
+    .desc-text{flex:1;}
+    .img-duo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 0 28px;}
+    .img-duo img{width:100%;height:190px;object-fit:cover;filter:brightness(0.78) saturate(0.45) contrast(1.1);border:1px solid #2a1a00;display:block;transition:filter 0.4s;}
+    .img-duo img:hover{filter:brightness(0.94) saturate(0.68);}
+    .img-duo .cap{font-size:10px;color:#444;letter-spacing:2px;text-align:center;margin-top:4px;}
+    .prop-table{width:100%;border-collapse:collapse;margin:16px 0 24px;font-size:13px;}
+    .prop-table tr{border-bottom:1px solid #1a1200;}
+    .prop-table td:first-child{color:#555;padding:10px 16px;width:35%;font-size:12px;letter-spacing:2px;text-transform:uppercase;}
+    .prop-table td:last-child{color:#bbb;padding:10px 16px;}
+  </style>
+</head>
+<body>
+    <nav class="navbar">
+      <a href="../index0.html">Accueil</a>
+      <a href="../niveaux.html">Niveaux</a>
+      <a href="../entites.html">Entités</a>
+      <a href="../objets.html" class="nav-active">Objets</a>
+    </nav>
+
+  <section class="entity">
+
+    <h1>Objet n°8 — Lampes</h1>
+    <hr class="sep">
+    <div class="info-bar">
+      <span>TYPE : <span class="loc">Équipement — Éclairage</span></span>
+      <span>RARETÉ : <span class="loc">Variable selon le type</span></span>
+      <span>PRIORITÉ : <span class="hostile">Critique — survie de base</span></span>
+    </div>
+    <div class="img-duo">
+      <div>
+        <img src="https://i.redd.it/backrooms-survival-lamp-flashlight-dark.jpg" alt="Lampe de survie" onerror="this.parentNode.style.display='none'">
+        <div class="cap">LAMPE À FILAMENT — TYPE RECOMMANDÉ</div>
+      </div>
+      <div>
+        <img src="https://i.redd.it/backrooms-lamp-post-level6-backrooms.jpg" alt="Lampe niveau 6" onerror="this.parentNode.style.display='none'">
+        <div class="cap">RÉVERBÈRE NIVEAU 6 — NON PORTABLE</div>
+      </div>
+    </div>
+    <h2>Description</h2>
+    <p>Les <strong>lampes</strong> constituent l'équipement le plus fondamental de toute exploration des Backrooms. Dans la quasi-totalité des niveaux, l'obscurité représente un danger immédiat — elle attire les <a href="../entites/Entity3.html">Smilers</a>, désoriente l'explorateur, et masque la présence d'entités.</p>
+    <p>Tous les types de lampes ne se valent pas dans les Backrooms. Les lampes LED standard <em>tombent en panne instantanément</em> dans le <a href="../niveaux/niveau-3.html">Niveau 3</a> et dans toutes les zones à forte activité électrique. <strong>Seules les lampes à filament tungstène</strong> résistent dans l'ensemble des niveaux connus.</p>
+    <table class="prop-table">
+      <tr><td>Lampe LED</td><td>Fonctionne dans ~60% des niveaux. Grille dans les zones électriques.</td></tr>
+      <tr><td>Filament tungstène</td><td>Fonctionne dans tous les niveaux connus. Recommandée.</td></tr>
+      <tr><td>Torche chimique</td><td>Universelle mais durée limitée à 6-8h. Non rechargeable.</td></tr>
+      <tr><td>Firesalt</td><td>Produit de la lumière en plus de chaleur. Dernier recours.</td></tr>
+    </table>
+    <h2>Gestion des ressources</h2>
+    <p>Le M.E.G. recommande de toujours porter <em>deux sources lumineuses</em> distinctes et une source de secours chimique. Ne jamais naviguer vers une zone sombre sans vérification préalable de la charge des équipements. Des piles se trouvent régulièrement dans le <a href="../niveaux/niveau-4.html">Niveau 4</a> près des serveurs.</p>
+    <div class="warning-block">⚠ Les <a href="../entites/Entity3.html">Smilers</a> sont <em>attirés</em> par la lumière mais s'approchent moins d'une lumière forte et directe. Ne jamais naviguer dans l'obscurité — mais ne jamais agiter une lampe de manière imprévisible non plus.</div>
+
+  </section>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Niveaux — The Backrooms</title>
+    <link rel="stylesheet" href="shared.css"/>
+  </head>
+  <body>
+
+
+<style>
+@keyframes subtleBlink {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.1; }
+}
+
+.join-text {
+  color: rgb(255, 0, 78);
+  font-size: small;
+  letter-spacing: 2px;
+  font-style: italic;
+  display: block;
+  margin-top: 4px;
+  animation: subtleBlink 2s infinite;
+}
+</style>
+
+
+    <nav class="navbar">
+      <a href="index0.html">Accueil</a>
+      <a href="niveaux.html" class="nav-active">Niveaux</a>
+      <a href="entites.html">Entités</a>
+      <a href="objets.html">Objets</a>
+    </nav>
+
+    <section class="entity">
+
+      <h1>Niveaux</h1>
+      <hr class="sep">
+
+      <div class="info-bar">
+        <span>RÉPERTORIÉS : <span class="loc">500+</span></span>
+        <span>PREMIER NIVEAU : <span class="loc">Niveau 0</span></span>
+        <span>STABILITÉ : <span class="hostile">VARIABLE</span></span>
+      </div>
+
+      <h2>Présentation</h2>
+      <p>
+        Les niveaux forment le cœur des Backrooms. Chacun constitue un environnement distinct,
+        variant grandement en taille, en danger et en habitabilité. Ils tendent à provoquer
+        un sentiment de familiarité étrange chez ceux qui les découvrent, et leurs lois physiques
+        diffèrent souvent de celles du monde réel. Certains abritent des communautés de survivants ;
+        d'autres sont des <em>zones mortes</em> impénétrables.
+        La liste ci-dessous ne saurait être définitive : de nouveaux niveaux sont découverts en permanence,
+        et d'autres peuvent disparaître du jour au lendemain.
+      </p>
+
+      <h2>Niveaux Standard (Positifs)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>N°</th>
+            <th>Nom</th>
+            <th>Dangerosité</th>
+            <th>Description courte</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-0.html'">
+            <td>0</td>
+            <td class="row-name">Le Lobby</td>
+            <td class="danger-low">Classe 1</td>
+            <td>Le niveau d'entrée. Couloirs infinis tapissés de papier peint jaune, moquette humide, néons bourdonnants.</td>
+          </tr>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-1.html'">
+            <td>1</td>
+            <td class="row-name">Zone Habitable</td>
+            <td class="danger-low">Classe 1</td>
+            <td>Entrepôts industriels semi-stables. Présence de ressources et de bases du M.E.G.</td>
+          </tr>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-2.html'">
+            <td>2</td>
+            <td class="row-name">Tuyaux</td>
+            <td class="danger-mid">Classe 2</td>
+            <td>Labyrinthes de tuyaux sombres et bruyants. Présence de Smilers et de Clumps.</td>
+          </tr>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-3.html'">
+            <td>3</td>
+            <td class="row-name">Les Zones Électriques</td>
+            <td class="danger-mid">Classe 3</td>
+            <td>Couloirs plongés dans l'obscurité totale, parsemés de câbles électriques dangereux.</td>
+          </tr>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-4.html'">
+            <td>4</td>
+            <td class="row-name">Salle des Serveurs</td>
+            <td class="danger-low">Classe 1</td>
+            <td>Salles de serveurs informatiques vrombissants. Relativement sûr, eau d'amande disponible.</td>
+          </tr>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-5.html'">
+            <td>5</td>
+            <td class="row-name">L'Hôtel</td>
+            <td class="danger-high">Classe 4</td>
+            <td>Hôtel abandonné à l'obscurité permanente. Repaire de la Bête du Niveau 5.</td>
+          </tr>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-6.html'">
+            <td>6</td>
+            <td class="row-name">Les Rues Froides</td>
+            <td class="danger-mid">Classe 2</td>
+            <td>Rues urbaines désertes sous un ciel plombé permanent. Température glaciale.</td>
+          </tr>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-7.html'">
+            <td>7</td>
+            <td class="row-name">Abstraction</td>
+            <td class="danger-mid">Classe 3</td>
+            <td>Espace aux géométries impossibles. Les lois de la physique y sont fortement altérées.</td>
+          </tr>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-8.html'">
+            <td>8</td>
+            <td class="row-name">Cave System</td>
+            <td class="danger-high">Classe 4</td>
+            <td>Réseau de grottes naturelles dans le noir absolu. Présence massive de Hounds et Rattlers.</td>
+          </tr>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-9.html'">
+            <td>9</td>
+            <td class="row-name">Suburb</td>
+            <td class="danger-low">Classe 1</td>
+            <td>Quartier résidentiel figé dans une éternelle lumière de fin d'après-midi. Étrangement calme.</td>
+          </tr>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-10.html'">
+            <td>10</td>
+            <td class="row-name">Fieldrooms</td>
+            <td class="danger-low">Classe 0</td>
+            <td>Vastes champs ouverts sous un ciel bleu. L'un des rares niveaux jugés totalement sûrs.</td>
+          </tr>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-fun.html'">
+            <td style="color:#ff69b4;">=)</td>
+            <td class="row-name" style="color:#ffe600;">Niveau Fun</td>
+            <td class="danger-high">Classe 4</td>
+            <td>Entrepôt de châteaux gonflables. Vecteur du virus <em>Sanguine Festivus</em>. Présence de Partygoers. Extrêmement dangereux.
+            <span class="join-text">Joignez vous à la fête =)</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Niveaux Négatifs</h2>
+      <p>
+        Les niveaux négatifs s'étendent <em>sous</em> le Niveau 0 et sont composés d'une matière
+        unique appelée <em>Matière Négative</em>. Ils tendent à présenter des éléments surréalistes
+        proches du sommeil paradoxal, et leur liminalité est davantage psychologique que spatiale.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>N°</th>
+            <th>Nom</th>
+            <th>Dangerosité</th>
+            <th>Description courte</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-moins1.html'">
+            <td>-1</td>
+            <td class="row-name">Rétro-réalité</td>
+            <td class="danger-mid">Classe 2</td>
+            <td>Monde miroir des Backrooms. Chaque lieu a son pendant inversé et déformé.</td>
+          </tr>
+          <tr class="clickable" onclick="location.href='niveaux/niveau-moins2.html'">
+            <td>-2</td>
+            <td class="row-name">Pipe Dreams</td>
+            <td class="danger-high">Classe 4</td>
+            <td>Espace onirique instable. Les souvenirs du vagabond y prennent forme physique.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top: 24px; color: #666; font-size: 13px; letter-spacing: 1px;">
+        ▸ Plus de 500 niveaux restent à documenter.
+      </p>
+
+    </section>
+  </body>
+</html>

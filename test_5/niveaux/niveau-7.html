@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Niveau 7 — Abstraction | The Backrooms</title>
+  <link rel="stylesheet" href="../shared.css"/>
+  <style>
+    .lore-quote{border:1px solid #1a1400;background:#0a0800;padding:24px 32px;margin-bottom:0;position:relative;}
+    .lore-quote::before{content:'"';font-size:80px;color:rgba(255,140,0,0.1);position:absolute;top:-10px;left:14px;font-family:serif;line-height:1;}
+    .lore-quote p{font-style:italic;color:#ffcc00;font-size:15px;line-height:2;margin:0;padding-left:30px;}
+    .lore-quote .source{display:block;text-align:right;font-size:12px;color:#555;margin-top:10px;letter-spacing:2px;}
+
+    .full-img{width:100%;max-height:320px;object-fit:cover;object-position:center;filter:brightness(0.75) saturate(0.4) contrast(1.2);border:1px solid #2a1a00;border-top:none;display:block;margin-bottom:28px;transition:filter 0.4s;}
+    .full-img:hover{filter:brightness(0.9) saturate(0.6);}
+    .mid-img{width:100%;max-height:260px;object-fit:cover;filter:brightness(0.78) saturate(0.45) contrast(1.15);border:1px solid #2a1a00;display:block;margin:20px 0 28px;transition:filter 0.4s;}
+    .mid-img:hover{filter:brightness(0.92) saturate(0.65);}
+
+    .img-duo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 0 28px;}
+    .img-duo a{display:block;}
+    .img-duo img{width:100%;height:200px;object-fit:cover;filter:brightness(0.75) saturate(0.4) contrast(1.15);border:1px solid #2a1a00;display:block;transition:filter 0.4s;}
+    .img-duo img:hover{filter:brightness(0.92) saturate(0.65);}
+    .img-duo .cap{font-size:10px;color:#444;letter-spacing:2px;text-align:center;margin-top:4px;}
+
+    .float-right{float:right;width:260px;margin:0 0 18px 26px;}
+    .float-right img{width:100%;height:auto;filter:brightness(0.78) saturate(0.45) contrast(1.1);border:1px solid #2a1a00;display:block;transition:filter 0.4s;}
+    .float-right img:hover{filter:brightness(0.92) saturate(0.65);}
+    .float-right .cap{font-size:10px;color:#444;letter-spacing:2px;text-align:center;margin-top:4px;}
+    .float-left{float:left;width:240px;margin:0 26px 18px 0;}
+    .float-left img{width:100%;height:auto;filter:brightness(0.78) saturate(0.45) contrast(1.1);border:1px solid #2a1a00;display:block;transition:filter 0.4s;}
+    .float-left img:hover{filter:brightness(0.92) saturate(0.65);}
+    .float-left .cap{font-size:10px;color:#444;letter-spacing:2px;text-align:center;margin-top:4px;}
+    .clearfix::after{content:'';display:table;clear:both;}
+
+    .access-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #2a1a00;margin:14px 0;}
+    .access-col{padding:20px 24px;}
+    .access-col:first-child{border-right:1px solid #2a1a00;}
+    .access-col h3{font-size:15px;letter-spacing:3px;margin-bottom:14px;}
+    .access-col:first-child h3{color:#00cc66;}
+    .access-col:last-child h3{color:orange;}
+    .access-col li{font-size:13px;line-height:1.8;}
+
+    .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid #2a1a00;margin:18px 0;}
+    .stat-cell{padding:14px 16px;border-right:1px solid #2a1a00;text-align:center;}
+    .stat-cell:last-child{border-right:none;}
+    .stat-label{font-size:10px;letter-spacing:3px;color:#555;text-transform:uppercase;margin-bottom:5px;}
+    .stat-value{font-size:16px;color:orange;}
+  </style>
+</head>
+<body>
+    <nav class="navbar">
+      <a href="../index0.html">Accueil</a>
+      <a href="../niveaux.html" class="nav-active">Niveaux</a>
+      <a href="../entites.html">Entités</a>
+      <a href="../objets.html">Objets</a>
+    </nav>
+
+  <section class="entity">
+
+    <h1>Niveau 7 — Abstraction</h1>
+    <hr class="sep">
+    <div class="lore-quote">
+      <p>Le couloir tournait à droite. Je l'ai suivi et je me suis retrouvé derrière moi. J'ai regardé en arrière et j'ai vu mon propre dos qui s'éloignait.</p>
+      <span class="source">— Dernière transmission, Explorateur Kappa-9</span>
+    </div>
+    <div class="info-bar">
+      <span>CLASSE : <span class="hostile">Sécurité 3</span></span>
+      <span>GÉOMÉTRIE : <span class="hostile">Non-euclidienne extrême</span></span>
+      <span>ORIENTATION : <span class="hostile">Impossible</span></span>
+      <span>ENTITÉS : <span class="loc">Rares mais dangereuses</span></span>
+    </div>
+    <div class="stat-row">
+      <div class="stat-cell"><div class="stat-label">Superficie</div><div class="stat-value">Variable</div></div>
+      <div class="stat-cell"><div class="stat-label">Stabilité</div><div class="stat-value">Très faible</div></div>
+      <div class="stat-cell"><div class="stat-label">Logique</div><div class="stat-value">Altérée</div></div>
+      <div class="stat-cell"><div class="stat-label">Cartographié</div><div class="stat-value">0%</div></div>
+    </div>
+
+    <h2>Description</h2>
+    <div class="clearfix">
+      <div class="float-right">
+        <img src="https://preview.redd.it/what-level-is-this-v0-1awxvz95czoc1.jpeg?width=640&crop=smart&auto=webp&s=a8e1f86f5e7f5c4b8e4ad9bfce2de0a2dfd7b918" alt="Géométrie impossible" onerror="this.parentNode.style.display='none'">
+        <div class="cap">ZONE CENTRALE — PERSPECTIVE ALTÉRÉE</div>
+      </div>
+      <p>Le <strong>Niveau 7</strong> défie toute tentative de description cohérente. C'est un espace où les <em>lois fondamentales de la géométrie euclidienne</em> cessent de s'appliquer. Les couloirs se tordent sur eux-mêmes, les murs deviennent des plafonds, les portes mènent à des endroits qui ne devraient pas exister.</p>
+      <p>L'architecture semble avoir été conçue par une intelligence qui ne comprend pas — ou refuse délibérément — les concepts de haut, bas, avant et arrière. Les pièces ont des <em>angles qui ne totalisent pas 360°</em>. Des escaliers montent et descendent simultanément. Des fenêtres donnent sur l'intérieur du bâtiment.</p>
+    </div>
+
+    <h2>Phénomènes géométriques</h2>
+    <p>Marcher en ligne droite peut vous ramener à votre point de départ sous un angle différent. Certains explorateurs rapportent avoir croisé leur propre chemin sans jamais faire demi-tour. Des pièces plus grandes à l'intérieur qu'à l'extérieur. Des couloirs qui s'étendent à l'infini mais que l'on peut traverser en quelques pas.</p>
+    <p>Les objets distants semblent proches et vice-versa. La profondeur de champ fonctionne de manière imprévisible. Certains murs semblent à la fois convexes et concaves. Des explorateurs rapportent avoir vu des <em>directions qui n'existent pas</em>.</p>
+
+    <div class="img-duo">
+      <div>
+        <img src="https://preview.redd.it/level-7-abstraction-v0-u8oizq6qzvqc1.png?width=1080&crop=smart&auto=webp&s=f8e0d3e5b2f7c0e3f58e77fb0c7f95e4c19ac1e5" alt="Couloir tordu" onerror="this.parentNode.style.display='none'">
+        <div class="cap">COULOIR ALPHA — TORSION SPATIALE</div>
+      </div>
+      <div>
+        <img src="https://i.redd.it/thalassophobia-v0-q4a6zbxhx4qa1.png?width=640&crop=smart&auto=webp&s=dddc0d3f5bae8f7f8b8d4b5d9b5f5b4b5b5b5b5b" alt="Salle abstraite" onerror="this.parentNode.style.display='none'">
+        <div class="cap">SALLE BETA — ANGLES IMPOSSIBLES</div>
+      </div>
+    </div>
+
+    <h2>Effets sur l'orientation</h2>
+    <p>L'orientation humaine dépend de repères spatiaux cohérents. Dans le Niveau 7, ces repères sont <em>constamment remis en question</em>. Les boussoles tournent de manière erratique. Les traces de pas mènent dans des directions impossibles. Marquer les murs ne sert à rien — les marques apparaissent sur des murs que vous n'avez jamais touchés.</p>
+    <p>Après quelques heures d'exposition, le cerveau humain commence à <strong>perdre sa capacité à conceptualiser l'espace tridimensionnel</strong>. Les explorateurs rapportent des migraines sévères, des vertiges permanents et une désorientation qui persiste des semaines après l'évacuation.</p>
+
+    <h2>Entités</h2>
+    <p>Les entités dans le Niveau 7 sont rares mais profondément dérangeantes. Les <a href="../entites/Entity9.html">Facelings</a> y apparaissent parfois, mais leur comportement est encore plus erratique que d'habitude — comme s'ils ne comprenaient pas non plus la géométrie du lieu.</p>
+    <p>Des témoins rapportent avoir vu des <em>entités impossibles</em> — des créatures qui semblent exister dans plus de trois dimensions, dont seules des "tranches" sont visibles dans notre espace. Ces rencontres provoquent une <strong>détresse psychologique immédiate</strong>.</p>
+
+    <div class="warning-block">⚠ AVERTISSEMENT CRITIQUE — Le M.E.G. classe le Niveau 7 comme extrêmement dangereux. L'exposition prolongée entraîne des dommages neurologiques permanents. Aucune cartographie fiable n'existe. Les équipes de secours ne peuvent pas localiser les explorateurs perdus. Temps de survie moyen : 8 heures.</div>
+
+    <h2>Entrées &amp; Sorties</h2>
+    <div class="access-grid">
+      <div class="access-col">
+        <h3>▸ ENTRER</h3>
+        <ul>
+          <li>Intersection principale du <a href="niveau-6.html">Niveau 6</a>.</li>
+          <li>Portes marquées "⊥⊤⊣⊢" dans le <a href="niveau-2.html">Niveau 2</a>.</li>
+          <li>Noclip depuis une perspective impossible.</li>
+        </ul>
+      </div>
+      <div class="access-col">
+        <h3>▸ SORTIR</h3>
+        <ul>
+          <li>Trouver une porte euclidienne normale → <a href="niveau-3.html">Niveau 3</a> (rare).</li>
+          <li>Atteindre le "centre" théorique → <a href="niveau-8.html">Niveau 8</a>.</li>
+          <li>Perdre complètement l'orientation → niveau aléatoire.</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+</body>
+</html>

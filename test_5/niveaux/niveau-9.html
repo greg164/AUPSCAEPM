@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Niveau 9 — The Suburbs | The Backrooms</title>
+  <link rel="stylesheet" href="../shared.css"/>
+  <style>
+    /* ══════════════════════════════════════════════════
+       VARIABLES — Palette nocturne
+    ══════════════════════════════════════════════════ */
+    :root {
+      --night-blue: #0a0e1f;
+      --deep-purple: #1a1030;
+      --soft-yellow: #fff4d6;
+      --warning-red: #ff4444;
+      --glitch-cyan: #00ffff;
+      --glitch-magenta: #ff00ff;
+    }
+
+    /* ══════════════════════════════════════════════════
+       FOND ÉTOILÉ ANIMÉ
+    ══════════════════════════════════════════════════ */
+    html {
+      min-height: 100%;
+      background: var(--night-blue);
+    }
+
+    body {
+      background: transparent !important;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Couche 1 : Ciel étoilé avec dégradé */
+    .stars-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: 
+        radial-gradient(2px 2px at 20% 30%, white, transparent),
+        radial-gradient(2px 2px at 60% 70%, white, transparent),
+        radial-gradient(1px 1px at 50% 50%, white, transparent),
+        radial-gradient(1px 1px at 80% 10%, white, transparent),
+        radial-gradient(2px 2px at 90% 60%, white, transparent),
+        radial-gradient(1px 1px at 33% 77%, white, transparent),
+        radial-gradient(2px 2px at 15% 85%, white, transparent),
+        radial-gradient(1px 1px at 70% 25%, white, transparent),
+        linear-gradient(180deg, 
+          var(--night-blue) 0%, 
+          var(--deep-purple) 50%, 
+          #0a0a15 100%
+        );
+      background-size: 
+        250px 250px,
+        300px 300px,
+        150px 150px,
+        200px 200px,
+        280px 280px,
+        220px 220px,
+        320px 320px,
+        180px 180px,
+        100% 100%;
+      animation: stars-twinkle 8s ease-in-out infinite;
+    }
+
+    @keyframes stars-twinkle {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    /* Couche 2 : Brouillard montant progressif */
+    .fog-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        0deg,
+        rgba(26, 16, 48, 0.95) 0%,
+        rgba(26, 16, 48, 0.6) 30%,
+        transparent 60%
+      );
+      animation: fog-rise 15s ease-in-out infinite alternate;
+    }
+
+    @keyframes fog-rise {
+      0% { transform: translateY(10px); opacity: 0.8; }
+      100% { transform: translateY(-10px); opacity: 1; }
+    }
+
+    /* ══════════════════════════════════════════════════
+       LAMPADAIRES AVEC LUEUR
+    ══════════════════════════════════════════════════ */
+    .streetlights {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .light {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle,
+        rgba(255, 244, 214, 0.3) 0%,
+        rgba(255, 244, 214, 0.1) 50%,
+        transparent 100%
+      );
+      animation: light-flicker 4s ease-in-out infinite;
+    }
+
+    @keyframes light-flicker {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 0.5; }
+      93% { opacity: 0.8; }
+      94% { opacity: 0.3; }
+      95% { opacity: 0.8; }
+    }
+
+    .light:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+    .light:nth-child(2) { right: 15%; top: 35%; animation-delay: 1.2s; }
+    .light:nth-child(3) { left: 50%; bottom: 40%; animation-delay: 2.5s; }
+    .light:nth-child(4) { right: 30%; bottom: 20%; animation-delay: 3.8s; }
+
+    /* ══════════════════════════════════════════════════
+       NAVIGATION — style sombre adapté
+    ══════════════════════════════════════════════════ */
+    .navbar {
+      position: relative;
+      z-index: 10;
+      background: rgba(10, 10, 20, 0.95) !important;
+      border-bottom: 1px solid rgba(255, 244, 214, 0.2);
+    }
+
+    .navbar a {
+      color: var(--soft-yellow) !important;
+      opacity: 0.8;
+      transition: all 0.3s;
+    }
+
+    .navbar a:hover {
+      opacity: 1;
+      text-shadow: 0 0 10px var(--soft-yellow);
+    }
+
+    .nav-active {
+      opacity: 1 !important;
+      border-bottom: 2px solid var(--soft-yellow) !important;
+    }
+
+    /* ══════════════════════════════════════════════════
+       SECTION PRINCIPALE — z-index élevé
+    ══════════════════════════════════════════════════ */
+    .entity {
+      position: relative;
+      z-index: 5;
+      background: rgba(10, 14, 31, 0.85) !important;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 244, 214, 0.15);
+    }
+
+    /* ══════════════════════════════════════════════════
+       TITRE AVEC GLITCH PROGRESSIF
+    ══════════════════════════════════════════════════ */
+    .suburb-title {
+      position: relative;
+      font-size: 48px;
+      font-weight: bold;
+      letter-spacing: 6px;
+      text-align: center;
+      margin: 40px 0 20px;
+      color: var(--soft-yellow);
+      animation: title-glitch 8s ease-in-out infinite;
+    }
+
+    @keyframes title-glitch {
+      0%, 90% { 
+        transform: translate(0);
+        text-shadow: 0 0 20px rgba(255, 244, 214, 0.5);
+      }
+      92% {
+        transform: translate(-3px, 0);
+        text-shadow: -2px 0 var(--glitch-cyan), 2px 0 var(--glitch-magenta);
+      }
+      93% {
+        transform: translate(3px, 0);
+        text-shadow: 2px 0 var(--glitch-cyan), -2px 0 var(--glitch-magenta);
+      }
+      94%, 100% {
+        transform: translate(0);
+        text-shadow: 0 0 20px rgba(255, 244, 214, 0.5);
+      }
+    }
+
+    /* ══════════════════════════════════════════════════
+       MESSAGE D'ACCUEIL INQUIÉTANT
+    ══════════════════════════════════════════════════ */
+    .welcome-msg {
+      background: rgba(26, 16, 48, 0.9);
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      padding: 24px 32px;
+      margin: 20px 0 30px;
+      position: relative;
+      font-style: italic;
+      color: var(--soft-yellow);
+      text-align: center;
+      font-size: 18px;
+      line-height: 1.8;
+      animation: welcome-pulse 6s ease-in-out infinite;
+    }
+
+    @keyframes welcome-pulse {
+      0%, 100% { 
+        border-color: rgba(255, 68, 68, 0.3);
+        box-shadow: 0 0 10px rgba(255, 68, 68, 0.1);
+      }
+      50% { 
+        border-color: rgba(255, 68, 68, 0.6);
+        box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+      }
+    }
+
+    .welcome-msg::before {
+      content: '⚠';
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 28px;
+      color: var(--warning-red);
+      animation: icon-blink 2s ease-in-out infinite;
+    }
+
+    @keyframes icon-blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .hidden-text {
+      opacity: 0;
+      animation: reveal-slowly 20s ease-in forwards;
+      animation-delay: 3s;
+      display: block;
+      margin-top: 10px;
+      color: var(--warning-red);
+      font-size: 16px;
+    }
+
+    @keyframes reveal-slowly {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    /* ══════════════════════════════════════════════════
+       INFO BAR — style adapté
+    ══════════════════════════════════════════════════ */
+    .info-bar {
+      background: rgba(26, 16, 48, 0.6) !important;
+      border: 1px solid rgba(255, 244, 214, 0.2) !important;
+    }
+
+    .info-bar .loc {
+      color: var(--soft-yellow) !important;
+    }
+
+    /* ══════════════════════════════════════════════════
+       IMAGES — effet de plus en plus glitché
+    ══════════════════════════════════════════════════ */
+    .full-img {
+      width: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 244, 214, 0.2);
+      display: block;
+      margin-bottom: 28px;
+      filter: brightness(0.7) saturate(0.8);
+      animation: img-distort 10s ease-in-out infinite;
+    }
+
+    @keyframes img-distort {
+      0%, 80% { 
+        filter: brightness(0.7) saturate(0.8);
+        transform: translate(0);
+      }
+      85% {
+        filter: brightness(0.5) saturate(1.2) hue-rotate(10deg);
+        transform: translate(-2px, 0);
+      }
+      90% {
+        filter: brightness(0.9) saturate(0.5) hue-rotate(-10deg);
+        transform: translate(2px, 0);
+      }
+      95%, 100% {
+        filter: brightness(0.7) saturate(0.8);
+        transform: translate(0);
+      }
+    }
+
+    .img-duo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 20px 0 28px;
+    }
+
+    .img-duo img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 244, 214, 0.2);
+      filter: brightness(0.7) saturate(0.8);
+    }
+
+    /* Image de gauche — glitch plus fort */
+    .img-duo img:first-child {
+      animation: img-glitch-left 7s ease-in-out infinite;
+    }
+
+    @keyframes img-glitch-left {
+      0%, 75% { 
+        filter: brightness(0.7) saturate(0.8);
+        clip-path: none;
+      }
+      80% {
+        filter: brightness(0.4) saturate(1.5) hue-rotate(20deg);
+        clip-path: inset(0 0 60% 0);
+      }
+      82% {
+        filter: brightness(1) saturate(0.3) hue-rotate(-20deg);
+        clip-path: inset(60% 0 0 0);
+      }
+      85%, 100% {
+        filter: brightness(0.7) saturate(0.8);
+        clip-path: none;
+      }
+    }
+
+    /* Image de droite — effet différent */
+    .img-duo img:last-child {
+      animation: img-glitch-right 9s ease-in-out infinite;
+      animation-delay: 1.5s;
+    }
+
+    @keyframes img-glitch-right {
+      0%, 70% { 
+        filter: brightness(0.7) saturate(0.8);
+        transform: translate(0);
+      }
+      74% {
+        filter: brightness(0.3) contrast(1.5);
+        transform: translate(3px, 0);
+      }
+      76% {
+        filter: brightness(1.2) contrast(0.8);
+        transform: translate(-3px, 0);
+      }
+      80%, 100% {
+        filter: brightness(0.7) saturate(0.8);
+        transform: translate(0);
+      }
+    }
+
+    /* ══════════════════════════════════════════════════
+       TITRES H2 — glitch aléatoire
+    ══════════════════════════════════════════════════ */
+    h2 {
+      color: var(--soft-yellow) !important;
+      position: relative;
+    }
+
+    h2::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      color: var(--glitch-cyan);
+      animation: h2-glitch 12s ease-in-out infinite;
+    }
+
+    @keyframes h2-glitch {
+      0%, 88% { opacity: 0; transform: translate(0); }
+      89% { opacity: 0.8; transform: translate(-2px, 0); }
+      90% { opacity: 0; transform: translate(2px, 0); }
+      91%, 100% { opacity: 0; transform: translate(0); }
+    }
+
+    /* ══════════════════════════════════════════════════
+       PARAGRAPHES — texte progressivement perturbé
+    ══════════════════════════════════════════════════ */
+    p {
+      color: rgba(255, 244, 214, 0.9) !important;
+      line-height: 1.8;
+    }
+
+    /* Certains mots au hasard glitchent */
+    .glitch-word {
+      position: relative;
+      display: inline-block;
+      animation: word-glitch 15s ease-in-out infinite;
+    }
+
+    @keyframes word-glitch {
+      0%, 93% { 
+        color: inherit;
+        text-shadow: none;
+      }
+      94% {
+        color: var(--glitch-cyan);
+        text-shadow: 1px 0 var(--glitch-magenta);
+      }
+      95% {
+        color: var(--glitch-magenta);
+        text-shadow: -1px 0 var(--glitch-cyan);
+      }
+      96%, 100% {
+        color: inherit;
+        text-shadow: none;
+      }
+    }
+
+    /* ══════════════════════════════════════════════════
+       SECTIONS — assombrissement progressif
+    ══════════════════════════════════════════════════ */
+    .darkening-section {
+      animation: section-darken 30s ease-in forwards;
+    }
+
+    @keyframes section-darken {
+      0% { 
+        background: rgba(10, 14, 31, 0.85);
+        border-color: rgba(255, 244, 214, 0.15);
+      }
+      100% { 
+        background: rgba(5, 7, 15, 0.95);
+        border-color: rgba(255, 68, 68, 0.3);
+      }
+    }
+
+    /* ══════════════════════════════════════════════════
+       WARNING BLOCK — style nocturne
+    ══════════════════════════════════════════════════ */
+    .warning-block {
+      background: rgba(255, 68, 68, 0.15) !important;
+      border: 1px solid var(--warning-red) !important;
+      color: var(--soft-yellow) !important;
+      animation: warning-pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes warning-pulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(255, 68, 68, 0.3); }
+      50% { box-shadow: 0 0 25px rgba(255, 68, 68, 0.6); }
+    }
+
+    /* ══════════════════════════════════════════════════
+       STAT ROW — adapté au thème
+    ══════════════════════════════════════════════════ */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border: 1px solid rgba(255, 244, 214, 0.2);
+      margin: 18px 0;
+      background: rgba(26, 16, 48, 0.5);
+    }
+
+    .stat-cell {
+      padding: 14px 16px;
+      border-right: 1px solid rgba(255, 244, 214, 0.2);
+      text-align: center;
+    }
+
+    .stat-cell:last-child { border-right: none; }
+
+    .stat-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: rgba(255, 244, 214, 0.6);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      color: var(--soft-yellow);
+    }
+
+    /* ══════════════════════════════════════════════════
+       ACCESS GRID — entrées/sorties
+    ══════════════════════════════════════════════════ */
+    .access-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border: 1px solid rgba(255, 244, 214, 0.2);
+      margin: 14px 0;
+      background: rgba(26, 16, 48, 0.5);
+    }
+
+    .access-col {
+      padding: 20px 24px;
+    }
+
+    .access-col:first-child {
+      border-right: 1px solid rgba(255, 244, 214, 0.2);
+    }
+
+    .access-col h3 {
+      font-size: 15px;
+      letter-spacing: 3px;
+      margin-bottom: 14px;
+    }
+
+    .access-col:first-child h3 { color: #66ff99; }
+    .access-col:last-child h3 { color: var(--warning-red); }
+
+    .access-col li {
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--soft-yellow);
+    }
+
+    /* Dernière sortie — inquiétante */
+    .creepy-exit {
+      color: var(--warning-red) !important;
+      font-style: italic;
+      animation: creepy-blink 3s ease-in-out infinite;
+    }
+
+    @keyframes creepy-blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ══════════════════════════════════════════════════
+       SILHOUETTES — apparitions fantomatiques
+    ══════════════════════════════════════════════════ */
+    .silhouettes {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0;
+      animation: silhouette-appear 40s ease-in infinite;
+    }
+
+    @keyframes silhouette-appear {
+      0%, 80% { opacity: 0; }
+      85% { opacity: 0.15; }
+      90% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    .shadow {
+      position: absolute;
+      width: 60px;
+      height: 180px;
+      background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.8) 50%, transparent 100%);
+      filter: blur(2px);
+    }
+
+    .shadow:nth-child(1) { left: 15%; top: 30%; animation: shadow-walk 8s ease-in-out infinite; }
+    .shadow:nth-child(2) { right: 20%; top: 50%; animation: shadow-walk 10s ease-in-out infinite; animation-delay: 2s; }
+    .shadow:nth-child(3) { left: 60%; bottom: 25%; animation: shadow-walk 9s ease-in-out infinite; animation-delay: 4s; }
+
+    @keyframes shadow-walk {
+      0%, 100% { transform: translateX(0); opacity: 0; }
+      10% { opacity: 0.3; }
+      50% { transform: translateX(30px); opacity: 0.3; }
+      90% { opacity: 0.3; }
+      100% { transform: translateX(60px); opacity: 0; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Couches de fond -->
+  <div class="stars-layer"></div>
+  <div class="fog-layer"></div>
+
+  <!-- Lampadaires -->
+  <div class="streetlights">
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
+  </div>
+
+  <!-- Silhouettes fantomatiques -->
+  <div class="silhouettes">
+    <div class="shadow"></div>
+    <div class="shadow"></div>
+    <div class="shadow"></div>
+  </div>
+
+  <nav class="navbar">
+    <a href="../index0.html">Accueil</a>
+    <a href="../niveaux.html" class="nav-active">Niveaux</a>
+    <a href="../entites.html">Entités</a>
+    <a href="../objets.html">Objets</a>
+  </nav>
+
+  <section class="entity darkening-section">
+
+    <h1 class="suburb-title">NIVEAU 9 — THE SUBURBS</h1>
+    <hr class="sep">
+
+    <div class="welcome-msg">
+      Vous êtes enfin arrivé. C'est paisible ici, n'est-ce pas ?<br>
+      Les maisons sont propres. Les lumières fonctionnent. Vous êtes en sécurité.
+      <span class="hidden-text">Pourquoi voudriez-vous partir ?</span>
+    </div>
+
+    <div class="info-bar">
+      <span>CLASSE : <span class="loc">Sécurité 1</span></span>
+      <span>LUMIÈRE : <span class="loc">Éternelle nuit</span></span>
+      <span>ENTITÉS : <span class="loc">Rares — Facelings principalement</span></span>
+      <span>RESSOURCES : <span class="loc">Abondantes</span></span>
+    </div>
+
+    <img class="full-img" 
+         src="https://static.wikia.nocookie.net/backrooms/images/d/d4/Level-9-2-cc.jpg/revision/latest?cb=20211226011709&path-prefix=fr" 
+         alt="Niveau 9 — Banlieue" 
+         onerror="this.style.display='none'">
+
+    <div class="stat-row">
+      <div class="stat-cell"><div class="stat-label">Superficie</div><div class="stat-value">Vaste</div></div>
+      <div class="stat-cell"><div class="stat-label">Température</div><div class="stat-value">~22°C</div></div>
+      <div class="stat-cell"><div class="stat-label">Heure figée</div><div class="stat-value">~00h00</div></div>
+      <div class="stat-cell"><div class="stat-label">Sécurité</div><div class="stat-value">Bonne</div></div>
+    </div>
+
+    <h2 data-text="Description">Description</h2>
+    <p>Le <strong>Niveau 9</strong> est l'un des rares endroits des Backrooms à offrir une véritable sensation de <span class="glitch-word">réconfort</span> — ce qui en fait l'un des plus psychologiquement perturbants sur la durée. Il se présente comme un quartier résidentiel américain des années 1980-1990, figé dans une <em>lumière sombre en pleine nuit</em> qui ne change jamais.</p>
+
+    <div class="img-duo">
+      <img src="https://backrooms-wiki.wdfiles.com/local--files/level-9/Level-9-1-cc.jpg" 
+           alt="Maison banlieue dorée" 
+           onerror="this.style.display='none'">
+      <img src="https://preview.redd.it/backrooms-level-9-v0-5m8vcxid1lec1.jpeg?auto=webp&s=817b5443ddfaec58a2aaf22a74e86cb3f30fc743" 
+           alt="Rue banlieue soir" 
+           onerror="this.style.display='none'">
+    </div>
+
+    <p>Les maisons contiennent des <em>meubles, de la nourriture intacte, des vêtements</em> — mais aucun signe de passage humain récent. Les réfrigérateurs fonctionnent. Les télévisions affichent de la neige. On peut <span class="glitch-word">dormir</span> ici en sécurité relative. La principale menace est psychologique : beaucoup d'explorateurs <em>refusent de <span class="glitch-word">repartir</span></em>.</p>
+
+    <h2 data-text="Anomalie de perception">Anomalie de perception</h2>
+    <p>Après plusieurs jours dans le Niveau 9, des explorateurs rapportent commencer à <em>entendre leurs proches</em> dans les maisons voisines. Des <span class="glitch-word">voix familières</span>, des rires d'enfants, des odeurs de cuisine. Aucune source n'a jamais été trouvée. Le M.E.G. recommande de quitter le niveau après <strong>72 heures maximum</strong>.</p>
+
+    <div class="warning-block">⚠ DANGER PSYCHOLOGIQUE — Une exposition prolongée au Niveau 9 entraîne une détérioration progressive de la volonté de partir. Après 5 jours, 80% des explorateurs refusent catégoriquement l'évacuation. Les équipes de secours doivent parfois utiliser la force. Certains résidents permanents n'ont jamais pu être récupérés.</div>
+
+    <h2 data-text="Entités">Entités</h2>
+    <p>Les <a href="../entites/Entity9.html">Facelings</a> sont les seules entités régulièrement observées — ils errent dans les rues le soir, regardent par les fenêtres, mais n'attaquent généralement pas si on les ignore. Des <span class="glitch-word">silhouettes</span> ont été aperçues derrière les stores des maisons — leur nature reste <span class="glitch-word">inconnue</span>.</p>
+
+    <h2 data-text="Entrées & Sorties">Entrées &amp; Sorties</h2>
+    <div class="access-grid">
+      <div class="access-col">
+        <h3>▸ ENTRER</h3>
+        <ul>
+          <li>Noclip depuis un réverbère allumé du <a href="niveau-6.html">Niveau 6</a>.</li>
+          <li>Portes de maisons dans certains niveaux résidentiels.</li>
+          <li>Noclip depuis le <a href="niveau-0.html">Niveau 0</a> en regardant un coin sombre.</li>
+        </ul>
+      </div>
+      <div class="access-col">
+        <h3>▸ SORTIR</h3>
+        <ul>
+          <li>Sous-sol d'une maison → niveau aléatoire.</li>
+          <li>Noclip depuis une fenêtre ouverte → <a href="niveau-0.html">Niveau 0</a>.</li>
+          <li>Garage du bout de la rue → <a href="niveau-1.html">Niveau 1</a>.</li>
+          <li class="creepy-exit">Pourquoi voudriez-vous partir ?</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+</body>
+</html>

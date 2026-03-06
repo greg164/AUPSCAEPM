@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Niveau Fun =) | The Backrooms</title>
+    <link rel="stylesheet" href="../shared.css"/>
+    <style>
+
+      /* ══════════════════════════════════════════════════
+         VARIABLES
+      ══════════════════════════════════════════════════ */
+      :root {
+        --p:  #ff69b4;
+        --c:  #00e5ff;
+        --y:  #ffe600;
+        --g:  #39ff14;
+        --r:  #ff2222;
+        --pu: #cc44ff;
+        --o:  #ff8800;
+      }
+
+      /* ══════════════════════════════════════════════════
+         PERFORMANCE : toutes les anims sur couches GPU
+         → uniquement transform / opacity dans les keyframes
+         → filter cantonné à des divs dédiées isolées
+         → will-change déclaré là où c'est utile
+      ══════════════════════════════════════════════════ */
+
+      /* Fond de base statique — pas d'animation ici */
+      html {
+        min-height: 100%;
+        background: #0a0010;
+      }
+
+      body {
+        background: transparent !important;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* ── Couche 1 : blobs GPU  ─────────────────────
+         On anime UNIQUEMENT opacity + transform (translateZ GPU).
+         Pas de filter ici = pas de recomposition du DOM entier.
+      ───────────────────────────────────────────────── */
+      .bg-layer {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        will-change: opacity;
+        background:
+          radial-gradient(ellipse at 15% 25%, rgba(255,105,180,0.55) 0%, transparent 42%),
+          radial-gradient(ellipse at 85% 15%, rgba(0,229,255,0.50)   0%, transparent 42%),
+          radial-gradient(ellipse at 50% 88%, rgba(57,255,20,0.45)   0%, transparent 48%),
+          radial-gradient(ellipse at 6%  72%, rgba(204,68,255,0.50)  0%, transparent 42%),
+          radial-gradient(ellipse at 94% 62%, rgba(255,230,0,0.50)   0%, transparent 42%),
+          radial-gradient(ellipse at 55% 4%,  rgba(255,34,34,0.45)   0%, transparent 38%),
+          radial-gradient(ellipse at 30% 52%, rgba(255,136,0,0.40)   0%, transparent 38%);
+        animation: blobs-fade 5s ease-in-out infinite alternate;
+      }
+      @keyframes blobs-fade {
+        /* translate seulement = une seule couche composite */
+        0%   { transform: translate3d(0,0,0);    opacity: 0.85; }
+        50%  { transform: translate3d(8px,6px,0); opacity: 1; }
+        100% { transform: translate3d(-6px,4px,0); opacity: 0.9; }
+      }
+
+      /* ── Couche 2 : overlay hue — div isolée avec filter ──
+         filter sur une div unique = 1 seule couche recomposée,
+         pas tout le DOM.
+      ───────────────────────────────────────────────── */
+      .hue-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background: inherit;
+        will-change: filter;
+        animation: hue-cycle 9s linear infinite;
+        mix-blend-mode: hue;
+        opacity: 0.6;
+      }
+      @keyframes hue-cycle {
+        0%   { filter: hue-rotate(0deg); }
+        100% { filter: hue-rotate(360deg); }
+      }
+
+      /* ── Couche 3 : vignette statique (pas d'animation) ── */
+      .vignette {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background: radial-gradient(
+          ellipse at 50% 40%,
+          rgba(0,0,0,0.6) 0%,
+          rgba(0,0,0,0.2) 55%,
+          transparent 100%
+        );
+      }
+
+      /* ══════════════════════════════════════════════════
+         CONFETTIS — 16 pièces (réduit de 30), GPU only
+         transform: translateY uniquement dans @keyframes
+      ══════════════════════════════════════════════════ */
+      .confetti-wrap {
+        position: fixed; inset: 0;
+        pointer-events: none; overflow: hidden; z-index: 1;
+      }
+      .c {
+        position: absolute; top: -20px;
+        opacity: 0; border-radius: 2px;
+        will-change: transform, opacity;
+        animation: fall linear infinite;
+      }
+      @keyframes fall {
+        /* translateX dans un seul axe à la fois = GPU trivial */
+        0%   { transform: translateY(0)     rotate(0deg);   opacity: 0.9; }
+        100% { transform: translateY(115vh) rotate(720deg); opacity: 0; }
+      }
+      .c:nth-child(1)  { left:3%;   width:7px;  height:11px; background:var(--p);  animation-duration:5.0s; animation-delay:0s;    }
+      .c:nth-child(2)  { left:9%;   width:9px;  height:6px;  background:var(--c);  animation-duration:6.4s; animation-delay:0.4s;  }
+      .c:nth-child(3)  { left:17%;  width:6px;  height:13px; background:var(--y);  animation-duration:5.3s; animation-delay:1.1s;  }
+      .c:nth-child(4)  { left:25%;  width:8px;  height:8px;  background:var(--g);  border-radius:50%; animation-duration:7.1s; animation-delay:0.6s;}
+      .c:nth-child(5)  { left:34%;  width:5px;  height:10px; background:var(--pu); animation-duration:5.8s; animation-delay:1.8s;  }
+      .c:nth-child(6)  { left:43%;  width:10px; height:7px;  background:var(--p);  animation-duration:4.4s; animation-delay:0.9s;  }
+      .c:nth-child(7)  { left:52%;  width:7px;  height:12px; background:var(--o);  animation-duration:6.9s; animation-delay:2.2s;  }
+      .c:nth-child(8)  { left:61%;  width:9px;  height:9px;  background:var(--c);  border-radius:50%; animation-duration:6.0s; animation-delay:0.2s;}
+      .c:nth-child(9)  { left:69%;  width:6px;  height:11px; background:var(--y);  animation-duration:4.7s; animation-delay:1.5s;  }
+      .c:nth-child(10) { left:77%;  width:10px; height:5px;  background:var(--r);  animation-duration:6.6s; animation-delay:0.7s;  }
+      .c:nth-child(11) { left:85%;  width:7px;  height:13px; background:var(--g);  animation-duration:5.4s; animation-delay:2.0s;  }
+      .c:nth-child(12) { left:91%;  width:8px;  height:8px;  background:var(--pu); border-radius:50%; animation-duration:7.3s; animation-delay:2.5s;}
+      .c:nth-child(13) { left:13%;  width:5px;  height:9px;  background:var(--p);  animation-duration:5.1s; animation-delay:3.0s;  }
+      .c:nth-child(14) { left:48%;  width:11px; height:6px;  background:var(--y);  animation-duration:6.2s; animation-delay:1.3s;  }
+      .c:nth-child(15) { left:72%;  width:7px;  height:11px; background:var(--o);  animation-duration:5.6s; animation-delay:0.3s;  }
+      .c:nth-child(16) { left:96%;  width:9px;  height:10px; background:var(--r);  animation-duration:4.3s; animation-delay:1.7s;  }
+
+      /* ══════════════════════════════════════════════════
+         SMILEYS FLOTTANTS — 4 seulement, opacity/transform
+      ══════════════════════════════════════════════════ */
+      .fs {
+        position: fixed; font-family:"VCR OSD MONO",monospace; font-size:13px;
+        pointer-events:none; z-index:1; opacity:0; will-change:transform,opacity;
+        animation: float-s linear infinite;
+      }
+      @keyframes float-s {
+        0%   { opacity:0;    transform:translateY(0)    rotate(0deg); }
+        15%  { opacity:0.28; }
+        85%  { opacity:0.12; }
+        100% { opacity:0;    transform:translateY(-80px) rotate(340deg); }
+      }
+      .fs:nth-child(1){ left:4%;   top:38%; color:var(--p);  animation-duration:8s;  animation-delay:0s; }
+      .fs:nth-child(2){ left:92%;  top:52%; color:var(--c);  animation-duration:10s; animation-delay:2s; }
+      .fs:nth-child(3){ left:48%;  top:74%; color:var(--y);  animation-duration:7s;  animation-delay:1s; }
+      .fs:nth-child(4){ left:79%;  top:18%; color:var(--pu); animation-duration:9s;  animation-delay:3s; }
+
+      /* ══════════════════════════════════════════════════
+         NAVBAR
+      ══════════════════════════════════════════════════ */
+      .navbar {
+        position: relative; z-index: 100;
+        background: rgba(3,2,0,0.9) !important;
+        border-bottom: 2px solid transparent !important;
+        will-change: border-color;
+        animation: nav-border 3s linear infinite !important;
+        backdrop-filter: blur(6px);
+      }
+      @keyframes nav-border {
+        0%   { border-bottom-color:var(--p); }
+        20%  { border-bottom-color:var(--c); }
+        40%  { border-bottom-color:var(--y); }
+        60%  { border-bottom-color:var(--g); }
+        80%  { border-bottom-color:var(--pu);}
+        100% { border-bottom-color:var(--p); }
+      }
+      .navbar a:hover {
+        animation: link-colors 0.8s linear infinite !important;
+      }
+      @keyframes link-colors {
+        0%  { color:var(--p); } 25% { color:var(--c); }
+        50% { color:var(--y); } 75% { color:var(--g); }
+        100%{ color:var(--p); }
+      }
+
+      /* ══════════════════════════════════════════════════
+         SECTION — fond semi-transparent, bordure animée
+      ══════════════════════════════════════════════════ */
+      .entity {
+        position: relative; z-index: 2;
+        background: rgba(3,2,0,0.83) !important;
+        border: 1px solid rgba(255,230,0,0.15) !important;
+        backdrop-filter: blur(5px);
+        will-change: border-color, box-shadow;
+        animation: section-glow 5s linear infinite !important;
+      }
+      @keyframes section-glow {
+        0%  { border-color:rgba(255,105,180,0.3)!important; box-shadow:0 0 40px rgba(255,105,180,0.06); }
+        25% { border-color:rgba(0,229,255,0.3)  !important; box-shadow:0 0 40px rgba(0,229,255,0.07); }
+        50% { border-color:rgba(57,255,20,0.3)  !important; box-shadow:0 0 40px rgba(57,255,20,0.06); }
+        75% { border-color:rgba(204,68,255,0.3) !important; box-shadow:0 0 40px rgba(204,68,255,0.07); }
+        100%{ border-color:rgba(255,105,180,0.3)!important; }
+      }
+
+      /* ══════════════════════════════════════════════════
+         TITRE GLITCH — clip-path GPU, pas de filter
+      ══════════════════════════════════════════════════ */
+      .fun-title {
+        font-family:"VCR OSD MONO",monospace;
+        font-size: clamp(44px,9vw,80px);
+        text-align:center; letter-spacing:10px; margin:0 0 6px 0;
+        text-transform:uppercase; line-height:1.1; position:relative;
+      }
+      /* Glitch via pseudo-éléments décalés (GPU, pas de reflow) */
+      .fun-title::before,
+      .fun-title::after {
+        content: attr(data-text);
+        position:absolute; inset:0;
+        text-align:center; letter-spacing:10px;
+        font-size: clamp(44px,9vw,80px);
+        pointer-events:none;
+        will-change: transform, clip-path, opacity;
+      }
+      .fun-title::before {
+        color: var(--c);
+        animation: glitch-a 4s steps(1) infinite;
+        opacity: 0;
+      }
+      .fun-title::after {
+        color: var(--p);
+        animation: glitch-b 4s steps(1) infinite;
+        opacity: 0;
+      }
+      @keyframes glitch-a {
+        0%,87%,100% { opacity:0; transform:translate(0,0); clip-path:none; }
+        88% { opacity:0.8; transform:translate(-4px,2px);  clip-path:inset(15% 0 55% 0); }
+        89% { opacity:0.6; transform:translate(3px,-1px);  clip-path:inset(60% 0 10% 0); }
+        90% { opacity:0; }
+        93% { opacity:0.5; transform:translate(-2px,0);    clip-path:inset(30% 0 40% 0); }
+        94% { opacity:0; }
+      }
+      @keyframes glitch-b {
+        0%,87%,100% { opacity:0; transform:translate(0,0); clip-path:none; }
+        88% { opacity:0.7; transform:translate(4px,-2px);  clip-path:inset(55% 0 15% 0); }
+        89% { opacity:0.5; transform:translate(-3px,1px);  clip-path:inset(10% 0 65% 0); }
+        90% { opacity:0; }
+        94% { opacity:0.4; transform:translate(2px,0);     clip-path:inset(45% 0 25% 0); }
+        95% { opacity:0; }
+      }
+
+      .fun-title span:nth-child(1)  { color:var(--y);  text-shadow:0 0 20px var(--y), 0 0 50px rgba(255,230,0,0.4); }
+      .fun-title span:nth-child(2)  { color:var(--p);  text-shadow:0 0 20px var(--p), 0 0 50px rgba(255,105,180,0.4); }
+      .fun-title span:nth-child(3)  { color:var(--c);  text-shadow:0 0 20px var(--c), 0 0 50px rgba(0,229,255,0.4); }
+      .fun-title span:nth-child(4)  { color:var(--g);  text-shadow:0 0 20px var(--g), 0 0 50px rgba(57,255,20,0.4); }
+      .fun-title span:nth-child(5)  { color:var(--pu); text-shadow:0 0 20px var(--pu),0 0 50px rgba(204,68,255,0.4); }
+      .fun-title span:nth-child(6)  { color:var(--o);  text-shadow:0 0 20px var(--o), 0 0 50px rgba(255,136,0,0.4); }
+      .fun-title span:nth-child(7)  { color:var(--c);  text-shadow:0 0 20px var(--c); }
+      .fun-title span:nth-child(8)  { color:var(--y);  text-shadow:0 0 20px var(--y); }
+      .fun-title span:nth-child(9)  { color:var(--p);  text-shadow:0 0 20px var(--p); }
+
+      /* ══════════════════════════════════════════════════
+         SMILEYS ROW
+      ══════════════════════════════════════════════════ */
+      .smiley-row {
+        text-align:center; font-family:"VCR OSD MONO",monospace;
+        font-size:20px; letter-spacing:16px; margin-bottom:24px;
+      }
+      .smiley-row span {
+        display:inline-block; will-change:transform,opacity;
+        animation: smiley-pop 2s infinite;
+      }
+      .smiley-row span:nth-child(1){animation-delay:0s;   --sc:var(--y);}
+      .smiley-row span:nth-child(2){animation-delay:0.4s; --sc:var(--p);}
+      .smiley-row span:nth-child(3){animation-delay:0.8s; --sc:var(--c);}
+      .smiley-row span:nth-child(4){animation-delay:1.2s; --sc:var(--g);}
+      .smiley-row span:nth-child(5){animation-delay:1.6s; --sc:var(--pu);}
+      @keyframes smiley-pop {
+        0%,60%,100%{ color:#1a1a00; transform:scale(1) rotate(0deg); }
+        70% { color:var(--sc); text-shadow:0 0 14px var(--sc); transform:scale(1.5) rotate(-10deg); }
+        80% { transform:scale(1.2) rotate(8deg); }
+        90% { transform:scale(1.4) rotate(-4deg); }
+      }
+
+      /* ══════════════════════════════════════════════════
+         INFO BAR
+      ══════════════════════════════════════════════════ */
+      .fun-info-bar {
+        display:flex; justify-content:space-around; flex-wrap:wrap; gap:10px;
+        font-size:12px; letter-spacing:2px; color:#999; text-align:center;
+        padding:14px 10px; background:rgba(8,6,0,0.7); margin-bottom:30px;
+        border:1px solid transparent; will-change:border-color;
+        animation:bar-rainbow 3s linear infinite;
+      }
+      @keyframes bar-rainbow {
+        0%  {border-color:var(--p); box-shadow:0 0 12px rgba(255,105,180,0.22);}
+        25% {border-color:var(--c); box-shadow:0 0 12px rgba(0,229,255,0.22);}
+        50% {border-color:var(--y); box-shadow:0 0 12px rgba(255,230,0,0.22);}
+        75% {border-color:var(--g); box-shadow:0 0 12px rgba(57,255,20,0.22);}
+        100%{border-color:var(--p); box-shadow:0 0 12px rgba(255,105,180,0.22);}
+      }
+      .fun-tag { color:var(--y); animation:tag-pulse 2s ease-in-out infinite; }
+      .danger-tag { color:var(--r); }
+      @keyframes tag-pulse {
+        0%,100%{text-shadow:0 0 6px rgba(255,230,0,0.5);}
+        50%    {text-shadow:0 0 20px rgba(255,230,0,1),0 0 40px rgba(255,200,0,0.4);}
+      }
+
+      /* ══════════════════════════════════════════════════
+         TITRES H2
+      ══════════════════════════════════════════════════ */
+      .fun-h2 {
+        font-family:"VCR OSD MONO",monospace; font-size:26px; letter-spacing:4px;
+        text-transform:uppercase; margin:36px 0 14px 0; border-bottom:1px solid;
+        padding-bottom:6px; transition:letter-spacing 0.3s;
+      }
+      .fun-h2:hover { letter-spacing:8px; }
+      .fun-h2.c1{color:var(--y); border-color:rgba(255,230,0,0.3);   text-shadow:0 0 14px rgba(255,230,0,0.5);}
+      .fun-h2.c2{color:var(--p); border-color:rgba(255,105,180,0.3); text-shadow:0 0 14px rgba(255,105,180,0.5);}
+      .fun-h2.c3{color:var(--c); border-color:rgba(0,229,255,0.3);   text-shadow:0 0 14px rgba(0,229,255,0.5);}
+      .fun-h2.c4{color:var(--g); border-color:rgba(57,255,20,0.3);   text-shadow:0 0 14px rgba(57,255,20,0.5);}
+      .fun-h2.c5{color:var(--r); border-color:rgba(255,34,34,0.3);   text-shadow:0 0 14px rgba(255,34,34,0.5);}
+
+      /* ══════════════════════════════════════════════════
+         MESSAGE PARTYGOERS
+      ══════════════════════════════════════════════════ */
+      .partygoer-msg {
+        background:rgba(10,8,0,0.78); border:1px solid rgba(255,230,0,0.4);
+        border-left:5px solid var(--y); padding:20px 28px; margin:24px 0;
+        font-size:14px; line-height:2.2; color:var(--y);
+        font-family:"VCR OSD MONO",monospace; letter-spacing:1px;
+        position:relative; overflow:hidden;
+        box-shadow:0 0 22px rgba(255,230,0,0.1), inset 0 0 20px rgba(255,230,0,0.03);
+      }
+      /* Reflet — transform seulement */
+      .partygoer-msg::before {
+        content:''; position:absolute; top:0; left:-120%; width:80%; height:100%;
+        background:linear-gradient(90deg,transparent,rgba(255,230,0,0.09),rgba(255,105,180,0.06),transparent);
+        animation:shine 3.5s ease-in-out infinite; pointer-events:none;
+        will-change:transform;
+      }
+      @keyframes shine{0%{transform:translateX(0);}100%{transform:translateX(370%);}}
+
+      /* Ghost smileys en fond */
+      .partygoer-msg::after {
+        content:'=) =) =) =) =) =) =) =) =) =) =) =)';
+        position:absolute; bottom:4px; right:10px; font-size:13px; letter-spacing:4px;
+        color:rgba(255,230,0,0.07); pointer-events:none;
+        animation:ghost 5s ease-in-out infinite; will-change:opacity,transform;
+      }
+      @keyframes ghost{0%,100%{opacity:0.5;transform:translateX(0);}50%{opacity:0.1;transform:translateX(-18px);}}
+
+      .partygoer-msg .msg-header {
+        font-size:11px; color:rgba(255,230,0,0.32); letter-spacing:4px;
+        text-transform:uppercase; margin-bottom:12px;
+      }
+      .hidden-line {
+        color:rgba(255,230,0,0.07); font-size:13px; display:block; cursor:default;
+        transition:color 0.4s, text-shadow 0.4s;
+      }
+      .hidden-line:hover{color:var(--r)!important;text-shadow:0 0 12px var(--r);}
+
+      /* ══════════════════════════════════════════════════
+         IMAGE
+      ══════════════════════════════════════════════════ */
+      .full-img {
+        width:100%; max-height:300px; object-fit:cover; object-position:center;
+        filter:brightness(0.9) saturate(1.1) contrast(1.05);
+        border:2px solid transparent; display:block; margin-bottom:28px;
+        will-change:border-color, box-shadow;
+        animation:img-border 4s linear infinite; transition:filter 0.5s;
+      }
+      .full-img:hover{filter:brightness(1.05) saturate(1.3) contrast(1.1);}
+      @keyframes img-border{
+        0%  {border-color:var(--p);box-shadow:0 0 16px rgba(255,105,180,0.3);}
+        25% {border-color:var(--c);box-shadow:0 0 16px rgba(0,229,255,0.3);}
+        50% {border-color:var(--y);box-shadow:0 0 16px rgba(255,230,0,0.3);}
+        75% {border-color:var(--g);box-shadow:0 0 16px rgba(57,255,20,0.3);}
+        100%{border-color:var(--p);box-shadow:0 0 16px rgba(255,105,180,0.3);}
+      }
+
+      /* ══════════════════════════════════════════════════
+         ZONE GRID
+      ══════════════════════════════════════════════════ */
+      .zone-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(255,255,255,0.06);margin:14px 0 24px;}
+      .zone-card{padding:20px 24px;border-right:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);transition:background 0.4s,box-shadow 0.4s;}
+      .zone-card:nth-child(2n){border-right:none;}
+      .zone-card:nth-last-child(-n+2){border-bottom:none;}
+      .zone-card h3{font-size:14px;letter-spacing:3px;margin-bottom:10px;transition:letter-spacing 0.2s;}
+      .zone-card:hover h3{letter-spacing:5px;}
+      .zone-card p{font-size:13px;line-height:1.75;margin:0;}
+      .z1 h3{color:var(--y);}  .z2 h3{color:var(--p);}
+      .z3 h3{color:var(--c);}  .z4 h3{color:var(--r);}
+      .z1:hover{background:rgba(255,230,0,0.06);  box-shadow:inset 0 0 28px rgba(255,230,0,0.06);}
+      .z2:hover{background:rgba(255,105,180,0.06);box-shadow:inset 0 0 28px rgba(255,105,180,0.07);}
+      .z3:hover{background:rgba(0,229,255,0.06);  box-shadow:inset 0 0 28px rgba(0,229,255,0.06);}
+      .z4:hover{background:rgba(255,34,34,0.08);  box-shadow:inset 0 0 28px rgba(255,34,34,0.1);}
+
+      /* ══════════════════════════════════════════════════
+         STADES D'INFECTION
+         + GLITCH PROGRESSIF : plus intense vers stade 4
+      ══════════════════════════════════════════════════ */
+      .stage-list{border:1px solid rgba(255,255,255,0.06);margin:14px 0 24px;}
+      .stage{display:flex;border-bottom:1px solid rgba(255,255,255,0.06);transition:background 0.3s;position:relative;}
+      .stage:last-child{border-bottom:none;}
+      .stage:nth-child(1):hover{background:rgba(57,255,20,0.04);}
+      .stage:nth-child(2):hover{background:rgba(255,230,0,0.04);}
+      .stage:nth-child(3):hover{background:rgba(255,136,0,0.05);}
+      .stage:nth-child(4):hover{background:rgba(255,34,34,0.08);}
+
+      .stage-num{
+        font-family:"VCR OSD MONO",monospace;font-size:22px;font-weight:bold;
+        padding:16px 20px;min-width:64px;
+        border-right:1px solid rgba(255,255,255,0.06);
+        display:flex;align-items:center;justify-content:center;
+        transition:transform 0.3s;
+      }
+      .stage:hover .stage-num{transform:scale(1.2);}
+      .stage-content{padding:14px 20px;font-size:13px;line-height:1.8;}
+      .stage-content strong{color:#ddd;}
+
+      .stage:nth-child(1) .stage-num{color:var(--g);}
+      .stage:nth-child(2) .stage-num{color:var(--y);}
+      .stage:nth-child(3) .stage-num{color:var(--o);}
+      .stage:nth-child(4) .stage-num{color:var(--r);animation:s4-pulse 1.2s ease-in-out infinite;}
+      @keyframes s4-pulse{
+        0%,100%{text-shadow:0 0 8px var(--r);}
+        50%    {text-shadow:0 0 26px var(--r),0 0 50px rgba(255,34,34,0.5);}
+      }
+
+      /* Glitch LÉGER stade 2 */
+      .stage:nth-child(2) .stage-content{
+        animation:text-glitch-s2 8s steps(1) infinite;
+        will-change:transform;
+      }
+      @keyframes text-glitch-s2{
+        0%,94%,100%{transform:translate(0);}
+        95%{transform:translate(-2px,0);}
+        96%{transform:translate(1px,0);}
+        97%{transform:translate(0);}
+      }
+
+      /* Glitch MOYEN stade 3 */
+      .stage:nth-child(3) .stage-content{
+        position:relative;
+        animation:text-glitch-s3 5s steps(1) infinite;
+        will-change:transform,opacity;
+      }
+      @keyframes text-glitch-s3{
+        0%,88%,100%{transform:translate(0);opacity:1;}
+        89%{transform:translate(-3px,1px);opacity:0.85;}
+        90%{transform:translate(3px,-1px);opacity:1;}
+        91%{transform:translate(0);opacity:0.9;}
+        93%{transform:translate(-1px,0);opacity:1;}
+      }
+
+      /* Glitch INTENSE stade 4 */
+      .stage:nth-child(4){overflow:hidden;}
+      .stage:nth-child(4) .stage-content{
+        animation:text-glitch-s4 3s steps(1) infinite;
+        will-change:transform,filter;
+      }
+      @keyframes text-glitch-s4{
+        0%,78%,100%{transform:translate(0,0) skew(0deg);filter:none;opacity:1;}
+        79%{transform:translate(-5px,2px) skew(-1.5deg);filter:hue-rotate(90deg) brightness(1.5);opacity:0.9;clip-path:inset(20% 0 40% 0);}
+        80%{transform:translate(5px,-2px) skew(1.5deg); filter:hue-rotate(-90deg);clip-path:inset(60% 0 5% 0);}
+        81%{transform:translate(0,0);filter:none;clip-path:none;opacity:1;}
+        83%{transform:translate(-3px,0);filter:hue-rotate(180deg)brightness(1.3);}
+        84%{transform:translate(3px,0); filter:none;}
+        86%{transform:translate(-2px,1px)scaleX(1.02);filter:saturate(3);}
+        87%{transform:translate(0,0)    scaleX(1);    filter:none;}
+      }
+      .stage:nth-child(4) .stage-content em{
+        color:var(--r);
+        animation:em-shake 2.5s steps(1) infinite;
+        will-change:transform;
+      }
+      @keyframes em-shake{
+        0%,85%,100%{transform:translate(0);}
+        86%{transform:translate(-2px,0);}
+        87%{transform:translate(2px,0);}
+        88%{transform:translate(0);}
+      }
+
+      /* ══════════════════════════════════════════════════
+         ACCÈS GRID
+         + Glitch sur la colonne "sortir"
+      ══════════════════════════════════════════════════ */
+      .access-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(255,255,255,0.06);margin:14px 0;}
+      .access-col{padding:20px 24px;transition:background 0.3s;}
+      .access-col:first-child{border-right:1px solid rgba(255,255,255,0.06);}
+      .access-col:first-child:hover{background:rgba(57,255,20,0.04);}
+      .access-col:last-child{
+        animation:col-glitch 6s steps(1) infinite;
+        will-change:transform;
+      }
+      @keyframes col-glitch{
+        0%,90%,100%{transform:translate(0);filter:none;}
+        91%{transform:translate(-3px,0);filter:hue-rotate(90deg)brightness(1.3);}
+        92%{transform:translate(3px,0); filter:none;}
+        94%{transform:translate(-1px,0);filter:hue-rotate(180deg);}
+        95%{transform:translate(0);     filter:none;}
+      }
+      .access-col:last-child:hover{background:rgba(255,34,34,0.04);}
+      .access-col h3{font-size:15px;letter-spacing:3px;margin-bottom:14px;}
+      .access-col:first-child h3{color:var(--g);}
+      .access-col:last-child h3 {color:var(--r);}
+      .access-col li{font-size:13px;line-height:1.8;}
+      .creepy-li{
+        color:rgba(255,50,50,0.07)!important;list-style:none;cursor:default;
+        transition:color 0.4s,text-shadow 0.4s,transform 0.3s!important;
+      }
+      .creepy-li:hover{color:var(--r)!important;text-shadow:0 0 12px var(--r)!important;transform:translateX(8px)!important;}
+
+      /* ══════════════════════════════════════════════════
+         ALERTE SFV — glitch maximum
+      ══════════════════════════════════════════════════ */
+      .sfv-warning{
+        background:rgba(255,34,34,0.07);border:1px solid rgba(255,34,34,0.4);
+        border-left:5px solid var(--r);padding:18px 24px;
+        display:flex;gap:16px;align-items:flex-start;margin:24px 0 0 0;
+        box-shadow:0 0 20px rgba(255,34,34,0.12);
+        position:relative;overflow:hidden;
+        animation:sfv-glitch 3.5s steps(1) infinite;
+        will-change:transform,filter;
+      }
+      @keyframes sfv-glitch{
+        0%,76%,100%{transform:translate(0);filter:none;border-left-color:var(--r);}
+        77%{transform:translate(-4px,0) skew(-0.5deg);filter:hue-rotate(90deg)brightness(1.4);border-left-color:var(--y);}
+        78%{transform:translate(4px,0)  skew(0.5deg); filter:none;border-left-color:var(--p);}
+        79%{transform:translate(0);     filter:none;border-left-color:var(--r);}
+        82%{transform:translate(-2px,1px);filter:hue-rotate(180deg);}
+        83%{transform:translate(2px,-1px);filter:none;}
+        85%{transform:translate(0,0) scaleX(1.01);filter:saturate(2)hue-rotate(45deg);}
+        86%{transform:translate(0,0) scaleX(1);   filter:none;}
+      }
+      /* Scanline glitch qui passe sur l'alerte */
+      .sfv-warning::before{
+        content:'';position:absolute;
+        left:0;right:0;top:-10px;height:3px;
+        background:rgba(255,230,0,0.4);
+        animation:scanline 3.5s linear infinite;
+        will-change:transform;
+        pointer-events:none;
+      }
+      @keyframes scanline{
+        0%  {transform:translateY(0);}
+        100%{transform:translateY(80px);}
+      }
+      .sfv-warning .icon{
+        font-size:24px;flex-shrink:0;
+        animation:icon-creep 5s ease-in-out infinite;
+        will-change:transform;
+      }
+      @keyframes icon-creep{
+        0%,68%,100%{transform:rotate(0deg)scale(1);}
+        72%{transform:rotate(25deg) scale(1.25);}
+        76%{transform:rotate(-20deg)scale(0.85);}
+        80%{transform:rotate(0deg) scale(1);}
+      }
+      .sfv-warning p{
+        font-family:"VCR OSD MONO",monospace;font-size:13px;
+        letter-spacing:1px;line-height:1.9;color:#ff6644;margin:0;
+        animation:sfv-text-glitch 3.5s steps(1) infinite;
+        will-change:transform,clip-path;
+      }
+      @keyframes sfv-text-glitch{
+        0%,76%,100%{transform:translate(0);clip-path:none;color:#ff6644;}
+        77%{transform:translate(3px,0); clip-path:inset(0 0 60% 0);color:var(--y);}
+        78%{transform:translate(-3px,0);clip-path:inset(65% 0 0 0);color:#ff6644;}
+        79%{transform:translate(0);     clip-path:none;}
+        84%{transform:translate(-2px,0);}
+        85%{transform:translate(0);}
+      }
+      .sfv-smiley{
+        color:rgba(255,230,0,0.08);transition:color 0.3s,text-shadow 0.3s;cursor:default;
+      }
+      .sfv-smiley:hover{color:var(--y);text-shadow:0 0 16px var(--y);}
+
+    </style>
+  </head>
+  <body>
+
+    <!-- Couches de fond séparées = perf maximale -->
+    <div class="bg-layer"></div>
+    <div class="hue-overlay"></div>
+    <div class="vignette"></div>
+
+    <!-- 16 confettis -->
+    <div class="confetti-wrap">
+      <div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div>
+      <div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div>
+      <div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div>
+      <div class="c"></div><div class="c"></div><div class="c"></div><div class="c"></div>
+    </div>
+
+    <!-- 4 smileys flottants -->
+    <div class="fs">=)</div>
+    <div class="fs">=)</div>
+    <div class="fs">=)</div>
+    <div class="fs">=)</div>
+
+    <nav class="navbar">
+      <a href="../index0.html">Accueil</a>
+      <a href="../niveaux.html" class="nav-active">Niveaux</a>
+      <a href="../entites.html">Entités</a>
+      <a href="../objets.html">Objets</a>
+    </nav>
+
+    <section class="entity">
+
+      <!-- data-text pour le glitch pseudo-élément -->
+      <div class="fun-title" data-text="NIVEAU FUN">
+        <span>N</span><span>I</span><span>V</span><span>E</span><span>A</span><span>U</span>
+        &nbsp;
+        <span>F</span><span>U</span><span>N</span>
+      </div>
+
+      <div class="smiley-row">
+        <span>=)</span><span>=)</span><span>=)</span><span>=)</span><span>=)</span>
+      </div>
+
+      <hr class="sep">
+
+      <div class="fun-info-bar">
+        <span>CLASSE : <span class="fun-tag">CLASSE 4 ⚠</span></span>
+        <span>VIRUS : <span class="danger-tag">SANGUINE FESTIVUS</span></span>
+        <span>ENTITÉS : <span class="danger-tag">PARTYGOERS — HOSTILES</span></span>
+      </div>
+
+      <div class="partygoer-msg">
+        <div class="msg-header">◈ Message intercepté — Source inconnue — Non daté =)</div>
+        Petite salle de fête. Beaucoup de gâteau, de cookies et d'eau d'amande.<br>
+        On s'amuse tellement ici ! =)<br>
+        Ne contrariez pas l'hôte. =)<br>
+        <span class="hidden-line">Pourquoi voudriez-vous partir ? =)</span>
+      </div>
+
+      <img class="full-img"
+           src="https://i.redd.it/hraifhfyzkea1.jpg"
+           alt="Niveau Fun — Château gonflable"
+           onerror="this.style.display='none'">
+
+      <h2 class="fun-h2 c1">Description</h2>
+      <p>Le <strong>Niveau Fun</strong> est un ensemble de lieux distincts et connectés, tous vecteurs du <em>virus Sanguine Festivus</em>. Il se présente d'abord comme un immense entrepôt contenant un nombre incalculable de <em>châteaux gonflables colorés</em>. Les seuls murs visibles sont ceux de l'entrée — le reste de l'intérieur est entièrement obscurci par les gonflables, dont les plus grands atteignent presque les poutres métalliques au plafond.</p>
+      <p>Si l'on perd de vue l'entrée, même brièvement, les portes et les murs disparaissent — remplacés par une série infinie de gonflables. Des câbles électriques couvrent la moquette rétro comme des serpents, alimentant chaque structure en énergie.</p>
+
+      <h2 class="fun-h2 c2">Zones du niveau</h2>
+      <div class="zone-grid">
+        <div class="zone-card z1">
+          <h3>Zone 1 — L'Entrepôt</h3>
+          <p>La zone d'entrée. Châteaux gonflables colorés à perte de vue. Aucune trace du virus confirmée ici. Considérée comme <em>relativement sûre</em>. Ne jamais perdre l'entrée de vue.</p>
+        </div>
+        <div class="zone-card z2">
+          <h3>Zone 2 — Les Intérieurs</h3>
+          <p>Couloirs <em>non éclairés et oppressants</em>. Le sol en caoutchouc mince s'affaisse — les vagabonds peuvent être <strong>engloutis jusqu'à la taille</strong> s'ils s'arrêtent.</p>
+        </div>
+        <div class="zone-card z3">
+          <h3>Zone 3 — Le Toboggan</h3>
+          <p>Large toboggan menant à <em>La Salle des Jeux</em>. Brûlures par friction mineures. C'est le seul moyen d'accéder à la suite du niveau.</p>
+        </div>
+        <div class="zone-card z4">
+          <h3>Zone 4 — La Salle des Jeux</h3>
+          <p>Zone la plus dangereuse. <em>Forte concentration de virus SFV.</em> Les Partygoers y résident en nombre. Quitter sans infection relève du <strong>miracle</strong>.</p>
+        </div>
+      </div>
+
+      <h2 class="fun-h2 c3">Le Virus Sanguine Festivus</h2>
+      <p>Le <strong>Sanguine Festivus</strong> — littéralement <em>« Fête du Sang »</em> — est un pathogène viral anomal omniprésent dans le Niveau Fun. À l'échelle microscopique, il se présente sous des <em>formations fractales en spirale</em> s'enroulant indéfiniment. Il se transmet via les fluides corporels d'un individu infecté pénétrant dans le sang.</p>
+
+      <h2 class="fun-h2 c2">Stades d'infection</h2>
+      <div class="stage-list">
+        <div class="stage">
+          <div class="stage-num">1</div>
+          <div class="stage-content">
+            <strong>Symptômes initiaux (0–12h)</strong> — Crampes musculaires, étourdissements, frissons, douleurs. Facile à confondre avec un rhume. Toujours vérifier après une visite au Niveau Fun.
+          </div>
+        </div>
+        <div class="stage">
+          <div class="stage-num">2</div>
+          <div class="stage-content">
+            <strong>Dégradation (12–48h)</strong> — Le virus atteint le foie. Douleurs dans les avant-bras et la mâchoire, décoloration de la peau et des veines, croissance osseuse anormale dans les mains. La personne commence à perdre le contrôle de ses impulsions.
+          </div>
+        </div>
+        <div class="stage">
+          <div class="stage-num">3</div>
+          <div class="stage-content">
+            <strong>Euphorie pathologique</strong> — Manipulation hormonale. La victime ressent une <em>joie maniaque et incontrôlable</em>. Elle cherche activement à infecter d'autres personnes. Les rires frénétiques deviennent audibles à plusieurs mètres.
+          </div>
+        </div>
+        <div class="stage">
+          <div class="stage-num">4</div>
+          <div class="stage-content">
+            <strong>Stade final — Partygoer</strong> — Destruction totale des facultés cognitives. La victime n'est plus qu'une enveloppe. Elle se couvre d'un drap tâché de sang formant un sourire sur son visage. Dépend des sons pour se repérer.
+            <em>Aucune guérison possible à ce stade.</em>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="fun-h2 c4">Entrées &amp; Sorties</h2>
+      <div class="access-grid">
+        <div class="access-col">
+          <h3>▸ COMMENT Y ENTRER</h3>
+          <ul>
+            <li>Noclip dans le plafond du <a href="niveau-1.html">Niveau 1</a>.</li>
+            <li>Portes "FUN" dans les Lounges du <a href="../enconstruction.html">Niveau 283</a>.</li>
+            <li>Confettis depuis une fenêtre du <a href="../enconstruction.html">Niveau 188</a>.</li>
+          </ul>
+        </div>
+        <div class="access-col">
+          <h3>▸ COMMENT EN SORTIR</h3>
+          <ul>
+            <li>Prendre le toboggan de sortie dans certains gonflables.</li>
+            <li>Il n'existe pas de sortie directe depuis La Salle des Jeux.</li>
+            <li class="creepy-li">Pourquoi voudriez-vous partir ? =)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sfv-warning">
+        <span class="icon">☣</span>
+        <p>ALERTE BIOLOGIQUE — Le Virus Sanguine Festivus ne possède aucun traitement connu aux stades avancés. Si vous avez visité le Niveau Fun, signalez-vous immédiatement à un avant-poste M.E.G. Toute nourriture trouvée dans le niveau est à considérer comme contaminée. Ne jamais faire confiance à quelqu'un qui insiste pour que vous restiez.<span class="sfv-smiley"> =)</span></p>
+      </div>
+
+    </section>
+  </body>
+</html>

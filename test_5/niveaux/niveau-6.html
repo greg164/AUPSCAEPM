@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Niveau 6 — Les Rues Froides | The Backrooms</title>
+  <link rel="stylesheet" href="../shared.css"/>
+  <style>
+    .lore-quote{border:1px solid #1a1400;background:#0a0800;padding:24px 32px;margin-bottom:0;position:relative;}
+    .lore-quote::before{content:'"';font-size:80px;color:rgba(255,140,0,0.1);position:absolute;top:-10px;left:14px;font-family:serif;line-height:1;}
+    .lore-quote p{font-style:italic;color:#ffcc00;font-size:15px;line-height:2;margin:0;padding-left:30px;}
+    .lore-quote .source{display:block;text-align:right;font-size:12px;color:#555;margin-top:10px;letter-spacing:2px;}
+
+    .full-img{width:100%;max-height:320px;object-fit:cover;object-position:center;filter:brightness(0.75) saturate(0.4) contrast(1.2);border:1px solid #2a1a00;border-top:none;display:block;margin-bottom:28px;transition:filter 0.4s;}
+    .full-img:hover{filter:brightness(0.9) saturate(0.6);}
+    .mid-img{width:100%;max-height:260px;object-fit:cover;filter:brightness(0.78) saturate(0.45) contrast(1.15);border:1px solid #2a1a00;display:block;margin:20px 0 28px;transition:filter 0.4s;}
+    .mid-img:hover{filter:brightness(0.92) saturate(0.65);}
+
+    .float-right{float:right;width:260px;margin:0 0 18px 26px;}
+    .float-right img{width:100%;height:auto;filter:brightness(0.78) saturate(0.45) contrast(1.1);border:1px solid #2a1a00;display:block;transition:filter 0.4s;}
+    .float-right img:hover{filter:brightness(0.92) saturate(0.65);}
+    .float-right .cap{font-size:10px;color:#444;letter-spacing:2px;text-align:center;margin-top:4px;}
+    .float-left{float:left;width:240px;margin:0 26px 18px 0;}
+    .float-left img{width:100%;height:auto;filter:brightness(0.78) saturate(0.45) contrast(1.1);border:1px solid #2a1a00;display:block;transition:filter 0.4s;}
+    .float-left img:hover{filter:brightness(0.92) saturate(0.65);}
+    .float-left .cap{font-size:10px;color:#444;letter-spacing:2px;text-align:center;margin-top:4px;}
+    .clearfix::after{content:'';display:table;clear:both;}
+
+    .access-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #2a1a00;margin:14px 0;}
+    .access-col{padding:20px 24px;}
+    .access-col:first-child{border-right:1px solid #2a1a00;}
+    .access-col h3{font-size:15px;letter-spacing:3px;margin-bottom:14px;}
+    .access-col:first-child h3{color:#00cc66;}
+    .access-col:last-child h3{color:orange;}
+    .access-col li{font-size:13px;line-height:1.8;}
+
+    .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid #2a1a00;margin:18px 0;}
+    .stat-cell{padding:14px 16px;border-right:1px solid #2a1a00;text-align:center;}
+    .stat-cell:last-child{border-right:none;}
+    .stat-label{font-size:10px;letter-spacing:3px;color:#555;text-transform:uppercase;margin-bottom:5px;}
+    .stat-value{font-size:16px;color:orange;}
+  </style>
+</head>
+<body>
+    <nav class="navbar">
+      <a href="../index0.html">Accueil</a>
+      <a href="../niveaux.html" class="nav-active">Niveaux</a>
+      <a href="../entites.html">Entités</a>
+      <a href="../objets.html">Objets</a>
+    </nav>
+
+  <section class="entity">
+
+    <h1>Niveau 6 — Les Rues Froides</h1>
+    <hr class="sep">
+    <div class="lore-quote">
+      <p>Les réverbères étaient allumés mais ne projetaient aucune ombre. Il faisait -8°C. Et pourtant, dans la ruelle de gauche, quelque chose transpirait.</p>
+      <span class="source">— Journal d'exploration, Équipe Delta-3</span>
+    </div>
+    <a href="https://backrooms-wiki.wikidot.com/level-6" target="_blank">
+      <img class="full-img" src="https://preview.redd.it/the-lit-up-road-in-the-night-v0-yd9rus9r15hb1.jpg?width=640&crop=smart&auto=webp&s=f1d7d909008bbb0fa4b669acf610fda6091ab8e8" alt="Niveau 6 — Rues froides" onerror="this.style.display='none'">
+    </a>
+    <div class="info-bar">
+      <span>CLASSE : <span class="loc">Sécurité 2</span></span>
+      <span>TEMPÉRATURE : <span class="hostile">Entre -15°C et -2°C</span></span>
+      <span>LUMIÈRE : <span class="loc">Réverbères — éternelle nuit</span></span>
+      <span>ENTITÉS : <span class="loc">Présentes mais évitables</span></span>
+    </div>
+    <div class="stat-row">
+      <div class="stat-cell"><div class="stat-label">Superficie</div><div class="stat-value">Infinie</div></div>
+      <div class="stat-cell"><div class="stat-label">Température</div><div class="stat-value">-15 à -2°C</div></div>
+      <div class="stat-cell"><div class="stat-label">Ciel</div><div class="stat-value">Nuit permanente</div></div>
+      <div class="stat-cell"><div class="stat-label">Sons</div><div class="stat-value">Vent, pas lointains</div></div>
+    </div>
+
+    <h2>Description</h2>
+    <div class="clearfix">
+      <div class="float-right">
+        <img src="https://i.redd.it/m2s85g9e35d81.jpg" alt="Réverbère brouillard" onerror="this.parentNode.style.display='none'">
+        <div class="cap">RÉVERBÈRE — ZONE BROUILLARD</div>
+      </div>
+      <p>Le <strong>Niveau 6</strong> se présente comme une ville déserte sous une <em>nuit permanente</em>. Rues pavées, trottoirs vides, façades de bâtiments aux fenêtres condamnées — tout évoque une métropole abandonnée depuis des décennies. Les réverbères orange fonctionnent mais ne projettent <em>aucune ombre</em>. Le froid est constant et peut devenir mortel en quelques heures sans protection.</p>
+      <p>Le ciel est d'un noir absolu — aucune étoile, aucune lune. On entend parfois des pas au loin, des portes claquer, des voix trop étouffées pour être intelligibles. Personne n'a jamais trouvé la source de ces sons.</p>
+    </div>
+
+    <h2>Entités</h2>
+    <p>Les <a href="../entites/EntityDullers.html">Dullers</a> patrouillent les grandes artères, attirés par la chaleur corporelle. Les <a href="../entites/Entity8.html">Hounds</a> se rassemblent dans les ruelles en meutes silencieuses. Des entités non répertoriées semblent occuper les bâtiments — on entend des mouvements à travers les murs mais aucun explorateur n'a pu entrer dans les immeubles et en ressortir vivant.</p>
+
+    <div class="warning-block">⚠ Hypothermie mortelle en 4 à 6 heures sans isolation thermique adéquate. Les <a href="../objets/objet-firesalt.html">Firesalt</a> sont la ressource la plus précieuse de ce niveau. Ne jamais entrer dans un bâtiment.</div>
+
+    <h2>Entrées &amp; Sorties</h2>
+    <div class="access-grid">
+      <div class="access-col">
+        <h3>▸ ENTRER</h3>
+        <ul>
+          <li>Escalier de secours est du <a href="niveau-5.html">Niveau 5</a>.</li>
+          <li>Portails de service dans le <a href="niveau-4.html">Niveau 4</a>.</li>
+          <li>Noclip depuis un miroir intact (rare).</li>
+        </ul>
+      </div>
+      <div class="access-col">
+        <h3>▸ SORTIR</h3>
+        <ul>
+          <li>Bouche de métro marquée « EXIT » → aléatoire.</li>
+          <li>Intersection principale → <a href="niveau-7.html">Niveau 7</a>.</li>
+          <li>Noclip dans un réverbère allumé → <a href="niveau-9.html">Niveau 9</a>.</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Entity 2 — Windows | The Backrooms</title>
+  <link rel="stylesheet" href="../shared.css"/>
+  <style>
+    .lore-quote{border:1px solid #1a1400;background:#0a0800;padding:24px 32px;margin-bottom:0;position:relative;}
+    .lore-quote::before{content:'"';font-size:80px;color:rgba(255,140,0,0.1);position:absolute;top:-10px;left:14px;font-family:serif;line-height:1;}
+    .lore-quote p{font-style:italic;color:#ffcc00;font-size:15px;line-height:2;margin:0;padding-left:30px;}
+    .lore-quote .source{display:block;text-align:right;font-size:12px;color:#555;margin-top:10px;letter-spacing:2px;}
+
+    .full-img{width:100%;max-height:320px;object-fit:cover;object-position:center;filter:brightness(0.75) saturate(0.4) contrast(1.2);border:1px solid #2a1a00;border-top:none;display:block;margin-bottom:28px;transition:filter 0.4s;}
+    .full-img:hover{filter:brightness(0.9) saturate(0.6);}
+
+    .float-right{float:right;width:260px;margin:0 0 18px 26px;}
+    .float-right img{width:100%;height:auto;filter:brightness(0.78) saturate(0.45) contrast(1.1);border:1px solid #2a1a00;display:block;transition:filter 0.4s;}
+    .float-right img:hover{filter:brightness(0.92) saturate(0.65);}
+    .float-right .cap{font-size:10px;color:#444;letter-spacing:2px;text-align:center;margin-top:4px;}
+    .clearfix::after{content:'';display:table;clear:both;}
+
+    .behavior-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0;}
+    .behavior-card{background:rgba(26,16,0,0.3);border:1px solid #2a1a00;padding:16px 20px;}
+    .behavior-card h3{color:orange;font-size:14px;margin-bottom:10px;letter-spacing:2px;}
+    .behavior-card p{font-size:13px;line-height:1.7;margin:0;}
+
+    .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid #2a1a00;margin:18px 0;}
+    .stat-cell{padding:14px 16px;border-right:1px solid #2a1a00;text-align:center;}
+    .stat-cell:last-child{border-right:none;}
+    .stat-label{font-size:10px;letter-spacing:3px;color:#555;text-transform:uppercase;margin-bottom:5px;}
+    .stat-value{font-size:16px;color:orange;}
+  </style>
+</head>
+<body>
+    <nav class="navbar">
+      <a href="../index0.html">Accueil</a>
+      <a href="../niveaux.html">Niveaux</a>
+      <a href="../entites.html" class="nav-active">Entités</a>
+      <a href="../objets.html">Objets</a>
+    </nav>
+
+  <section class="entity">
+
+    <h1>Entity 2 — Windows</h1>
+    <hr class="sep">
+    <div class="lore-quote">
+      <p>J'ai entendu le bruit du verre qui se brise. Mais il n'y avait pas de fenêtre. Puis j'ai réalisé que c'était elle qui se déplaçait.</p>
+      <span class="source">— Survivant, Niveau 188</span>
+    </div>
+    <img class="full-img" src="https://backrooms-wiki.wikidot.com/local--files/entity-2/window1" alt="Entity 2 — Windows" onerror="this.style.display='none'">
+    <div class="info-bar">
+      <span>CLASSE : <span class="hostile">Hostile</span></span>
+      <span>VITESSE : <span class="hostile">Rapide (40 km/h)</span></span>
+      <span>PRÉSENCE : <span class="loc">Niveau 188 principalement</span></span>
+      <span>DANGER : <span class="hostile">Élevé</span></span>
+    </div>
+    <div class="stat-row">
+      <div class="stat-cell"><div class="stat-label">Taille</div><div class="stat-value">1,8-2,2m</div></div>
+      <div class="stat-cell"><div class="stat-label">Intelligence</div><div class="stat-value">Faible</div></div>
+      <div class="stat-cell"><div class="stat-label">Sens</div><div class="stat-value">Mouvement</div></div>
+      <div class="stat-cell"><div class="stat-label">Létalité</div><div class="stat-value">Très haute</div></div>
+    </div>
+
+    <h2>Description</h2>
+    <div class="clearfix">
+      <div class="float-right">
+        <img src="https://backrooms-wiki.wdfiles.com/local--files/archived:entity-2/entity-2.jpg" alt="Windows de près" onerror="this.parentNode.style.display='none'">
+        <div class="cap">SPÉCIMEN — VUE RAPPROCHÉE</div>
+      </div>
+      <p>Les <strong>Windows</strong> sont des entités translucides ressemblant à des <em>panneaux de verre brisé animés</em>. Leur corps semble composé de fragments vitreux qui se déplacent et se réorganisent constamment, créant un effet kaléidoscopique perturbant.</p>
+      <p>Elles mesurent généralement entre 1,8 et 2,2 mètres de hauteur et se déplacent en <strong>glissant silencieusement</strong> au-dessus du sol. Leurs bords sont extrêmement tranchants — capables de sectionner un membre humain en un seul passage. Le simple contact avec leur surface vitreuse provoque des <em>lacérations profondes</em>.</p>
+    </div>
+
+    <h2>Comportement</h2>
+    <div class="behavior-grid">
+      <div class="behavior-card">
+        <h3>DÉTECTION</h3>
+        <p>Les Windows détectent leurs proies par le mouvement. Elles semblent aveugles aux cibles immobiles. Rester parfaitement immobile pendant plusieurs minutes permet généralement d'éviter leur attention.</p>
+      </div>
+      <div class="behavior-card">
+        <h3>CHASSE</h3>
+        <p>Une fois une cible repérée, elles la poursuivent avec une détermination implacable. Vitesse maximale : ~40 km/h. Elles peuvent maintenir cette vitesse indéfiniment sans fatigue apparente.</p>
+      </div>
+      <div class="behavior-card">
+        <h3>ATTAQUE</h3>
+        <p>Les Windows attaquent en fonçant sur leur cible, utilisant leurs bords tranchants pour lacérer. Elles visent généralement le torse et les membres. Les blessures saignent abondamment.</p>
+      </div>
+      <div class="behavior-card">
+        <h3>REPRODUCTION</h3>
+        <p>Mécanisme inconnu. On observe parfois des "nuées" de petites Windows (30-50 cm) qui semblent croître avec le temps pour atteindre leur taille adulte.</p>
+      </div>
+    </div>
+
+    <h2>Habitat</h2>
+    <p>Les Windows sont principalement présentes dans le <strong>Niveau 188</strong>, un niveau composé de longs couloirs vitrés. Elles s'y camouflent parfaitement, se confondant avec les véritables fenêtres. Des spécimens isolés ont été signalés dans d'autres niveaux contenant du verre ou des surfaces réfléchissantes.</p>
+    <p>Elles semblent attirées par les zones bien éclairées où la lumière traverse leur corps translucide, créant des motifs prismatiques sur les murs et le sol.</p>
+
+    <h2>Stratégies de survie</h2>
+    <p>Le M.E.G. recommande les protocoles suivants en cas de rencontre avec des Windows :</p>
+    <ul style="margin-left:24px;line-height:2;">
+      <li><strong>Immobilité totale</strong> — Arrêter tout mouvement dès qu'une Window est repérée</li>
+      <li><strong>Respiration contrôlée</strong> — Respirer lentement pour minimiser les mouvements thoraciques</li>
+      <li><strong>Éviter les reflets</strong> — Ne pas porter d'objets réfléchissants qui pourraient les attirer</li>
+      <li><strong>Fuite en zigzag</strong> — Si poursuivi, changer constamment de direction</li>
+      <li><strong>Objets solides</strong> — Les Windows peuvent être brisées par des impacts violents (barre de fer, masse)</li>
+    </ul>
+
+    <div class="warning-block">⚠ Les Windows sont extrêmement dangereuses et responsables d'un taux de létalité de 78% dans le Niveau 188. Éviter ce niveau sauf nécessité absolue. Les vêtements épais offrent une protection minimale contre leurs bords tranchants. Les blessures nécessitent une attention médicale immédiate — risque d'hémorragie mortelle.</div>
+
+    <h2>Notes additionnelles</h2>
+    <p>Des chercheurs du M.E.G. ont observé que les Windows semblent <em>réagir aux sons forts</em>. Un bruit soudain et intense (cri, explosion) peut momentanément les désorienter, offrant quelques secondes précieuses pour fuir. Cette technique est cependant risquée car elle attire également d'autres entités.</p>
+    <p>Les fragments d'une Window détruite ne se désintègrent pas immédiatement. Ils restent dangereux pendant plusieurs heures, leurs bords conservant leur tranchant mortel.</p>
+
+  </section>
+</body>
+</html>

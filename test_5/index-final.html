@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>The Backrooms</title>
+    <link rel="stylesheet" href="shared.css"/>
+    <style>
+      /* ══════════════════════════════════════════════════
+         CHUTE IMMERSIVE — Écran noir puis atterrissage
+      ══════════════════════════════════════════════════ */
+      
+      /* Container de l'intro */
+      .fall-intro {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        overflow: hidden;
+        background: #000;
+        transition: opacity 0s ease-out;
+      }
+
+      .fall-intro.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* Écran noir de chute */
+      .black-void {
+        position: absolute;
+        inset: 0;
+        background: #000;
+        z-index: 2;
+      }
+
+      /* Particules qui montent pendant la chute (sur fond noir) */
+      .fall-particles {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+      }
+
+      .fall-particle {
+        position: absolute;
+        width: 3px;
+        height: 30px;
+        background: linear-gradient(180deg, transparent, rgba(255, 200, 100, 0.6), transparent);
+        opacity: 0;
+        animation: particle-rush 3s ease-in infinite;
+      }
+
+      @keyframes particle-rush {
+        0% {
+          opacity: 0;
+          transform: translateY(120vh) scale(0.5);
+        }
+        10% {
+          opacity: 0.8;
+          transform: translateY(100vh) scale(0.7);
+        }
+        50% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+        90% {
+          opacity: 0.8;
+          transform: translateY(-100vh) scale(1.5);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-120vh) scale(2);
+        }
+      }
+
+      .fall-particle:nth-child(1) { left: 5%; animation-delay: 0s; }
+      .fall-particle:nth-child(2) { left: 15%; animation-delay: 0.2s; height: 25px; }
+      .fall-particle:nth-child(3) { left: 25%; animation-delay: 0.4s; }
+      .fall-particle:nth-child(4) { left: 35%; animation-delay: 0.1s; height: 35px; }
+      .fall-particle:nth-child(5) { left: 45%; animation-delay: 0.6s; }
+      .fall-particle:nth-child(6) { left: 55%; animation-delay: 0.3s; height: 28px; }
+      .fall-particle:nth-child(7) { left: 65%; animation-delay: 0.5s; }
+      .fall-particle:nth-child(8) { left: 75%; animation-delay: 0.15s; height: 32px; }
+      .fall-particle:nth-child(9) { left: 85%; animation-delay: 0.7s; }
+      .fall-particle:nth-child(10) { left: 95%; animation-delay: 0.25s; height: 26px; }
+
+      /* Lignes de vitesse verticales */
+      .speed-lines {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        background: repeating-linear-gradient(
+          180deg,
+          transparent 0px,
+          rgba(255, 255, 255, 0.03) 1px,
+          transparent 2px,
+          transparent 15px
+        );
+        opacity: 0;
+        animation: lines-speed 4s ease-in forwards;
+      }
+
+      @keyframes lines-speed {
+        0% {
+          opacity: 0;
+          transform: translateY(-50vh);
+        }
+        20% {
+          opacity: 0.4;
+          transform: translateY(0);
+        }
+        70% {
+          opacity: 0.7;
+          transform: translateY(100vh);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(200vh);
+        }
+      }
+
+      /* Vignette qui s'intensifie */
+      .fall-vignette {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        background: radial-gradient(
+          ellipse at 50% 50%,
+          transparent 0%,
+          rgba(0, 0, 0, 0.5) 60%,
+          rgba(0, 0, 0, 0.9) 100%
+        );
+        opacity: 0;
+        animation: vignette-intensify 4s ease-in forwards;
+      }
+
+      @keyframes vignette-intensify {
+        0% { opacity: 0; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+      }
+
+      /* Flash d'impact blanc */
+      .impact-flash {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        background: #fff;
+        opacity: 0;
+        animation: impact-white 0.6s ease-out 3.8s forwards;
+      }
+
+      @keyframes impact-white {
+        0% { opacity: 0; }
+        10% { opacity: 1; }
+        30% { opacity: 0.7; }
+        50% { opacity: 0.4; }
+        70% { opacity: 0.2; }
+        100% { opacity: 0; }
+      }
+
+      /* Image des Backrooms qui apparaît après impact */
+      .landing-backrooms {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background: url('https://backrooms-wiki.wdfiles.com/local--files/level-0/OGLevel0.jpg');
+        background-size: cover;
+        background-position: center center;
+        opacity: 0;
+        filter: blur(50px);
+        animation: backrooms-appear 2s ease-out 4s forwards;
+      }
+
+      @keyframes backrooms-appear {
+        0% {
+          opacity: 0;
+          filter: blur(50px) brightness(2);
+          transform: scale(1.5);
+        }
+        40% {
+          opacity: 0.8;
+          filter: blur(15px) brightness(1.3);
+          transform: scale(1.2);
+        }
+        70% {
+          opacity: 0.95;
+          filter: blur(5px) brightness(1);
+          transform: scale(1.05);
+        }
+        100% {
+          opacity: 1;
+          filter: blur(0px) brightness(0.8);
+          transform: scale(1);
+        }
+      }
+
+      /* Overlay sombre sur les Backrooms */
+      .backrooms-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        background: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.75) 0%,
+          rgba(0, 0, 0, 0.5) 50%,
+          rgba(0, 0, 0, 0.7) 100%
+        );
+        opacity: 0;
+        animation: overlay-darken 1.5s ease-out 5s forwards;
+      }
+
+      @keyframes overlay-darken {
+        to { opacity: 1; }
+      }
+
+      /* Tremblement à l'impact */
+      @keyframes camera-shake {
+        0%, 100% { transform: translate(0, 0); }
+        10% { transform: translate(-3px, 2px); }
+        20% { transform: translate(3px, -2px); }
+        30% { transform: translate(-2px, 3px); }
+        40% { transform: translate(2px, -3px); }
+        50% { transform: translate(-3px, 2px); }
+        60% { transform: translate(3px, 2px); }
+        70% { transform: translate(-2px, -2px); }
+        80% { transform: translate(2px, 3px); }
+        90% { transform: translate(-1px, -1px); }
+      }
+
+      .shake {
+        animation: camera-shake 0.4s ease-out 3.9s;
+      }
+
+      /* Background permanent du body */
+      body {
+        background: 
+          linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.8) 0%,
+            rgba(0, 0, 0, 0.5) 50%,
+            rgba(0, 0, 0, 0.7) 100%
+          ),
+          url('https://backrooms-wiki.wdfiles.com/local--files/level-0/OGLevel0.jpg') center center / cover fixed;
+        background-attachment: fixed;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Bloquer le scroll pendant l'intro */
+      body.no-scroll {
+        overflow: hidden;
+        height: 100vh;
+      }
+
+      /* Contenu du site - TOUJOURS VISIBLE mais cache par l'overlay */
+      .site-wrapper {
+        position: relative;
+        z-index: 1;
+        opacity: 0;
+        animation: site-fade-in 2s ease-out 6s forwards;
+      }
+
+      @keyframes site-fade-in {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Navbar et entity avec transparence */
+      .navbar {
+        background: rgba(0, 0, 0, 0.85) !important;
+        backdrop-filter: blur(10px);
+      }
+
+      .entity {
+        background: rgba(0, 0, 0, 0.75) !important;
+        backdrop-filter: blur(8px);
+      }
+
+      /* Indicateur de skip */
+      .skip-hint {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: "VCR OSD MONO", monospace;
+        font-size: 11px;
+        color: rgba(255, 200, 0, 0.6);
+        letter-spacing: 2px;
+        z-index: 10000;
+        cursor: pointer;
+        opacity: 0;
+        animation: hint-blink 4s ease-in-out forwards;
+      }
+
+      @keyframes hint-blink {
+        0%, 10% { opacity: 0; }
+        15% { opacity: 0.6; }
+        85% { opacity: 0.6; }
+        95% { opacity: 0; }
+        100% { opacity: 0; }
+      }
+    </style>
+  </head>
+
+  <body class="no-scroll">
+
+    <!-- ══════════════════════════════════════════════════
+         ANIMATION DE CHUTE — Écran noir puis atterrissage
+    ══════════════════════════════════════════════════ -->
+    <div class="fall-intro shake" id="fallIntro">
+      
+      <!-- Écran noir de chute -->
+      <div class="black-void"></div>
+      
+      <!-- Particules de vitesse -->
+      <div class="fall-particles">
+        <div class="fall-particle"></div>
+        <div class="fall-particle"></div>
+        <div class="fall-particle"></div>
+        <div class="fall-particle"></div>
+        <div class="fall-particle"></div>
+        <div class="fall-particle"></div>
+        <div class="fall-particle"></div>
+        <div class="fall-particle"></div>
+        <div class="fall-particle"></div>
+        <div class="fall-particle"></div>
+      </div>
+      
+      <!-- Lignes de vitesse -->
+      <div class="speed-lines"></div>
+      
+      <!-- Vignette -->
+      <div class="fall-vignette"></div>
+      
+      <!-- Flash d'impact -->
+      <div class="impact-flash"></div>
+      
+      <!-- Image des Backrooms (apparaît après impact) -->
+      <div class="landing-backrooms"></div>
+      
+      <!-- Overlay sombre sur l'image -->
+      <div class="backrooms-overlay"></div>
+      
+      <!-- Indicateur de skip -->
+      <div class="skip-hint" id="skipHint">[ CLICK TO SKIP ]</div>
+    </div>
+
+    <script>
+      // Timer pour cacher l'intro après 7 secondes
+      const hideIntro = () => {
+        const intro = document.getElementById('fallIntro');
+        const body = document.body;
+        
+        intro.classList.add('hidden');
+        body.classList.remove('no-scroll');
+        
+        // Supprimer complètement l'overlay après la transition
+        setTimeout(() => {
+          intro.style.display = 'none';
+        }, 500);
+      };
+
+      // Auto-hide après 7 secondes
+      const autoHideTimer = setTimeout(hideIntro, 7000);
+
+      // Permettre de skip en cliquant
+      const skipIntro = () => {
+        clearTimeout(autoHideTimer);
+        hideIntro();
+      };
+
+      document.getElementById('fallIntro').addEventListener('click', skipIntro);
+      document.getElementById('skipHint').addEventListener('click', skipIntro);
+
+      // Optionnel : Sons (décommenter si vous avez les fichiers audio)
+      /*
+      const sounds = {
+        fall: new Audio('sounds/falling-wind.mp3'),
+        impact: new Audio('sounds/impact-thud.mp3'),
+        ambient: new Audio('sounds/backrooms-hum.mp3')
+      };
+      
+      sounds.fall.volume = 0.5;
+      sounds.impact.volume = 0.7;
+      sounds.ambient.volume = 0.3;
+      sounds.ambient.loop = true;
+      
+      // Son de chute
+      sounds.fall.play().catch(e => console.log('Audio autoplay bloqué'));
+      
+      // Impact à 4 secondes
+      setTimeout(() => {
+        sounds.impact.play().catch(e => console.log('Audio bloqué'));
+      }, 4000);
+      
+      // Ambiance à 5 secondes
+      setTimeout(() => {
+        sounds.ambient.play().catch(e => console.log('Audio bloqué'));
+      }, 5000);
+      */
+    </script>
+
+    <!-- ══════════════════════════════════════════════════
+         CONTENU DU SITE — Visible après l'animation
+    ══════════════════════════════════════════════════ -->
+    <div class="site-wrapper">
+      
+      <nav class="navbar">
+        <a href="index0.html" class="nav-active">Accueil</a>
+        <a href="niveaux.html">Niveaux</a>
+        <a href="entites.html">Entités</a>
+        <a href="objets.html">Objets</a>
+      </nav>
+
+      <section class="entity">
+
+        <h1>The Backrooms</h1>
+        <hr class="sep">
+
+        <div class="info-bar">
+          <span>ORIGINE : <span class="loc">4chan, 2019</span></span>
+          <span>SUPERFICIE : <span class="loc">~600M miles²</span></span>
+          <span>STATUT : <span class="hostile">INEXPLIQUÉ</span></span>
+        </div>
+
+        <h2>Origines</h2>
+
+        <div class="description-block">
+          <div class="description-text">
+            <p>
+              Le 12 mai 2019, un utilisateur anonyme de
+              <a href="https://fr.wikipedia.org/wiki/4chan" target="_blank">4chan</a>
+              demande aux membres de poster des images perturbantes sur un forum.
+              Dans les réponses se trouve une image représentant un long couloir vide
+              avec des cloisons tapissées de papier peint jaunâtre, une moquette et
+              des tubes fluorescents au plafond, prise avec un plan cassé.
+              Une des réactions à cette image fut la copypasta originelle donnant
+              naissance aux Backrooms.
+            </p>
+            <p class="quote-label"><strong>Un autre utilisateur reposte l'image, avec pour description :</strong></p>
+            <blockquote>
+              Si vous êtes imprudent et que vous noclipez de la réalité au mauvais endroit,
+              vous vous retrouverez dans les Backrooms, où il n'y a rien d'autre que la puanteur
+              de la vieille moquette humide, la folie du monochrome jaune, et le bourdonnement
+              incessant des néons, piégé dans approximativement 600 millions de miles carrés
+              de pièces vides segmentées au hasard.
+              Que Dieu vous protège si vous entendez quelque chose errer à proximité,
+              parce qu'il est certain que cette chose vous a entendu.
+            </blockquote>
+          </div>
+          <div class="img-banner">
+            <img src="image/backrooms1.jpg" alt="The Backrooms"
+                 onerror="this.parentNode.style.display='none'">
+          </div>
+        </div>
+
+        <h2>Phénomènes</h2>
+        <p>
+          Les Backrooms sont connues pour héberger un grand nombre de phénomènes inexpliqués.
+          L'un des plus connus est le <em>no-clip</em>, permettant de traverser des murs ou
+          des objets et d'atterrir « de l'autre côté ». Un autre phénomène connu est celui de la
+          <em>géométrie non euclidienne</em>, entraînant une perception altérée de l'espace :
+        </p>
+        <ul>
+          <li>Vous marchez une dizaine de secondes, et vous réalisez que vous êtes arrivés là où vous pensiez voir l'horizon.</li>
+          <li>Vous avancez pendant quelques minutes pour vous rendre compte que vous avez à peine bougé de votre point de départ.</li>
+        </ul>
+        <p>
+          Les Backrooms hébergent aussi un bon nombre d'entités inexpliquées. Parmi celles-ci
+          se trouve par exemple le <em>Smiler</em>, une entité souriant dans le noir.
+        </p>
+
+      </section>
+    </div>
+
+  </body>
+</html>

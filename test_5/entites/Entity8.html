@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Entité n°8 — Hound | The Backrooms</title>
+    <link rel="stylesheet" href="../shared.css"/>
+    <style>
+      /* Image à GAUCHE du texte */
+      .description-block-left {
+        display: flex;
+        align-items: center; /* centrage vertical de l'image par rapport au texte */
+        gap: 30px;
+        margin-bottom: 24px;
+      }
+      .description-block-left .img-left {
+        flex-shrink: 0;
+        width: 260px;
+        display: flex;
+        justify-content: center; /* centrage horizontal de l'image dans son bloc */
+      }
+      .description-block-left .img-left img {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+        object-fit: contain;
+        filter: brightness(0.85) saturate(0.6) contrast(1.1);
+        border: 1px solid #2a1a00;
+        display: block;
+      }
+      .description-block-left .description-text { flex: 1; }
+
+      /* Bloc Biologie : image + texte côte à côte sans float */
+      .biologie-block {
+        display: flex;
+        align-items: flex-start;
+        gap: 24px;
+        margin-bottom: 24px;
+      }
+      .biologie-block .biologie-text {
+        flex: 1;
+      }
+      .inline-img-right {
+        flex-shrink: 0;
+        width: 220px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .inline-img-right img {
+        width: 100%;
+        height: auto;
+        filter: brightness(0.8) saturate(0.5) contrast(1.1);
+        border: 1px solid #2a1a00;
+        display: block;
+      }
+      .inline-img-right .caption {
+        font-size: 11px;
+        color: #555;
+        letter-spacing: 2px;
+        text-align: center;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar">
+      <a href="../index0.html">Accueil</a>
+      <a href="../niveaux.html">Niveaux</a>
+      <a href="../entites.html" class="nav-active">Entités</a>
+      <a href="../objets.html">Objets</a>
+    </nav>
+
+    <section class="entity">
+
+      <h1>Entité n°8 — Hound</h1>
+      <hr class="sep">
+
+      <div class="info-bar">
+        <span>CLASSIFICATION : <span class="hostile">HOSTILE</span></span>
+        <span>HABITAT : <span class="loc">Majorité des niveaux</span></span>
+        <span>CONTAGION : <span class="hostile">CONFIRMÉE</span></span>
+      </div>
+
+      <div class="description-block-left">
+        <div class="img-left">
+          <img src="https://static.wikitide.net/backroomswiki/7/75/HoundChase.gif"
+               alt="Hound"
+               onerror="this.parentNode.style.display='none'">
+        </div>
+        <div class="description-text">
+          <h2>Description</h2>
+          <p>
+            Les <strong>Hounds</strong> sont des entités humanoïdes à morphologie canine, se déplaçant
+            exclusivement à quatre pattes. Leur apparence rappelle à première vue un être humain
+            recroquevillé, les membres étranges dissimulés sous une longue chevelure noire et emmêlée.
+            Ce n'est que de près que se révèle leur nature véritable : une gueule démesurée garnie
+            de rangées de <em>dents acérées</em>, des membres osseux aux griffes émoussées, et des
+            yeux entièrement blancs capables de voir dans l'obscurité totale.
+          </p>
+          <p>
+            Le <em>Virus Hound</em> transmis par leur morsure est l'une des menaces biologiques
+            les plus redoutées — toute personne mordue dispose d'environ <strong>cinq minutes</strong>
+            pour appliquer de l'<a href="../objets/objet-eau-amande.html">Eau d'Amande</a>
+            avant que la transformation ne devienne irréversible.
+          </p>
+        </div>
+      </div>
+
+      <h2>Comportements</h2>
+      <p>
+        Les Hounds deviennent immédiatement hostiles à la vue d'un humain. Ils peuvent
+        être <em>intimidés momentanément</em> par un contact visuel direct et soutenu.
+        Cette fenêtre ne dure que quelques secondes, mais peut suffire pour s'éloigner.
+        Contrairement aux <a href="Entity3.html">Smilers</a>,
+        les Hounds peuvent être semés en tournant rapidement un coin.
+      </p>
+
+      <h2>Biologie</h2>
+      <div class="biologie-block">
+        <div class="biologie-text">
+          <p>
+            Partageant une grande partie de leur ADN avec les humains, les Hounds sont génétiquement
+            proches de <em>Homo sapiens</em>. Leurs pattes arrière ont évolué en membres similaires
+            à ceux des chiens, les rendant incapables de se tenir debout. Ils possèdent une rangée
+            de crocs capables de briser os et coques avec facilité. Dépourvus d'appareil circulatoire
+            classique, ils tirent leur énergie d'une source encore mal comprise.
+          </p>
+        </div>
+        <div class="inline-img-right">
+          <img src="https://preview.redd.it/p8138lapg61f1.jpeg?width=640&crop=smart&auto=webp&s=f91d202900e0e509e99aeaf789e14d03bac65e81"
+               alt="Morsure de Hound"
+               onerror="this.parentNode.style.display='none'">
+          <div class="caption">SIMULATION DE MORSURE — M.E.G.</div>
+        </div>
+      </div>
+
+      <div class="warning-block">
+        ⚠ VIRUS HOUND — Si vous êtes mordu, appliquez immédiatement de l'<strong>Eau d'Amande</strong>
+        sur la plaie. Fenêtre d'action : <strong>5 minutes maximum</strong>. Passé ce délai, la transformation
+        est irréversible. Isolez-vous des autres vagabonds dans tous les cas.
+      </div>
+
+      <h2>Découverte</h2>
+      <p>
+        L'une des premières vidéos connues des Backrooms montre un vagabond fuyant un Hound
+        dans un environnement ressemblant au <a href="../niveaux/niveau-0.html">Niveau 0</a>.
+        Leur origine exacte reste débattue — certains rapports mentionnent une entité connue sous
+        le nom de <em>« La Haute Reine »</em>, dont les œufs donneraient naissance aux Hounds.
+        Des Hounds ont également été aperçus dans le <a href="../niveaux/niveau-fun.html">Niveau Fun</a>,
+        attirés par la concentration d'individus infectés par le Sanguine Festivus.
+      </p>
+
+      <h2>À faire et à ne pas faire</h2>
+      <div class="dos-donts">
+        <div class="do-col">
+          <h3>✔ À faire</h3>
+          <ul>
+            <li>Maintenir un contact visuel direct pour les intimider brièvement.</li>
+            <li>Reculer lentement pendant la fenêtre d'intimidation.</li>
+            <li>Tourner un coin rapidement pour les semer.</li>
+            <li>Appliquer immédiatement de l'Eau d'Amande en cas de morsure.</li>
+          </ul>
+        </div>
+        <div class="dont-col">
+          <h3>✘ À ne pas faire</h3>
+          <ul>
+            <li>Se laisser mordre sans traitement immédiat.</li>
+            <li>S'approcher d'un Hound en posture agressive.</li>
+            <li>Toucher un Hound sans équipement de protection.</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+  </body>
+</html>

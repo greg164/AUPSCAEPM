@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>À propos — The Backrooms</title>
+    <link rel="stylesheet" href="shared.css"/>
+    <style>
+      /* Style spécifique pour la page explicative */
+      body {
+        background: #000;
+        margin: 0;
+        padding: 0;
+      }
+
+      .explanation-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px 80px;
+      }
+
+      .header-section {
+        text-align: center;
+        margin-bottom: 50px;
+        padding: 30px;
+        background: rgba(26, 16, 0, 0.4);
+        border: 1px solid #2a1a00;
+        border-radius: 4px;
+      }
+
+      .header-section h1 {
+        font-size: 48px;
+        color: #ff8c00;
+        margin: 0 0 10px 0;
+        text-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
+      }
+
+      .header-section .subtitle {
+        font-size: 14px;
+        color: #888;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+      }
+
+      .info-section {
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid #2a1a00;
+        padding: 35px;
+        margin-bottom: 30px;
+        border-radius: 4px;
+      }
+
+      .info-section h2 {
+        color: #ff8c00;
+        font-size: 24px;
+        margin-top: 0;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #2a1a00;
+      }
+
+      .info-section p {
+        line-height: 1.9;
+        margin-bottom: 18px;
+        color: #ccc;
+        font-size: 15px;
+      }
+
+      .info-section strong {
+        color: #ffaa44;
+      }
+
+      .info-section em {
+        color: #ff8c00;
+        font-style: italic;
+      }
+
+      .info-section ul {
+        margin-left: 25px;
+        line-height: 2;
+        color: #ccc;
+      }
+
+      .info-section li {
+        margin-bottom: 10px;
+      }
+
+      .highlight-box {
+        background: rgba(255, 140, 0, 0.1);
+        border-left: 4px solid #ff8c00;
+        padding: 20px;
+        margin: 25px 0;
+        border-radius: 4px;
+      }
+
+      .highlight-box strong {
+        color: #ffcc44;
+        font-size: 16px;
+      }
+
+      /* Bouton d'accès au site */
+      .access-button-container {
+        text-align: center;
+        margin-top: 50px;
+        padding: 40px 20px;
+      }
+
+      .access-button {
+        display: inline-block;
+        padding: 20px 50px;
+        background: linear-gradient(135deg, #ff8c00 0%, #ff6600 100%);
+        color: #000;
+        font-size: 18px;
+        font-weight: bold;
+        letter-spacing: 3px;
+        text-decoration: none;
+        border-radius: 6px;
+        box-shadow: 
+          0 4px 15px rgba(255, 140, 0, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .access-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+      }
+
+      .access-button:hover::before {
+        left: 100%;
+      }
+
+      .access-button:hover {
+        background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
+        box-shadow: 
+          0 6px 25px rgba(255, 140, 0, 0.6),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .access-button:active {
+        transform: translateY(0);
+        box-shadow: 
+          0 2px 10px rgba(255, 140, 0, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+
+      .button-hint {
+        display: block;
+        margin-top: 15px;
+        font-size: 12px;
+        color: #888;
+        letter-spacing: 2px;
+      }
+
+      /* Grid d'exemples */
+      .examples-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin: 25px 0;
+      }
+
+      .example-card {
+        background: rgba(26, 16, 0, 0.3);
+        border: 1px solid #2a1a00;
+        padding: 20px;
+        border-radius: 4px;
+      }
+
+      .example-card h3 {
+        color: #ff8c00;
+        font-size: 16px;
+        margin: 0 0 12px 0;
+      }
+
+      .example-card p {
+        font-size: 13px;
+        line-height: 1.7;
+        margin: 0;
+        color: #aaa;
+      }
+
+      /* Timeline */
+      .timeline {
+        margin: 25px 0;
+        padding-left: 30px;
+        border-left: 3px solid #2a1a00;
+      }
+
+      .timeline-item {
+        margin-bottom: 25px;
+        position: relative;
+      }
+
+      .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -36px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ff8c00;
+        border: 3px solid #000;
+      }
+
+      .timeline-item strong {
+        display: block;
+        color: #ff8c00;
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      .timeline-item p {
+        font-size: 14px;
+        line-height: 1.7;
+        margin: 0;
+      }
+
+      /* Footer info */
+      .footer-info {
+        text-align: center;
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 1px solid #2a1a00;
+        color: #666;
+        font-size: 12px;
+        letter-spacing: 1px;
+      }
+
+      @media (max-width: 768px) {
+        .examples-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="explanation-container">
+
+      <!-- En-tête -->
+      <div class="header-section">
+        <h1>The Backrooms</h1>
+        <div class="subtitle">Présentation du projet</div>
+      </div>
+
+      <!-- Section 1 : Qu'est-ce que les Backrooms ? -->
+      <div class="info-section">
+        <h2>📚 Qu'est-ce que les Backrooms ?</h2>
+        <p>
+          Les <strong>Backrooms</strong> sont un <em>univers de fiction collaborative</em> né sur internet en 2019. 
+          Il s'agit d'un concept de <strong>creepypasta</strong> (histoires d'horreur partagées en ligne) qui imagine 
+          un espace infini de couloirs et de pièces vides, situé "derrière" notre réalité.
+        </p>
+        <p>
+          L'idée centrale est la suivante : en traversant accidentellement la réalité au mauvais endroit 
+          (phénomène appelé <em>"noclip"</em>, référence aux jeux vidéo), on se retrouve piégé dans cet espace 
+          liminal monotone, avec des néons qui bourdonnent, une moquette humide, et la présence possible 
+          d'entités hostiles.
+        </p>
+
+        <div class="highlight-box">
+          <strong>⚠️ Important :</strong> Les Backrooms sont une <strong>œuvre de fiction collaborative</strong>. 
+          Rien de tout cela n'existe réellement. C'est un exercice créatif d'écriture et de worldbuilding 
+          (construction d'univers) pratiqué par une communauté en ligne.
+        </div>
+
+      <!-- Section 2 : Le M.E.G. -->
+      <div class="info-section">
+        <h2>🏢 Qu'est-ce que le M.E.G. ?</h2>
+        <p>
+          Le <strong>M.E.G.</strong> (<em>Major Explorer Group</em> ou "Groupe Majeur d'Explorateurs") 
+          est une <strong>organisation fictive</strong> créée dans le lore des Backrooms. Elle représente 
+          un groupe de survivants qui documente méthodiquement les différents niveaux, entités et phénomènes 
+          des Backrooms.
+        </p>
+        <p>
+          Dans l'univers fictif, le M.E.G. :
+        </p>
+        <ul>
+          <li>Cartographie les niveaux et établit des bases sécurisées</li>
+          <li>Classifie les entités selon leur dangerosité</li>
+          <li>Fournit des ressources et de l'aide aux nouveaux "vagabonds" (personnes piégées)</li>
+          <li>Mène des recherches sur les moyens de sortir des Backrooms</li>
+          <li>Archive toutes les découvertes dans des rapports officiels</li>
+        </ul>
+        <p>
+          Le M.E.G. sert de <strong>narrateur crédible</strong> dans l'univers : c'est à travers leurs 
+          rapports et classifications que l'information est présentée, donnant un aspect "documentaire" 
+          à la fiction.
+        </p>
+      </div>
+
+      <!-- Section 3 : Structure de l'univers -->
+      <div class="info-section">
+        <h2>🗺️ Structure de l'univers</h2>
+        <p>
+          L'univers des Backrooms est organisé selon plusieurs concepts principaux :
+        </p>
+
+        <div class="examples-grid">
+          <div class="example-card">
+            <h3>Niveaux</h3>
+            <p>
+              Espaces distincts numérotés (Niveau 0, 1, 2...) avec leurs propres caractéristiques, 
+              dangers et moyens d'accès. Plus de 500 niveaux ont été créés par la communauté.
+            </p>
+          </div>
+          <div class="example-card">
+            <h3>Entités</h3>
+            <p>
+              Créatures hostiles, neutres ou amicales peuplant les Backrooms. Chacune possède 
+              un numéro de classification et des comportements définis.
+            </p>
+          </div>
+          <div class="example-card">
+            <h3>Objets</h3>
+            <p>
+              Items spéciaux trouvables dans les Backrooms : Eau d'Amande (boisson), 
+              Firesalt (source de chaleur), etc.
+            </p>
+          </div>
+          <div class="example-card">
+            <h3>Phénomènes</h3>
+            <p>
+              Événements inexpliqués : no-clip (traverser la réalité), géométrie non-euclidienne, 
+              distorsions temporelles, etc.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5 : Ce site -->
+      <div class="info-section">
+        <h2>💻 À propos de ce site</h2>
+        <p>
+          Ce site est un <strong>projet de SNT</strong> (Sciences Numériques et Technologie) qui présente 
+          l'univers des Backrooms sous forme de wiki structuré. Il comprend :
+        </p>
+        <ul>
+          <li>Une <strong>page d'accueil</strong> avec animation immersive</li>
+          <li>Des pages dédiées aux <strong>niveaux</strong> (avec fiches détaillées)</li>
+          <li>Des pages sur les <strong>entités</strong> (créatures fictives)</li>
+          <li>Une section <strong>objets</strong> (items spéciaux)</li>
+        </ul>
+        <p>
+          Le site utilise des <strong>techniques web modernes</strong> : HTML5, CSS3, animations, 
+          responsive design, et suit une direction artistique cohérente inspirée des codes visuels 
+          du creepypasta (tons sombres, jaunes, ambiance inquiétante).
+        </p>
+        <div class="highlight-box">
+          <strong>🎯 Objectif pédagogique :</strong> Démontrer la maîtrise de la création web, 
+          de la structuration d'information, du design d'interface, et de la narration visuelle 
+          à travers un projet thématique original.
+        </div>
+      </div>
+
+      <!-- Bouton d'accès -->
+      <div class="access-button-container">
+        <a href="index0-INTRO.html" class="access-button">
+          ACCÉDER AU SITE
+        </a>
+        <span class="button-hint">
+          ⚠️ Le site contient des éléments d'ambiance sombre et des animations
+        </span>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer-info">
+        test_5 ;)
+      </div>
+
+    </div>
+
+  </body>
+</html>

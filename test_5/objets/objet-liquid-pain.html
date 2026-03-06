@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Objet n°12 — Liquid Pain | The Backrooms</title>
+    <link rel="stylesheet" href="../shared.css"/>
+    <style>
+      .danger-alert {
+        background: rgba(255,30,0,0.08);
+        border: 1px solid rgba(255,30,0,0.4);
+        border-left: 4px solid #ff2200;
+        padding: 18px 24px;
+        margin-bottom: 24px;
+        display: flex; gap: 16px; align-items: flex-start;
+      }
+      .danger-alert .icon { font-size: 22px; flex-shrink: 0; }
+      .danger-alert p {
+        font-family:"VCR OSD MONO",monospace;
+        font-size: 13px; letter-spacing: 1px; line-height: 1.9;
+        color: #ff6644; margin: 0;
+      }
+      /* Image centrée SOUS l'alerte, avant la description */
+      .center-img-wide {
+        display: flex;
+        justify-content: center;
+        margin: 0 0 28px 0;
+      }
+      .center-img-wide img {
+        max-width: 340px;
+        width: 100%;
+        height: auto;
+        max-height: 280px;
+        object-fit: contain;
+        filter: brightness(0.85) saturate(0.7) contrast(1.2);
+        border: 1px solid rgba(255,30,0,0.3);
+      }
+      .compare-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+        border: 1px solid #2a1a00; margin: 14px 0;
+      }
+      .compare-col { padding: 20px 24px; }
+      .compare-col:first-child { border-right: 1px solid #2a1a00; }
+      .compare-col h3 { font-size: 15px; letter-spacing: 3px; margin-bottom: 14px; }
+      .compare-col:first-child h3 { color: #00cc66; }
+      .compare-col:last-child h3  { color: #ff3300; }
+      .compare-col li { font-size: 13px; line-height: 1.8; }
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar">
+      <a href="../index0.html">Accueil</a>
+      <a href="../niveaux.html">Niveaux</a>
+      <a href="../entites.html">Entités</a>
+      <a href="../objets.html" class="nav-active">Objets</a>
+    </nav>
+
+    <section class="entity">
+
+      <h1>Objet n°12 — Liquid Pain</h1>
+      <hr class="sep">
+
+      <div class="info-bar">
+        <span>UTILITÉ : <span class="hostile">AUCUNE — MORTEL</span></span>
+        <span>RESSEMBLANCE : <span class="hostile">Eau d'Amande</span></span>
+        <span>CONTACT : <span class="hostile">NE PAS TOUCHER</span></span>
+      </div>
+
+      <div class="danger-alert">
+        <span class="icon">☠</span>
+        <p>
+          AVERTISSEMENT CRITIQUE — Le Liquid Pain peut être confondu avec de l'Eau d'Amande.
+          En cas de doute sur un liquide, ne pas le consommer. Vérifier l'odeur :
+          le Liquid Pain n'a pas l'arôme vanillé caractéristique.
+        </p>
+      </div>
+
+      <!-- Image centrée sous l'alerte, avant le texte -->
+      <div class="center-img-wide">
+        <img src="https://static.wikitide.net/backroomswiki/thumb/8/8c/Liquid-Pain-12.jpg/640px-Liquid-Pain-12.jpg"
+             alt="Liquid Pain"
+             onerror="this.parentNode.style.display='none'">
+      </div>
+
+      <h2>Description</h2>
+      <p>
+        Le <strong>Liquid Pain</strong> est l'un des objets les plus dangereux répertoriés
+        dans les Backrooms. Il se présente sous la forme d'un <em>liquide rouge visqueux</em>,
+        superficiellement proche de l'<a href="objet-eau-amande.html">Eau d'Amande</a>
+        dans certains contenants. Son nom vient de l'effet immédiat produit au contact :
+        une <em>douleur extrême</em>, suivie de lésions corrosives. L'ingestion est
+        <strong>systématiquement fatale</strong>.
+      </p>
+
+      <h2>Utilisations connues</h2>
+      <p>
+        Malgré sa dangerosité, le Liquid Pain entre dans la composition du <em>Firesalt</em>
+        (mélangé à du sel commun — hautement inflammable) et sert parfois d'arme dans certains
+        conflits inter-groupes. Ces usages restent extrêmement risqués et déconseillés par le M.E.G.
+      </p>
+
+      <h2>Comment le distinguer</h2>
+      <div class="compare-grid">
+        <div class="compare-col">
+          <h3>✔ Eau d'Amande</h3>
+          <ul>
+            <li>Liquide clair ou légèrement teinté.</li>
+            <li>Odeur douce de vanille et rose.</li>
+            <li>Goût sucré et doux.</li>
+            <li>Ne brûle pas au contact de la peau.</li>
+          </ul>
+        </div>
+        <div class="compare-col">
+          <h3>✘ Liquid Pain</h3>
+          <ul>
+            <li>Liquide rouge vif ou brunâtre visqueux.</li>
+            <li>Aucune odeur ou odeur âcre.</li>
+            <li>Brûlure immédiate au contact cutané.</li>
+            <li>Corrosif sur les matériaux organiques.</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+  </body>
+</html>

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Entity 14 — ⊥⊤⊣⊢ | The Backrooms</title>
+  <link rel="stylesheet" href="../shared.css"/>
+  <style>
+    /* ══════════════════════════════════════════════════
+       ABSTRACTION — Géométrie impossible
+    ══════════════════════════════════════════════════ */
+    :root {
+      --abstract-1: #a855c8;
+      --abstract-2: #6fa3d8;
+      --abstract-3: #d46895;
+      --glitch-red: #ff0044;
+      --glitch-cyan: #00ffaa;
+      --void: #0a0512;
+      --glow-purple: rgba(168, 85, 200, 0.6);
+      --glow-blue: rgba(111, 163, 216, 0.5);
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--void);
+    }
+
+    body {
+      background: transparent !important;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ══ FOND FRACTAL — rotation fluide sans scaling pour éviter tout décalage ══ */
+    .fractal-layer {
+      position: fixed;
+      inset: -20%;
+      width: 140%;
+      height: 140%;
+      z-index: 0;
+      pointer-events: none;
+      background: 
+        repeating-conic-gradient(
+          from 0deg at 50% 50%,
+          transparent 0deg,
+          rgba(168, 85, 200, 0.07) 12deg,
+          transparent 24deg,
+          rgba(111, 163, 216, 0.07) 36deg,
+          transparent 48deg
+        ),
+        repeating-conic-gradient(
+          from 30deg at 35% 65%,
+          transparent 0deg,
+          rgba(212, 104, 149, 0.05) 18deg,
+          transparent 36deg
+        );
+      animation: fractal-rotate 90s linear infinite;
+    }
+
+    @keyframes fractal-rotate {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ══ COUCHE DE DISTORSION — glow ambiant pur, sans translation ══ */
+    .distortion-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 60% at 35% 55%, rgba(168, 85, 200, 0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 70% 30%, rgba(111, 163, 216, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 50% at 20% 80%, rgba(212, 104, 149, 0.06) 0%, transparent 60%);
+      animation: distortion-breathe 12s ease-in-out infinite;
+    }
+
+    @keyframes distortion-breathe {
+      0%, 100% { opacity: 0.7; }
+      50%       { opacity: 1; }
+    }
+
+    /* ══ NAVIGATION — effet glow sur la bordure, aucun mouvement ══ */
+    .navbar {
+      position: relative;
+      z-index: 10;
+      background: rgba(10, 5, 18, 0.97) !important;
+      border-bottom: 1px solid rgba(168, 85, 200, 0.35);
+      animation: nav-border-pulse 10s ease-in-out infinite;
+    }
+
+    @keyframes nav-border-pulse {
+      0%, 100% { border-bottom-color: rgba(168, 85, 200, 0.35); }
+      40%       { border-bottom-color: rgba(111, 163, 216, 0.55); }
+      80%       { border-bottom-color: rgba(212, 104, 149, 0.45); }
+    }
+
+    .navbar a {
+      color: var(--abstract-2) !important;
+      transition: color 0.3s ease, text-shadow 0.3s ease;
+    }
+
+    .navbar a:hover {
+      color: var(--abstract-1) !important;
+      text-shadow: 0 0 12px var(--glow-purple);
+    }
+
+    .nav-active {
+      color: var(--abstract-1) !important;
+      border-bottom: 2px solid var(--abstract-1) !important;
+      text-shadow: 0 0 10px var(--glow-purple);
+    }
+
+    /* ══ SECTION PRINCIPALE — bordure animée, aucune rotation ══ */
+    .entity {
+      position: relative;
+      z-index: 5;
+      background: rgba(10, 5, 18, 0.88) !important;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(168, 85, 200, 0.3);
+      animation: entity-glow 16s ease-in-out infinite;
+    }
+
+    @keyframes entity-glow {
+      0%, 100% { box-shadow: 0 0 30px rgba(168, 85, 200, 0.08), inset 0 0 60px rgba(168, 85, 200, 0.03); }
+      33%       { box-shadow: 0 0 50px rgba(111, 163, 216, 0.12), inset 0 0 80px rgba(111, 163, 216, 0.05); }
+      66%       { box-shadow: 0 0 40px rgba(212, 104, 149, 0.10), inset 0 0 70px rgba(212, 104, 149, 0.04); }
+    }
+
+    /* ══ TITRE — glitch via clip-path & text-shadow, sans déplacer le layout ══ */
+    .impossible-title {
+      position: relative;
+      font-size: 48px;
+      font-weight: bold;
+      letter-spacing: 12px;
+      text-align: center;
+      margin: 40px 0 10px;
+      color: var(--abstract-1);
+      font-family: "VCR OSD MONO", monospace;
+      text-shadow: 0 0 20px var(--glow-purple), 0 0 60px rgba(168, 85, 200, 0.3);
+      animation: title-glow-shift 8s ease-in-out infinite;
+    }
+
+    /* Pseudo-éléments pour l'effet glitch sans déplacer le vrai titre */
+    .impossible-title::before,
+    .impossible-title::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      text-align: center;
+      letter-spacing: 12px;
+      pointer-events: none;
+    }
+
+    .impossible-title::before {
+      color: var(--glitch-cyan);
+      clip-path: polygon(0 30%, 100% 30%, 100% 50%, 0 50%);
+      opacity: 0;
+      animation: glitch-before 10s ease-in-out infinite;
+    }
+
+    .impossible-title::after {
+      color: var(--glitch-red);
+      clip-path: polygon(0 55%, 100% 55%, 100% 75%, 0 75%);
+      opacity: 0;
+      animation: glitch-after 10s ease-in-out infinite;
+    }
+
+    @keyframes title-glow-shift {
+      0%, 100% { text-shadow: 0 0 20px var(--glow-purple), 0 0 60px rgba(168, 85, 200, 0.3); }
+      50%       { text-shadow: 0 0 30px rgba(111, 163, 216, 0.7), 0 0 80px rgba(111, 163, 216, 0.2); }
+    }
+
+    @keyframes glitch-before {
+      0%, 88%, 100% { opacity: 0; }
+      90%   { opacity: 0.7; clip-path: polygon(0 20%, 100% 25%, 100% 40%, 0 35%); }
+      91%   { opacity: 0; }
+      93%   { opacity: 0.5; clip-path: polygon(0 60%, 100% 55%, 100% 70%, 0 75%); }
+      94%   { opacity: 0; }
+    }
+
+    @keyframes glitch-after {
+      0%, 88%, 100% { opacity: 0; }
+      90%   { opacity: 0.6; clip-path: polygon(0 55%, 100% 60%, 100% 75%, 0 70%); }
+      91%   { opacity: 0; }
+      93%   { opacity: 0.4; clip-path: polygon(0 10%, 100% 5%, 100% 25%, 0 30%); }
+      94%   { opacity: 0; }
+    }
+
+    /* ══ SOUS-TITRE CORROMPU ══ */
+    .subtitle-corrupted {
+      text-align: center;
+      font-size: 13px;
+      letter-spacing: 6px;
+      color: var(--abstract-3);
+      margin-bottom: 30px;
+      animation: subtitle-phase 9s ease-in-out infinite;
+    }
+
+    @keyframes subtitle-phase {
+      0%, 85%, 100% { opacity: 0.7; color: var(--abstract-3); filter: none; }
+      90%           { opacity: 0.2; color: var(--glitch-cyan); filter: blur(1px); }
+      92%           { opacity: 0.9; color: var(--abstract-3); filter: none; }
+      94%           { opacity: 0.4; color: var(--glitch-red);  filter: blur(0.5px); }
+      96%           { opacity: 0.7; color: var(--abstract-3); filter: none; }
+    }
+
+    /* ══ CITATION ══ */
+    .lore-quote {
+      border-left: 3px solid rgba(168, 85, 200, 0.6);
+      border-top: 1px solid rgba(168, 85, 200, 0.25);
+      border-right: 1px solid rgba(168, 85, 200, 0.15);
+      border-bottom: 1px solid rgba(168, 85, 200, 0.25);
+      background: rgba(10, 5, 18, 0.7);
+      padding: 24px 32px;
+      margin-bottom: 30px;
+      position: relative;
+      animation: quote-border 14s ease-in-out infinite;
+    }
+
+    @keyframes quote-border {
+      0%, 100% { border-left-color: rgba(168, 85, 200, 0.6); box-shadow: -4px 0 20px rgba(168, 85, 200, 0.15); }
+      50%       { border-left-color: rgba(111, 163, 216, 0.8); box-shadow: -4px 0 30px rgba(111, 163, 216, 0.2); }
+    }
+
+    .lore-quote p {
+      font-style: italic;
+      color: var(--abstract-2);
+      font-size: 15px;
+      line-height: 2;
+      margin: 0;
+      animation: text-breathe 16s ease-in-out infinite;
+    }
+
+    @keyframes text-breathe {
+      0%, 100% { opacity: 1; }
+      45%       { opacity: 0.75; }
+      50%       { opacity: 0.85; }
+    }
+
+    .lore-quote .source {
+      display: block;
+      text-align: right;
+      font-size: 12px;
+      color: rgba(212, 104, 149, 0.6);
+      margin-top: 10px;
+      letter-spacing: 2px;
+    }
+
+    /* ══ INFO BAR ══ */
+    .info-bar {
+      background: rgba(168, 85, 200, 0.08) !important;
+      border: 1px solid rgba(168, 85, 200, 0.3) !important;
+      animation: infobar-glow 8s ease-in-out infinite;
+    }
+
+    @keyframes infobar-glow {
+      0%, 100% { box-shadow: none; }
+      50%       { box-shadow: 0 0 20px rgba(168, 85, 200, 0.15) inset; }
+    }
+
+    .info-bar .hostile {
+      color: var(--abstract-3) !important;
+      animation: hostile-flicker 5s ease-in-out infinite;
+    }
+
+    @keyframes hostile-flicker {
+      0%, 100% { opacity: 1; text-shadow: none; }
+      30%       { opacity: 0.6; }
+      50%       { opacity: 1; text-shadow: 0 0 8px rgba(212, 104, 149, 0.8); }
+      70%       { opacity: 0.8; }
+    }
+
+    /* ══ IMAGE — glitch pur via filter + clip-path, aucune translation ══ */
+    .impossible-img {
+      width: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      border: 1px solid rgba(168, 85, 200, 0.4);
+      display: block;
+      margin: 20px 0 28px;
+      filter: brightness(0.75) saturate(0.65) contrast(1.15);
+      animation: img-glitch 18s ease-in-out infinite;
+    }
+
+    @keyframes img-glitch {
+      0%, 78%, 100% {
+        filter: brightness(0.75) saturate(0.65) contrast(1.15);
+        clip-path: inset(0 0 0 0);
+      }
+      80% {
+        filter: brightness(0.5) saturate(1.4) contrast(1.6) hue-rotate(25deg);
+        clip-path: inset(5% 0 40% 0);
+      }
+      81% {
+        filter: brightness(0.9) saturate(0.2) contrast(0.9) hue-rotate(-15deg);
+        clip-path: inset(45% 0 5% 0);
+      }
+      82% {
+        filter: brightness(0.75) saturate(0.65) contrast(1.15);
+        clip-path: inset(20% 0 20% 0);
+      }
+      83%, 86% {
+        filter: brightness(0.75) saturate(0.65) contrast(1.15);
+        clip-path: inset(0 0 0 0);
+      }
+      87% {
+        filter: brightness(1.2) saturate(0) contrast(1.3);
+        clip-path: inset(30% 0 30% 0);
+      }
+      88% {
+        filter: brightness(0.75) saturate(0.65) contrast(1.15);
+        clip-path: inset(0 0 0 0);
+      }
+    }
+
+    /* ══ STAT ROW — pas de skew qui déplace le layout ══ */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border: 1px solid rgba(168, 85, 200, 0.3);
+      margin: 20px 0;
+      background: rgba(168, 85, 200, 0.05);
+      animation: stat-glow 12s ease-in-out infinite;
+    }
+
+    @keyframes stat-glow {
+      0%, 100% { box-shadow: 0 0 0px transparent; }
+      50%       { box-shadow: 0 0 25px rgba(168, 85, 200, 0.15), inset 0 0 15px rgba(168, 85, 200, 0.05); }
+    }
+
+    .stat-cell {
+      padding: 16px;
+      border-right: 1px solid rgba(168, 85, 200, 0.3);
+      text-align: center;
+    }
+
+    .stat-cell:last-child { border-right: none; }
+
+    .stat-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: rgba(111, 163, 216, 0.6);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      color: var(--abstract-1);
+      text-shadow: 0 0 8px var(--glow-purple);
+      animation: value-phase 11s ease-in-out infinite;
+    }
+
+    @keyframes value-phase {
+      0%, 90%, 100%  { opacity: 1; filter: none; }
+      93%            { opacity: 0.25; filter: blur(1px); }
+      95%            { opacity: 1; filter: none; }
+      97%            { opacity: 0.6; filter: none; }
+      98%            { opacity: 1; }
+    }
+
+    /* ══ H2 — écho par pseudo-élément fixe, sans translate ══ */
+    h2 {
+      color: var(--abstract-1) !important;
+      position: relative;
+      text-shadow: 0 0 12px rgba(168, 85, 200, 0.5);
+    }
+
+    h2::before {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      color: var(--glitch-cyan);
+      pointer-events: none;
+      animation: h2-echo 16s ease-in-out infinite;
+    }
+
+    @keyframes h2-echo {
+      0%, 90%, 100% { opacity: 0; filter: none; }
+      92%           { opacity: 0.45; filter: blur(0.5px); clip-path: polygon(0 0, 100% 0, 100% 45%, 0 55%); }
+      93%           { opacity: 0.35; filter: blur(1px);   clip-path: polygon(0 50%, 100% 45%, 100% 100%, 0 100%); }
+      94%           { opacity: 0;   filter: none; }
+    }
+
+    /* ══ PARAGRAPHES ══ */
+    p {
+      color: rgba(111, 163, 216, 0.95) !important;
+      line-height: 1.9;
+    }
+
+    /* ══ GLITCH TEXT — couleur seule, sans déplacer les mots ══ */
+    .glitch-text {
+      display: inline;
+      animation: text-glitch-color 14s ease-in-out infinite;
+    }
+
+    @keyframes text-glitch-color {
+      0%, 91%, 100% { color: inherit; filter: none; }
+      92%           { color: var(--glitch-cyan); filter: brightness(1.4); }
+      93%           { color: var(--glitch-red);  filter: brightness(1.2); }
+      94%           { color: inherit; filter: none; }
+    }
+
+    /* ══ WARNING BLOCK — pulsation de glow, sans animation de position ══ */
+    .abstract-warning {
+      background: rgba(212, 104, 149, 0.12) !important;
+      border: 1px solid var(--abstract-3) !important;
+      color: var(--abstract-2) !important;
+      padding: 20px 28px 20px 40px;
+      margin: 24px 0;
+      position: relative;
+      animation: warning-breathe 5s ease-in-out infinite;
+    }
+
+    @keyframes warning-breathe {
+      0%, 100% {
+        box-shadow: 0 0 15px rgba(212, 104, 149, 0.2), inset 0 0 30px rgba(212, 104, 149, 0.05);
+        border-color: rgba(212, 104, 149, 0.6);
+      }
+      50% {
+        box-shadow: 0 0 35px rgba(212, 104, 149, 0.45), inset 0 0 50px rgba(212, 104, 149, 0.12);
+        border-color: rgba(212, 104, 149, 1);
+      }
+    }
+
+    .abstract-warning::before {
+      content: '⊥⊤⊣⊢';
+      font-size: 28px;
+      color: var(--abstract-3);
+      position: absolute;
+      left: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      animation: warning-symbol-spin 6s linear infinite;
+      text-shadow: 0 0 10px rgba(212, 104, 149, 0.8);
+    }
+
+    @keyframes warning-symbol-spin {
+      0%   { transform: translateY(-50%) rotate(0deg);   opacity: 0.8; }
+      25%  { opacity: 1; }
+      50%  { transform: translateY(-50%) rotate(180deg); opacity: 0.7; }
+      75%  { opacity: 1; }
+      100% { transform: translateY(-50%) rotate(360deg); opacity: 0.8; }
+    }
+
+    /* ══ GRILLE DE CARTES — glow ambiant cyclique, sans translateY ══ */
+    .impossible-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .impossible-card {
+      background: rgba(168, 85, 200, 0.08);
+      border: 1px solid rgba(168, 85, 200, 0.3);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      animation: card-aura 8s ease-in-out infinite;
+    }
+
+    /* Balayage lumineux sur les cartes */
+    .impossible-card::after {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: -60%;
+      width: 50%;
+      height: 300%;
+      background: linear-gradient(90deg, transparent, rgba(168, 85, 200, 0.06), transparent);
+      animation: card-sweep 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .impossible-card:nth-child(1) { animation-delay: 0s; }
+    .impossible-card:nth-child(1)::after { animation-delay: 0s; }
+    .impossible-card:nth-child(2) { animation-delay: 2s; }
+    .impossible-card:nth-child(2)::after { animation-delay: 2s; }
+    .impossible-card:nth-child(3) { animation-delay: 4s; }
+    .impossible-card:nth-child(3)::after { animation-delay: 4s; }
+    .impossible-card:nth-child(4) { animation-delay: 6s; }
+    .impossible-card:nth-child(4)::after { animation-delay: 6s; }
+
+    @keyframes card-aura {
+      0%, 100% { border-color: rgba(168, 85, 200, 0.3); box-shadow: none; }
+      50%       { border-color: rgba(168, 85, 200, 0.6); box-shadow: 0 0 20px rgba(168, 85, 200, 0.12); }
+    }
+
+    @keyframes card-sweep {
+      0%   { left: -60%; opacity: 0; }
+      20%  { opacity: 1; }
+      50%  { left: 120%; opacity: 0; }
+      100% { left: 120%; opacity: 0; }
+    }
+
+    .impossible-card h3 {
+      font-size: 14px;
+      color: var(--abstract-1);
+      margin-bottom: 12px;
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px var(--glow-purple);
+    }
+
+    .impossible-card p {
+      font-size: 13px;
+      line-height: 1.8;
+      margin: 0;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Couches de fond -->
+  <div class="fractal-layer"></div>
+  <div class="distortion-layer"></div>
+
+  <nav class="navbar">
+    <a href="../index0.html">Accueil</a>
+    <a href="../niveaux.html">Niveaux</a>
+    <a href="../entites.html" class="nav-active">Entités</a>
+    <a href="../objets.html">Objets</a>
+  </nav>
+
+  <section class="entity">
+
+    <h1 class="impossible-title" data-text="ENTITY 14">ENTITY 14</h1>
+    <div class="subtitle-corrupted">⊥⊤⊣⊢ THE THING ON LEVEL 7 ⊥⊤⊣⊢</div>
+    <hr class="sep">
+
+    <div class="lore-quote">
+      <p>
+        Je l'ai vu. Ou peut-être que je ne l'ai pas vu. Il était là et pas là en même temps. 
+        Il se déplaçait dans des directions qui n'existent pas. Quand je ferme les yeux, je le vois encore. 
+        Quand j'ouvre les yeux, il est toujours là mais différent.
+      </p>
+      <span class="source">— Dernière transmission cohérente, Explorateur Sigma-12</span>
+    </div>
+
+    <img class="impossible-img" 
+         src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwDrqXvAXBTS3AVUt_QkMwTaVp3HNe1H8rYA&s" 
+         alt="Entity 14" 
+         onerror="this.style.display='none'">
+
+    <div class="info-bar">
+      <span>CLASSE : <span class="hostile">INCONNAISSABLE</span></span>
+      <span>LOCALISATION : <span class="hostile">Niveau 7 exclusivement</span></span>
+      <span>COMPORTEMENT : <span class="hostile">IMPOSSIBLE À PRÉDIRE</span></span>
+      <span>DANGER : <span class="hostile">EXTRÊME</span></span>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-cell"><div class="stat-label">Forme</div><div class="stat-value">Variable</div></div>
+      <div class="stat-cell"><div class="stat-label">Dimensions</div><div class="stat-value">3+ ?</div></div>
+      <div class="stat-cell"><div class="stat-label">Intelligence</div><div class="stat-value">Élevée ?</div></div>
+      <div class="stat-cell"><div class="stat-label">Victimes</div><div class="stat-value">87%</div></div>
+    </div>
+
+    <h2 data-text="Description">Description</h2>
+    <p>
+      L'<strong>Entity 14</strong> — communément appelée "<span class="glitch-text">The Thing On Level 7</span>" 
+      — n'a pas de description cohérente. Chaque témoin rapporte quelque chose de <em>fondamentalement différent</em>. 
+      Certains décrivent une masse sombre avec trop d'angles. D'autres parlent d'une présence invisible qui déforme 
+      l'espace autour d'elle. Quelques-uns affirment avoir vu une <span class="glitch-text">créature géométrique</span> 
+      composée de formes impossibles qui se replient sur elles-mêmes.
+    </p>
+    <p>
+      Ce qui est cohérent : elle existe dans <strong>plus de trois dimensions spatiales</strong>. Ce que nous 
+      percevons n'est qu'une "tranche" de sa véritable forme. C'est comme si un être tridimensionnel traversait 
+      un monde bidimensionnel — les habitants ne verraient que des sections changeantes et inexplicables.
+    </p>
+
+    <h2 data-text="Manifestations rapportées">Manifestations rapportées</h2>
+    <div class="impossible-grid">
+      <div class="impossible-card">
+        <h3>FORME GÉOMÉTRIQUE</h3>
+        <p>Un assemblage d'angles et d'arêtes qui ne respectent pas les règles euclidiennes. Les bords se croisent sans 
+        se toucher. Les surfaces sont à la fois concaves et convexes.</p>
+      </div>
+      <div class="impossible-card">
+        <h3>DISTORSION SPATIALE</h3>
+        <p>Une zone où l'espace lui-même se déforme. Les murs se plient, les couloirs se tordent, 
+        la perspective s'inverse. La créature est la distorsion.</p>
+      </div>
+      <div class="impossible-card">
+        <h3>OMBRE MULTIDIRECTIONNELLE</h3>
+        <p>Une ombre projetée dans plusieurs directions impossibles simultanément. Elle se déplace indépendamment 
+        de sa source. Parfois, seule l'ombre est visible.</p>
+      </div>
+      <div class="impossible-card">
+        <h3>PRÉSENCE INVISIBLE</h3>
+        <p>Rien n'est visible, mais quelque chose est là. L'air semble plus épais. Les sons sont étouffés. 
+        Un sentiment de présence écrasante sans source identifiable.</p>
+      </div>
+    </div>
+
+    <h2 data-text="Comportement">Comportement</h2>
+    <p>
+      Le comportement de l'Entity 14 est <strong>impossible à prédire</strong> car il semble suivre une logique qui 
+      n'existe pas dans notre réalité. Elle ne "chasse" pas au sens traditionnel. Elle ne "traque" pas ses victimes. 
+      Elle <span class="glitch-text">existe simplement</span> dans un espace donné, et ceux qui la rencontrent 
+      sont <em>altérés</em> par cette rencontre.
+    </p>
+    <p>
+      Certains explorateurs disparaissent instantanément. D'autres sont retrouvés des heures plus tard, incapables 
+      de parler, regardant fixement dans le vide. Quelques-uns reviennent apparemment indemnes mais commencent 
+      progressivement à <span class="glitch-text">percevoir des dimensions supplémentaires</span> — une condition 
+      qui mène invariablement à la folie.
+    </p>
+
+    <h2 data-text="Effets sur les victimes">Effets sur les victimes</h2>
+    <p>
+      Les survivants d'une rencontre avec l'Entity 14 présentent des symptômes distinctifs :
+    </p>
+    <ul style="margin-left:24px;line-height:2;color:rgba(95,139,191,0.95);">
+      <li><strong>Désorientation spatiale permanente</strong> — Incapacité à naviguer dans l'espace tridimensionnel normal</li>
+      <li><strong>Visions d'angles impossibles</strong> — Perception de géométries qui ne devraient pas exister</li>
+      <li><strong>Langage corrompu</strong> — Utilisation de mots pour décrire des concepts sans référence dans notre réalité</li>
+      <li><strong>Dessins obsessionnels</strong> — Traçage compulsif de formes géométriques impossibles</li>
+      <li><strong>Détérioration neurologique</strong> — Le cerveau tente de traiter des informations pour lesquelles il n'est pas conçu</li>
+    </ul>
+
+    <div class="abstract-warning">
+      ⊥⊤⊣⊢ AVERTISSEMENT ABSOLU — L'Entity 14 représente une menace existentielle. Elle ne peut être combattue, 
+      évitée ou comprise. Le simple fait de la percevoir cause des dommages irréversibles à la psyché humaine. 
+      Le M.E.G. a classé le Niveau 7 comme ZONE D'EXCLUSION ABSOLUE en grande partie à cause de sa présence. 
+      Aucune tentative de documentation supplémentaire n'est autorisée. Les données existantes sont fragmentées 
+      et contradictoires. SI VOUS LA RENCONTREZ : ⊥⊤⊣⊢
+    </div>
+
+    <h2 data-text="Théories">Théories</h2>
+    <p>
+      Les chercheurs du M.E.G. ont développé plusieurs hypothèses sur la nature de l'Entity 14. La plus acceptée 
+      suggère qu'elle est un <strong>être quadridimensionnel</strong> ou plus, capable de se déplacer librement à 
+      travers notre espace tridimensionnel comme nous pourrions traverser une feuille de papier.
+    </p>
+    <p>
+      Une théorie alternative propose qu'elle soit une <span class="glitch-text">manifestation physique de la 
+      géométrie non-euclidienne</span> elle-même — pas un être vivant, mais une propriété émergente du Niveau 7. 
+      Dans ce modèle, elle ne "veut" rien. Elle existe simplement, et son existence est incompatible avec la nôtre.
+    </p>
+    <p>
+      Une minorité de chercheurs suggère quelque chose de plus troublant : que l'Entity 14 nous <em>perçoit</em> 
+      de la même manière étrange et fragmentée que nous la percevons. Pour elle, nous sommes peut-être tout aussi 
+      <span class="glitch-text">impossibles</span> et dérangeants qu'elle l'est pour nous.
+    </p>
+
+    <p style="text-align:center;margin-top:40px;color:var(--abstract-3);font-style:italic;opacity:0.7;">
+      « Je sais ce qu'elle est maintenant. Elle n'est pas d'ici. Elle n'a jamais été d'ici. 
+      Et nous ne sommes pas censés la voir. »<br>
+      — Dernière note, Chercheur Oméga-4
+    </p>
+
+  </section>
+</body>
+</html>

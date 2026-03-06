@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Objet n°1 — Eau d'Amande | The Backrooms</title>
+    <link rel="stylesheet" href="../shared.css"/>
+    <style>
+      /* Bandeau image centré large entre info-bar et description */
+      .center-img-wide {
+        display: flex;
+        justify-content: center;
+        margin: 0 0 28px 0;
+      }
+      .center-img-wide img {
+        max-width: 380px;
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+        object-fit: contain;
+        filter: brightness(0.9) saturate(0.55) contrast(1.1);
+        border: 1px solid #2a1a00;
+      }
+      .variants-table { width:100%; border-collapse:collapse; margin:14px 0 24px; font-size:14px; }
+      .variants-table th {
+        font-family:"VCR OSD MONO",monospace; font-size:11px; letter-spacing:3px;
+        text-transform:uppercase; color:orange; padding:10px 14px; text-align:left;
+        background:#0f0900; border-bottom:2px solid #2a1a00; font-weight:normal;
+      }
+      .variants-table td { padding:10px 14px; border-bottom:1px solid #1a1200; color:#bbb; vertical-align:top; }
+      .variants-table tr:hover td { background:#0a0800; }
+      .badge-safe   { color:#00cc66; }
+      .badge-danger { color:#ff3300; }
+      .discovery-log {
+        border-left: 3px solid #333;
+        background: #0a0800;
+        padding: 18px 24px;
+        margin: 14px 0;
+        font-size: 13px;
+        line-height: 1.9;
+        color: #888;
+      }
+      .discovery-log .log-header {
+        font-family:"VCR OSD MONO",monospace;
+        font-size:11px; letter-spacing:3px; color:#444;
+        margin-bottom:12px; text-transform:uppercase;
+      }
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar">
+      <a href="../index0.html">Accueil</a>
+      <a href="../niveaux.html">Niveaux</a>
+      <a href="../entites.html">Entités</a>
+      <a href="../objets.html" class="nav-active">Objets</a>
+    </nav>
+
+    <section class="entity">
+
+      <h1>Objet n°1 — Eau d'Amande</h1>
+      <hr class="sep">
+
+      <div class="info-bar">
+        <span>UTILITÉ : <span class="loc">ESSENTIELLE</span></span>
+        <span>DISPONIBILITÉ : <span class="loc">Très commune</span></span>
+        <span>CONSOMMATION : <span class="danger-low">SÛRE</span></span>
+      </div>
+
+      <!-- Image centrée, pas dans une colonne -->
+      <div class="center-img-wide">
+        <img src="https://backrooms-pantheon.wdfiles.com/local--files/object-1/Almondwater.jpg"
+             alt="Eau d'Amande"
+             onerror="this.parentNode.style.display='none'">
+      </div>
+
+      <h2>Description</h2>
+      <p>
+        L'<strong>Eau d'Amande</strong> est la ressource la plus précieuse et la plus répandue
+        des Backrooms. Elle se présente sous la forme d'un liquide clair au goût doux de
+        <em>vanille et d'eau de rose</em>, contenu dans divers récipients : bouteilles
+        plastiques, thermos métalliques, flacons en verre, voire cartons.
+      </p>
+      <p>
+        Il existe un équivalent dans le monde réel — une boisson produite par
+        <em>Victoria's Kitchen</em>, dont la recette est originaire de France.
+        Pourquoi cette boisson se retrouve en abondance dans les Backrooms reste
+        <strong>totalement inexpliqué</strong>.
+      </p>
+
+      <h2>Propriétés &amp; Effets</h2>
+      <p>
+        Elle soigne les blessures légères, neutralise certains effets d'entités hostiles,
+        maintient la lucidité et constitue une source calorique d'environ
+        <strong>400 calories par bouteille</strong>. Appliquée sur une morsure de
+        <a href="../entites/Entity8.html">Hound</a>, elle peut neutraliser le Virus Hound
+        dans les cinq premières minutes.
+      </p>
+
+      <h2>Variantes</h2>
+      <table class="variants-table">
+        <thead>
+          <tr><th>Variante</th><th>Apparence</th><th>Statut</th><th>Effets spéciaux</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Standard</td>
+            <td>Liquide clair, goût vanille-amande</td>
+            <td class="badge-safe">Sûre</td>
+            <td>Hydratation, soins légers, maintien de la lucidité.</td>
+          </tr>
+          <tr>
+            <td>Variante colorée</td>
+            <td>Teinte légère selon la couleur du flacon</td>
+            <td class="badge-safe">Sûre (rare)</td>
+            <td>Effets renforcés : gains de masse musculaire et d'endurance rapportés.</td>
+          </tr>
+          <tr>
+            <td>Périmée</td>
+            <td>Moisissures blanches, bleues ou vertes. Odeur de lait caillé.</td>
+            <td class="badge-danger">Danger</td>
+            <td>Certains pensent que l'Eau de Noix de Cajou est de l'Eau d'Amande périmée.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Où en trouver</h2>
+      <p>
+        Le <a href="../niveaux/niveau-1.html">Niveau 1</a> en est la source la plus accessible.
+        Elle se trouve également aux <a href="../enconstruction.html">Niveaux 10, 11, 18, 28 et 29</a>,
+        et peut être échangée dans les zones commerciales comme le
+        <a href="../enconstruction.html">Niveau 11</a>.
+      </p>
+      <div class="warning-block">
+        ⚠ ATTENTION — Des bouteilles d'Eau d'Amande trouvées dans le
+        <a href="../niveaux/niveau-fun.html">Niveau Fun</a> peuvent être contaminées par le virus
+        <em>Sanguine Festivus</em>. Ne jamais consommer une bouteille trouvée dans ce niveau
+        sans l'avoir préalablement testée. L'aspect et le goût peuvent sembler normaux
+        malgré la contamination.
+      </div>
+
+      <h2>Journal de découverte — Équipe Overseer, 2012</h2>
+      <div class="discovery-log">
+        <div class="log-header">Archive M.E.G. · Niveau 2 · 13 janvier 2012 · 14h07</div>
+        <p>
+          <em>Overseer C :</em> « Mon enregistreur vient de s'allumer ! J'ai trouvé ces fioles
+          dans un endroit en briques blanches… »<br>
+          <em>Overseer A :</em> « Bois-en un peu. Si tu t'en sors, on sait que c'est sûr. »<br>
+          <em>Overseer C :</em> « Très drôle. »
+        </p>
+        <p style="color:#555; font-size:12px; margin-top:12px;">
+          Résultat : Overseer B a guéri en une semaine d'une infection.
+          L'Eau d'Amande a reçu le statut d'Objet 1 en raison de son rôle décisif dans leur survie.
+        </p>
+      </div>
+
+    </section>
+  </body>
+</html>

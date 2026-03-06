@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Entité n°9 — Facelings | The Backrooms</title>
+    <link rel="stylesheet" href="../shared.css"/>
+    <style>
+      /* Image centrée large entre deux sections */
+      .wide-img {
+        width: 100%;
+        max-height: 280px;
+        object-fit: cover;
+        object-position: center 20%;
+        filter: brightness(0.75) saturate(0.4) contrast(1.2);
+        border: 1px solid #2a1a00;
+        display: block;
+        margin: 24px 0;
+      }
+      /* Grille types Facelings */
+      .faceling-types {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        border: 1px solid #2a1a00;
+        margin: 14px 0 24px 0;
+      }
+      .faceling-type {
+        padding: 22px 24px;
+        border-right: 1px solid #2a1a00;
+        border-bottom: 1px solid #2a1a00;
+      }
+      .faceling-type:nth-child(2n) { border-right: none; }
+      .faceling-type:nth-last-child(-n+2) { border-bottom: none; }
+      .faceling-type h3 { font-size: 16px; margin-bottom: 10px; letter-spacing: 2px; }
+      .faceling-type p  { font-size: 13px; line-height: 1.7; margin: 0; }
+      .type-neutral h3  { color: #00cc66; }
+      .type-hostile h3  { color: #ff3300; }
+      .type-variable h3 { color: orange; }
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar">
+      <a href="../index0.html">Accueil</a>
+      <a href="../niveaux.html">Niveaux</a>
+      <a href="../entites.html" class="nav-active">Entités</a>
+      <a href="../objets.html">Objets</a>
+    </nav>
+
+    <section class="entity">
+
+      <h1>Entité n°9 — Facelings</h1>
+      <hr class="sep">
+
+      <div class="info-bar">
+        <span>NOM SCIENTIFIQUE : <span class="loc">Homo corruptum</span></span>
+        <span>HABITAT : <span class="loc">Majorité des niveaux</span></span>
+        <span>COMPORTEMENT : <span class="hostile">VARIABLE</span></span>
+      </div>
+
+      <h2>Description</h2>
+      <p>
+        Les <strong>Facelings</strong> — scientifiquement désignés <em>Homo corruptum</em> —
+        sont des entités humanoïdes peuplant la grande majorité des niveaux des Backrooms.
+        De loin, ils ressemblent à des humains ordinaires. C'est seulement en s'approchant
+        que leur anomalie principale se révèle : <em>l'absence totale de traits faciaux</em>.
+        Pas d'yeux, pas de nez, pas de bouche — une surface de peau lisse, semblable à un mannequin.
+      </p>
+      <p>
+        Ils sont considérés comme l'une des espèces les plus anciennes des Backrooms —
+        des rapports les mentionnant datent de <strong>1315</strong>. Certains spécimens
+        maîtrisent un langage complexe et présentent une hiérarchie sociale élaborée.
+      </p>
+
+      <!-- Image centrée pleine largeur entre description et types -->
+      <img class="wide-img"
+           src="https://preview.redd.it/n6t8pzfhjd351.png?width=640&crop=smart&auto=webp&s=828106bb88398a2551bde190da6d30965f659fa5"
+           alt="Faceling"
+           onerror="this.style.display='none'">
+
+      <h2>Types de Facelings</h2>
+      <div class="faceling-types">
+        <div class="faceling-type type-neutral">
+          <h3>Adultes</h3>
+          <p>Inoffensifs sauf provocation. Les plus communs. Certains ont des rôles définis : policier, pompier, caissier.</p>
+        </div>
+        <div class="faceling-type type-hostile">
+          <h3>Enfants</h3>
+          <p>Capricieux et hostiles. Apparaissent en groupes de 2 à 3. Tourmentent les vagabonds. À éviter absolument.</p>
+        </div>
+        <div class="faceling-type type-variable">
+          <h3>Faux Facelings</h3>
+          <p>Intelligence supérieure, capables de parler. Membres de tribus organisées. Premier spécimen parlant découvert en <em>1724</em>.</p>
+        </div>
+        <div class="faceling-type type-hostile">
+          <h3>Facelings Mémoire</h3>
+          <p>Les plus dangereux. Prennent l'apparence d'un proche — sans visage. Liés au <em>Memory Worm</em>.</p>
+        </div>
+      </div>
+
+      <h2>Comportements</h2>
+      <p>
+        Les adultes sont généralement passifs et peuvent fournir des ressources si approchés pacifiquement.
+        Cependant, des humains ont historiquement attaqué des Facelings en premier — ce qui a conduit à
+        une méfiance profonde vis-à-vis des vagabonds.
+        Les <a href="Entity8.html">Hounds</a> et les <a href="Entity3.html">Smilers</a>
+        sont parmi les rares entités avec lesquelles les Facelings entretiennent des conflits ouverts.
+        Les Facelings évitent systématiquement le <a href="../niveaux/niveau-fun.html">Niveau Fun</a>
+        — aucune observation de Faceling n'y a jamais été confirmée, ce qui suggère
+        une connaissance instinctive du virus <em>Sanguine Festivus</em>.
+      </p>
+
+      <h2>Découverte</h2>
+      <p>
+        Des journaux les mentionnant remontent à <strong>1909</strong>. Contrairement à d'autres entités,
+        ils semblent considérer les Backrooms comme leur <em>territoire naturel</em> —
+        les humains n'y étant que des intrus.
+      </p>
+
+      <h2>À faire et à ne pas faire</h2>
+      <div class="dos-donts">
+        <div class="do-col">
+          <h3>✔ À faire</h3>
+          <ul>
+            <li>Rester calme et non-menaçant face à un Faceling adulte.</li>
+            <li>Tenter un échange de ressources si en sécurité.</li>
+            <li>S'éloigner discrètement si des enfants Facelings sont repérés.</li>
+          </ul>
+        </div>
+        <div class="dont-col">
+          <h3>✘ À ne pas faire</h3>
+          <ul>
+            <li>Attaquer ou provoquer un Faceling adulte.</li>
+            <li>S'approcher d'un groupe d'enfants Facelings.</li>
+            <li>Faire confiance à un Faceling qui ressemble à quelqu'un de proche.</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+  </body>
+</html>
