@@ -382,7 +382,7 @@ MYGEQ FAU NUQZ QF VQ FQ EAGTMUFQ NAZZQ OTMZOQ
     <script>
         /* ── Timer ── */
         // ▼▼▼ MODIFIE CETTE LIGNE QUAND TU ENVOIES L'INVITATION ▼▼▼
-        const INVITE_DATE = '2026-03-07T12:00:00';
+        const INVITE_DATE = '2025-07-15T20:00:00';
         // ▲▲▲ Format : AAAA-MM-JJTHH:MM:SS ▲▲▲
 
         const invite = new Date(INVITE_DATE);
@@ -441,10 +441,15 @@ MYGEQ FAU NUQZ QF VQ FQ EAGTMUFQ NAZZQ OTMZOQ
         });
 
         /* ── Vortex transition ── */
+        const overlay = document.getElementById('vortex');
+
+        window.addEventListener('pageshow', function() {
+            overlay.classList.remove('active');
+        });
+
         function handleTileClick(ev) {
             ev.preventDefault();
             const dest = this.href;
-            const overlay = document.getElementById('vortex');
             overlay.classList.add('active');
             setTimeout(() => { window.location.href = dest; }, 1400);
         }
