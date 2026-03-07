@@ -42,6 +42,12 @@
             font-size: 0.9rem; color: var(--text-dim); margin-bottom: 2.5rem;
         }
 
+        .section-title {
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.25em;
+            color: var(--accent-dim); margin-bottom: 1rem; margin-top: 2.5rem;
+            padding-bottom: 0.4rem; border-bottom: 1px solid var(--border);
+        }
+
         table { width: 100%; border-collapse: collapse; }
         thead th {
             font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em;
@@ -57,10 +63,25 @@
         .rank-num { color: var(--accent); font-size: 0.9rem; }
 
         .empty-state {
-            text-align: center; padding: 3rem 1rem;
+            text-align: center; padding: 2rem 1rem;
             color: var(--text-dim); font-size: 0.85rem;
         }
         .empty-state span { display: block; font-size: 0.7rem; margin-top: 0.5rem; opacity: 0.5; }
+
+        .loading {
+            text-align: center; padding: 2rem;
+            color: var(--text-dim); font-size: 0.75rem;
+            letter-spacing: 0.15em;
+        }
+        .loading::after {
+            content: ''; display: inline-block;
+            animation: dots 1.5s steps(3) infinite;
+        }
+        @keyframes dots {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+        }
 
         @media (max-width: 600px) {
             .container { padding: 2rem 1rem; }
@@ -74,6 +95,8 @@
         <h1>Classement</h1>
         <p class="subtitle">Les premiers à résoudre chaque épreuve.</p>
 
+        <!-- Section énigmes (existante) -->
+        <div class="section-title">// énigmes</div>
         <table>
             <thead>
                 <tr>
@@ -83,21 +106,37 @@
                     <th>Temps</th>
                 </tr>
             </thead>
-            <tbody id="ranking-body">
-                <!-- Populated by JS — replace the data array below to update -->
-            </tbody>
+            <tbody id="ranking-body"></tbody>
         </table>
         <div class="empty-state" id="empty" style="display:none;">
             Aucun résultat pour le moment.
             <span>Sois le premier.</span>
         </div>
+
+        <!-- Section dino high scores -->
+        <div class="section-title">// dino — high scores</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Pseudo</th>
+                    <th>Score</th>
+                    <th>Durée</th>
+                </tr>
+            </thead>
+            <tbody id="dino-body"></tbody>
+        </table>
+        <div class="loading" id="dino-loading">Chargement</div>
+        <div class="empty-state" id="dino-empty" style="display:none;">
+            Aucun score enregistré.
+            <span>Joue au dino pour apparaître ici.</span>
+        </div>
     </div>
 
     <script>
-        // ── Ranking data: edit this array to update the leaderboard ──
+        // ── Enigma rankings (manual, comme avant) ──
         const rankings = [
             // { enigme: 'test_0', pseudo: 'alice', temps: '00:03:42' },
-            // { enigme: 'test_1', pseudo: 'bob', temps: '01:12:05' },
         ];
 
         const tbody = document.getElementById('ranking-body');
@@ -116,6 +155,43 @@
                 tbody.appendChild(tr);
             });
         }
+
+        // ── Dino high scores (fetched from Google Apps Script) ──
+        // ▼▼▼ MÊME URL QUE DANS dino.html ▼▼▼
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-B1yZDZJMuD7DFVe7wcLsWK9tRNkrTvEuLa38lMKo82yDa8xIea37bqlSBWesUtxuqA/exec';
+        // ▲▲▲
+
+        const dinoBody = document.getElementById('dino-body');
+        const dinoLoading = document.getElementById('dino-loading');
+        const dinoEmpty = document.getElementById('dino-empty');
+
+        fetch(SCRIPT_URL)
+            .then(r => r.json())
+            .then(data => {
+                dinoLoading.style.display = 'none';
+                if (!data.ok || !data.scores || data.scores.length === 0) {
+                    dinoEmpty.style.display = 'block';
+                    return;
+                }
+                data.scores.forEach((s, i) => {
+                    const tr = document.createElement('tr');
+                    const duree = typeof s.duree === 'number'
+                        ? Math.floor(s.duree / 60) + ':' + String(Math.floor(s.duree % 60)).padStart(2, '0')
+                        : '—';
+                    // Escape pseudo pour éviter XSS
+                    const safePseudo = String(s.pseudo).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    tr.innerHTML = `
+                        <td class="rank-num">${i + 1}</td>
+                        <td>${safePseudo}</td>
+                        <td>${s.score}</td>
+                        <td>${duree}</td>`;
+                    dinoBody.appendChild(tr);
+                });
+            })
+            .catch(() => {
+                dinoLoading.style.display = 'none';
+                dinoEmpty.style.display = 'block';
+            });
     </script>
 </body>
 </html>

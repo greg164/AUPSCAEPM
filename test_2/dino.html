@@ -86,6 +86,54 @@
     margin-top: -2px;
   }
 
+  /* ── Score submission UI ── */
+  #submit-score {
+    display: none;
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+  }
+
+  #submit-score input {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 8px 12px;
+    border: 2px solid #535353;
+    background: #f7f7f7;
+    color: #535353;
+    text-align: center;
+    outline: none;
+    width: 200px;
+  }
+
+  #submit-score input::placeholder { color: #bbb; }
+  #submit-score input:focus { border-color: #c9a227; }
+
+  #submit-score button {
+    display: block;
+    margin: 10px auto 0;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    padding: 8px 20px;
+    border: 2px solid #535353;
+    background: #535353;
+    color: #f7f7f7;
+    cursor: pointer;
+    letter-spacing: 1px;
+  }
+
+  #submit-score button:hover { background: #c9a227; border-color: #c9a227; }
+
+  #submit-score .submit-msg {
+    font-size: 8px;
+    color: #888;
+    margin-top: 8px;
+    min-height: 16px;
+  }
+
   @media (max-width: 600px) {
     #score-display { font-size: 10px; }
     #message h2 { font-size: 13px; }
@@ -112,25 +160,35 @@
     <h2>GAME OVER</h2>
     <p>ESPACE ou TAP pour rejouer</p>
   </div>
+
+  <div id="submit-score">
+    <input type="text" id="pseudo-input" placeholder="TON PSEUDO" maxlength="20" autocomplete="off">
+    <button id="btn-submit">ENVOYER SCORE</button>
+    <div class="submit-msg" id="submit-msg"></div>
+  </div>
 </div>
 
 <script>
+// ▼▼▼ COLLE ICI L'URL DE TON GOOGLE APPS SCRIPT DÉPLOYÉ ▼▼▼
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-B1yZDZJMuD7DFVe7wcLsWK9tRNkrTvEuLa38lMKo82yDa8xIea37bqlSBWesUtxuqA/exec';
+// ▲▲▲
+
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const msgEl = document.getElementById('message');
 const gameOverEl = document.getElementById('game-over-msg');
 const scoreEl = document.getElementById('current-score');
 const hiScoreEl = document.getElementById('hi-score');
+const submitEl = document.getElementById('submit-score');
+const pseudoInput = document.getElementById('pseudo-input');
+const submitMsg = document.getElementById('submit-msg');
 
 const W = 800, H = 250;
 canvas.width = W;
 canvas.height = H;
 
-// Ground line Y
 const GROUND_Y = H - 58;
 
-// --- Game state ---
-// idle | running | dead | easter_walk | easter_room
 let state = 'idle';
 let score = 0;
 let hiScore = 0;
@@ -138,13 +196,19 @@ let speed = 6;
 let frame = 0;
 let groundX = 0;
 
-// --- Easter egg ---
+// ── Métriques anti-triche ──
+let gameStartTime = 0;
+let jumpCount = 0;
+let obstaclesPassed = 0;
+let scoreSubmitted = false;
+
+// ── Easter egg ──
 let easterProgress = 0;
 let easterDinoX = -50;
 let easterTextAlpha = 0;
 
-// --- Dino ---
-const DINO_H = 50; // total height from top of head to bottom of feet
+// ── Dino ──
+const DINO_H = 50;
 
 const dino = {
   x: 60, y: 0, w: 44, h: DINO_H,
@@ -164,6 +228,7 @@ const dino = {
     if (this.grounded && !this.ducking) {
       this.vy = -13.5;
       this.grounded = false;
+      jumpCount++;
     }
   },
   duck(on) {
@@ -210,22 +275,15 @@ const dino = {
       }
       this._hx = bx + 4; this._hy = dy + 2; this._hw = dw - 8; this._hh = dh + 6;
     } else {
-      // Head: by+0 to by+20
       ctx.fillRect(bx + 16, by, 28, 20);
-      // Eye
       ctx.fillStyle = '#f7f7f7';
       ctx.fillRect(bx + 34, by + 4, 5, 5);
       ctx.fillStyle = '#535353';
-      // Mouth
       ctx.fillRect(bx + 30, by + 16, 14, 2);
-      // Body: by+12 to by+40
       ctx.fillRect(bx + 6, by + 12, 26, 28);
-      // Tail
       ctx.fillRect(bx, by + 16, 10, 6);
       ctx.fillRect(bx - 4, by + 14, 6, 4);
-      // Arm
       ctx.fillRect(bx + 24, by + 26, 4, 10);
-      // Legs: by+40 to by+50 (touching ground)
       const animate = (state === 'running' || state === 'easter_walk') && this.grounded;
       if (animate) {
         if (this.runFrame === 0) {
@@ -245,7 +303,7 @@ const dino = {
   }
 };
 
-// --- Obstacles ---
+// ── Obstacles ──
 let obstacles = [];
 const OBSTACLE_TYPES = [
   { w: 18, h: 36, type: 'cactus-sm' },
@@ -256,7 +314,7 @@ const OBSTACLE_TYPES = [
 
 function spawnObstacle() {
   const t = OBSTACLE_TYPES[Math.floor(Math.random() * OBSTACLE_TYPES.length)];
-  const o = { ...t, x: W + 20 };
+  const o = { ...t, x: W + 20, counted: false };
   if (t.flying) {
     const heights = [GROUND_Y - 40, GROUND_Y - 70, GROUND_Y - 100];
     o.y = heights[Math.floor(Math.random() * heights.length)];
@@ -277,6 +335,11 @@ function updateObstacles() {
   for (const o of obstacles) {
     o.x -= speed;
     if (o.flying && frame % 10 === 0) o.wingFrame = 1 - (o.wingFrame || 0);
+    // Compter les obstacles passés (dépassés par le dino)
+    if (!o.counted && o.x + o.w < dino.x) {
+      o.counted = true;
+      obstaclesPassed++;
+    }
   }
   obstacles = obstacles.filter(o => o.x + o.w > -50);
 }
@@ -311,7 +374,7 @@ function drawObstacle(o) {
   }
 }
 
-// --- Clouds ---
+// ── Clouds ──
 let clouds = [];
 function initClouds() {
   clouds = [];
@@ -334,7 +397,7 @@ function drawClouds() {
   }
 }
 
-// --- Ground ---
+// ── Ground ──
 function drawGround(moving) {
   if (moving) groundX = (groundX + speed) % 24;
   ctx.fillStyle = '#535353';
@@ -346,7 +409,7 @@ function drawGround(moving) {
   }
 }
 
-// --- Collision ---
+// ── Collision ──
 function checkCollision() {
   for (const o of obstacles) {
     const pad = 6;
@@ -361,7 +424,7 @@ function checkCollision() {
   return false;
 }
 
-// --- Score ---
+// ── Score ──
 function updateScore() {
   score += 0.15;
   scoreEl.textContent = Math.floor(score).toString().padStart(5, '0');
@@ -380,12 +443,68 @@ function updateHiScore() {
   }
 }
 
-// --- Easter egg: secret room ---
+// ── Score submission ──
+function showSubmitUI() {
+  if (Math.floor(score) < 10) return; // pas la peine pour un score de 3
+  scoreSubmitted = false;
+  submitEl.style.display = 'block';
+  submitMsg.textContent = '';
+  pseudoInput.value = '';
+  pseudoInput.focus();
+}
+
+function hideSubmitUI() {
+  submitEl.style.display = 'none';
+}
+
+function submitScore() {
+  const pseudo = pseudoInput.value.trim();
+  if (!pseudo) {
+    submitMsg.textContent = 'ENTRE UN PSEUDO';
+    return;
+  }
+  if (scoreSubmitted) return;
+  scoreSubmitted = true;
+
+  const duree = (Date.now() - gameStartTime) / 1000;
+  const finalScore = Math.floor(score);
+
+  submitMsg.textContent = 'ENVOI...';
+
+  const payload = {
+    pseudo: pseudo,
+    score: finalScore,
+    duree: Math.round(duree * 10) / 10,
+    sauts: jumpCount,
+    obstacles: obstaclesPassed
+  };
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    submitMsg.textContent = 'SCORE ENVOYÉ ✓';
+    setTimeout(hideSubmitUI, 2000);
+  })
+  .catch(() => {
+    submitMsg.textContent = 'ERREUR, RÉESSAIE';
+    scoreSubmitted = false;
+  });
+}
+
+document.getElementById('btn-submit').addEventListener('click', submitScore);
+pseudoInput.addEventListener('keydown', e => {
+  e.stopPropagation(); // empêche le jeu de capter les touches
+  if (e.key === 'Enter') submitScore();
+});
+
+// ── Easter egg ──
 function drawEasterRoom() {
   ctx.fillStyle = '#1a1a2e';
   ctx.fillRect(0, 0, W, H);
-
-  // Brick walls
   ctx.fillStyle = '#22223a';
   for (let y = 0; y < GROUND_Y; y += 20) {
     const offset = (Math.floor(y / 20) % 2) * 25;
@@ -393,7 +512,6 @@ function drawEasterRoom() {
       ctx.fillRect(x, y, 48, 18);
     }
   }
-  // Mortar lines
   ctx.fillStyle = '#1a1a2e';
   for (let y = 0; y < GROUND_Y; y += 20) {
     ctx.fillRect(0, y + 18, W, 2);
@@ -402,8 +520,6 @@ function drawEasterRoom() {
       ctx.fillRect(x + 48, y, 2, 18);
     }
   }
-
-  // Floor
   ctx.fillStyle = '#2a2a4a';
   ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
   ctx.fillStyle = '#333360';
@@ -411,11 +527,8 @@ function drawEasterRoom() {
   for (let x = 0; x < W; x += 30) {
     ctx.fillRect(x, GROUND_Y, 1, H - GROUND_Y);
   }
-
-  // Glowing easter egg dot
   const pulse = 0.6 + 0.4 * Math.sin(frame * 0.05);
   const dotX = W / 2, dotY = GROUND_Y - 60;
-
   const grad = ctx.createRadialGradient(dotX, dotY, 0, dotX, dotY, 30 * pulse);
   grad.addColorStop(0, `rgba(255, 200, 50, ${0.8 * pulse})`);
   grad.addColorStop(0.5, `rgba(255, 150, 50, ${0.3 * pulse})`);
@@ -434,31 +547,33 @@ function drawEasterText(alpha) {
   ctx.font = '14px "Press Start 2P", monospace';
   ctx.textAlign = 'center';
   ctx.fillText('🥚 Hommages \u00e0 Warren Robinett 🥚', W / 2, 45);
-
   ctx.fillStyle = '#8888cc';
   ctx.font = '8px "Press Start 2P", monospace';
   ctx.fillText('Cr\u00e9ateur de l\'easter egg originel', W / 2, 68);
   ctx.fillText('Adventure (Atari 2600, 1980)', W / 2, 84);
-
   ctx.fillStyle = '#666699';
   ctx.font = '9px "Press Start 2P", monospace';
   ctx.fillText('ESPACE pour revenir', W / 2, H - 20);
   ctx.restore();
 }
 
-// --- Reset ---
+// ── Reset ──
 function resetGame() {
   score = 0;
   speed = 6;
   frame = 0;
   obstacles = [];
   nextSpawn = 60;
+  jumpCount = 0;
+  obstaclesPassed = 0;
+  gameStartTime = Date.now();
   dino.reset();
   initClouds();
   scoreEl.textContent = '00000';
+  hideSubmitUI();
 }
 
-// --- Game loop ---
+// ── Game loop ──
 function gameLoop() {
   ctx.clearRect(0, 0, W, H);
 
@@ -476,6 +591,7 @@ function gameLoop() {
       state = 'dead';
       updateHiScore();
       gameOverEl.style.display = 'block';
+      showSubmitUI();
     }
 
   } else if (state === 'idle') {
@@ -495,16 +611,12 @@ function gameLoop() {
     dino.x -= 2.5;
     if (frame % 6 === 0) dino.runFrame = 1 - dino.runFrame;
     easterProgress = Math.min(1, easterProgress + 0.008);
-
     drawGround(false);
     drawClouds();
     dino.y = dino.groundY;
-    dino.draw(true); // facing left
-
-    // Fade to dark
+    dino.draw(true);
     ctx.fillStyle = `rgba(26, 26, 46, ${easterProgress})`;
     ctx.fillRect(0, 0, W, H);
-
     if (dino.x < -60) {
       state = 'easter_room';
       easterDinoX = -50;
@@ -515,7 +627,6 @@ function gameLoop() {
   } else if (state === 'easter_room') {
     frame++;
     drawEasterRoom();
-
     const targetX = W / 2 - 22;
     if (easterDinoX < targetX) {
       easterDinoX += 2;
@@ -524,7 +635,6 @@ function gameLoop() {
       easterDinoX = targetX;
       easterTextAlpha = Math.min(1, easterTextAlpha + 0.02);
     }
-
     dino.x = easterDinoX;
     dino.y = dino.groundY;
     dino.draw(false);
@@ -534,7 +644,7 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// --- Input ---
+// ── Input ──
 function handleAction(isDown) {
   if (state === 'idle') {
     resetGame();
@@ -545,6 +655,7 @@ function handleAction(isDown) {
     dino.jump();
   } else if (state === 'dead' && isDown) {
     gameOverEl.style.display = 'none';
+    hideSubmitUI();
     resetGame();
     state = 'running';
     msgEl.style.opacity = '0';
@@ -557,6 +668,9 @@ function handleAction(isDown) {
 }
 
 document.addEventListener('keydown', e => {
+  // Ne pas intercepter si on tape dans l'input pseudo
+  if (document.activeElement === pseudoInput) return;
+
   if (e.code === 'Space' || e.code === 'ArrowUp') {
     e.preventDefault();
     handleAction(true);
@@ -583,7 +697,7 @@ document.addEventListener('keyup', e => {
 canvas.addEventListener('touchstart', e => { e.preventDefault(); handleAction(true); });
 canvas.addEventListener('mousedown', e => { handleAction(true); });
 
-// --- Init ---
+// ── Init ──
 dino.reset();
 initClouds();
 gameLoop();
