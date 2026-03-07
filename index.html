@@ -416,7 +416,7 @@ MYGEQ-FAU NUQZ QF VQ FQ EAGTMUFQ NAZZQ OTMZOQ
 
         /* ── Build tiles ── */
         const enigmas = [
-            { id: 0, file: 'cesar.txt',    label: 'tuto_0',   tuto: true },
+            { id: 0, file: 'cesar.txt',    label: 'test_0',   tuto: true },
             { id: 1, file: 'poe.png',      label: 'test_1' },
             { id: 2, file: 'dino.html',    label: 'test_2' },
             { id: 3, file: 'friendship.pdf', label: 'test_3' },
@@ -435,7 +435,7 @@ MYGEQ-FAU NUQZ QF VQ FQ EAGTMUFQ NAZZQ OTMZOQ
             a.href = `test_${e.id}/${e.file}`;
             a.innerHTML = `
                 <span class="tile-label">
-                    <span class="tile-index">${e.tuto ? '▸ TUTO' : e.id}</span>
+                    <span class="tile-index">${e.tuto ? '▸ TUTORIAL' : e.id}</span>
                     <span class="tile-name">${e.label}</span>
                 </span>`;
             a.addEventListener('click', handleTileClick);
