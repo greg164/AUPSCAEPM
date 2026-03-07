@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUPSCAEPM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Crimson+Text:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: #0f0f18;
+            --border: #1a1a2e;
+            --accent: #c9a227;
+            --accent-dim: #8a6e15;
+            --text: #d4d4d8;
+            --text-dim: #6b6b7b;
+            --glow: rgba(201, 162, 39, 0.15);
+            --mono: 'Share Tech Mono', monospace;
+            --serif: 'Crimson Text', Georgia, serif;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--mono);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Scanline overlay ── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.08) 2px,
+                rgba(0, 0, 0, 0.08) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ── Noise texture ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* ── Timer block (top-right) ── */
+        .timer-block {
+            position: fixed;
+            top: 1rem;
+            right: 1.5rem;
+            text-align: right;
+            z-index: 100;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+        }
+        .timer-block .label { opacity: 0.6; }
+        .timer-block .elapsed {
+            color: var(--accent);
+            font-size: 1rem;
+            margin-top: 0.2rem;
+            letter-spacing: 0.15em;
+        }
+
+        /* ── Layout ── */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 1.5rem 3rem;
+        }
+
+        /* ── Header ── */
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeUp 1s ease-out;
+        }
+        header h1 {
+            font-family: var(--mono);
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            color: var(--accent);
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            text-shadow: 0 0 30px var(--glow), 0 0 60px rgba(201,162,39,0.05);
+            margin-bottom: 0.5rem;
+        }
+        header .subtitle {
+            font-family: var(--serif);
+            font-style: italic;
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            letter-spacing: 0.08em;
+        }
+
+        /* ── Sections ── */
+        section { margin-bottom: 3rem; }
+
+        .section-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--accent-dim);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* ── README block ── */
+        .readme-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent-dim);
+            padding: 1.5rem;
+            font-size: 0.8rem;
+            line-height: 1.7;
+            color: var(--text-dim);
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-x: auto;
+            animation: fadeUp 1.2s ease-out;
+        }
+        .readme-block a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--accent-dim);
+        }
+        .readme-block a:hover { border-bottom-color: var(--accent); }
+
+        /* ── Tile grid ── */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            animation: fadeUp 1.4s ease-out;
+        }
+
+        .tile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            text-decoration: none;
+            transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+            overflow: hidden;
+        }
+        .tile::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, var(--glow), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .tile:hover {
+            border-color: var(--accent-dim);
+            box-shadow: 0 0 20px var(--glow);
+            transform: translateY(-2px);
+        }
+        .tile:hover::before { opacity: 1; }
+
+        .tile .tile-label {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+        .tile .tile-index {
+            display: block;
+            font-size: 1.8rem;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+        .tile .tile-name {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .tile.tile-tuto { border-color: var(--accent-dim); }
+        .tile.tile-tuto .tile-index { font-size: 1rem; }
+
+        /* ── Navigation links ── */
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            animation: fadeUp 1.6s ease-out;
+        }
+        .nav-links a {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .nav-links a:hover {
+            color: var(--accent);
+            border-color: var(--accent-dim);
+        }
+
+        /* ── Vortex overlay ── */
+        .vortex-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .vortex-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .vortex-rings {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+        .vortex-ring {
+            position: absolute;
+            inset: 0;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            opacity: 0;
+        }
+        .vortex-overlay.active .vortex-ring {
+            animation: vortexSpin 1.2s ease-in forwards;
+        }
+        .vortex-ring:nth-child(1) { animation-delay: 0s; }
+        .vortex-ring:nth-child(2) { inset: 15px; animation-delay: 0.1s; border-color: var(--accent-dim); }
+        .vortex-ring:nth-child(3) { inset: 30px; animation-delay: 0.2s; }
+        .vortex-ring:nth-child(4) { inset: 45px; animation-delay: 0.3s; border-color: var(--accent-dim); }
+        .vortex-ring:nth-child(5) { inset: 60px; animation-delay: 0.4s; }
+        .vortex-ring:nth-child(6) { inset: 72px; animation-delay: 0.5s; border-color: var(--accent-dim); }
+
+        .vortex-text {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            letter-spacing: 0.3em;
+            opacity: 0;
+        }
+        .vortex-overlay.active .vortex-text {
+            animation: fadeIn 0.5s 0.6s forwards;
+        }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 2rem 0 1rem;
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            opacity: 0.4;
+            letter-spacing: 0.2em;
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes vortexSpin {
+            0% { opacity: 0; transform: rotate(0deg) scale(2); }
+            40% { opacity: 1; }
+            100% { opacity: 0.8; transform: rotate(720deg) scale(0.3); }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .container { padding: 5rem 1rem 2rem; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; }
+            .timer-block { font-size: 0.65rem; top: 0.5rem; right: 0.8rem; }
+            .timer-block .elapsed { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Timer -->
+    <div class="timer-block">
+        <div class="label">Invitation envoyée le : <strong id="invite-time"></strong></div>
+        <div class="elapsed" id="elapsed">--:--:--</div>
+    </div>
+
+    <!-- Vortex portal animation -->
+    <div class="vortex-overlay" id="vortex">
+        <div class="vortex-rings">
+            <div class="vortex-ring"></div>
+            <div class="vortex-ring"></div>
+            <div class="vortex-ring"></div>
+            <div class="vortex-ring"></div>
+            <div class="vortex-ring"></div>
+            <div class="vortex-ring"></div>
+        </div>
+        <div class="vortex-text">ENTERING&hellip;</div>
+    </div>
+
+    <div class="container">
+
+        <!-- Header -->
+        <header>
+            <h1>AUPSCAEPM</h1>
+            <p class="subtitle">Quelque chose se cache ici. À toi de trouver quoi.</p>
+        </header>
+
+        <!-- README block -->
+        <section>
+            <div class="section-label">// transmission interceptée</div>
+            <div class="readme-block">AUPSCAEPM
+
+NDMHA FG ME FDAGHQ XM BADFQ P QZFDQQ PG VQG
+OTMCGQ QZUSYQ OAZFUQZF GZ QMEFQD QSS
+M FAU PQ FDAGHQD PQ CGAU UX E MSUF
+EU FG BQZEQE QZ MHAUD FDAGHQ GZ QZHAUQE XQ YAU
+BMD YMUX M YAZ MPDQEEQ BQDEA
+OTMCGQ QMEFQD QSS FDAGHQ QSMX GZ HQDDQ ARRQDF M XM EAUDQQ
+UX RMGPDM QFDQ XQ BDQYUQD M FDAGHQD BAGD YQDUFQD XM DQOAYBQZEQ
+MYGEQ FAU NUQZ QF VQ FQ EAGTMUFQ NAZZQ OTMZOQ
+
+<a href="https://github.com/greg164/AUPSCAEPM" target="_blank" rel="noopener">https://github.com/greg164/AUPSCAEPM</a></div>
+        </section>
+
+        <!-- Enigma grid -->
+        <section>
+            <div class="section-label">// énigmes disponibles</div>
+            <div class="grid" id="grid"></div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="nav-links">
+            <a href="contact.html">Contact</a>
+            <a href="ranking.html">Classement</a>
+        </nav>
+
+        <footer>AUPSCAEPM — Ne fais confiance à personne.</footer>
+    </div>
+
+    <script>
+        /* ── Timer ── */
+        // ▼▼▼ MODIFIE CETTE LIGNE QUAND TU ENVOIES L'INVITATION ▼▼▼
+        const INVITE_DATE = '2026-03-07T12:00:00';
+        // ▲▲▲ Format : AAAA-MM-JJTHH:MM:SS ▲▲▲
+
+        const invite = new Date(INVITE_DATE);
+        const inviteTimeEl = document.getElementById('invite-time');
+        const elapsedEl = document.getElementById('elapsed');
+
+        // Affiche la date d'invitation
+        inviteTimeEl.textContent = invite.toLocaleDateString('fr-FR', {
+            day: 'numeric', month: 'long', year: 'numeric'
+        }) + ' à ' + invite.toLocaleTimeString('fr-FR', {
+            hour: '2-digit', minute: '2-digit'
+        });
+
+        function updateTimer() {
+            const now = new Date();
+            let diff = Math.floor((now - invite) / 1000);
+            if (diff < 0) {
+                elapsedEl.textContent = 'PAS ENCORE';
+                return;
+            }
+            const d = Math.floor(diff / 86400);
+            const h = String(Math.floor((diff % 86400) / 3600)).padStart(2, '0');
+            const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+            const s = String(diff % 60).padStart(2, '0');
+            elapsedEl.textContent = (d > 0 ? d + 'j ' : '') + h + ':' + m + ':' + s;
+        }
+        updateTimer();
+        setInterval(updateTimer, 1000);
+
+        /* ── Build tiles ── */
+        const enigmas = [
+            { id: 0, file: 'cesar.txt',    label: 'Tuto',   tuto: true },
+            { id: 1, file: 'poe.png',      label: 'test_1' },
+            { id: 2, file: 'dino.html',    label: 'test_2' },
+            { id: 3, file: 'friendship.pdf', label: 'test_3' },
+            { id: 4, file: 'jack.json',    label: 'test_4' },
+            { id: 5, file: 'index0.html',  label: 'test_5' },
+            { id: 6, file: 'buzz.jpg',     label: 'test_6' },
+            { id: 7, file: 'grid.md',      label: 'test_7' },
+            { id: 8, file: 'goodbye.docx', label: 'test_8' },
+            { id: 9, file: 'classic.txt',  label: 'test_9' },
+        ];
+
+        const grid = document.getElementById('grid');
+        enigmas.forEach(e => {
+            const a = document.createElement('a');
+            a.className = 'tile' + (e.tuto ? ' tile-tuto' : '');
+            a.href = `test_${e.id}/${e.file}`;
+            a.innerHTML = `
+                <span class="tile-label">
+                    <span class="tile-index">${e.tuto ? '▸ TUTO' : e.id}</span>
+                    <span class="tile-name">${e.label}</span>
+                </span>`;
+            a.addEventListener('click', handleTileClick);
+            grid.appendChild(a);
+        });
+
+        /* ── Vortex transition ── */
+        function handleTileClick(ev) {
+            ev.preventDefault();
+            const dest = this.href;
+            const overlay = document.getElementById('vortex');
+            overlay.classList.add('active');
+            setTimeout(() => { window.location.href = dest; }, 1400);
+        }
+    </script>
+</body>
+</html>

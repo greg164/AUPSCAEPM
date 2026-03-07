@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact — AUPSCAEPM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Crimson+Text:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0f; --bg-card: #0f0f18; --border: #1a1a2e;
+            --accent: #c9a227; --accent-dim: #8a6e15;
+            --text: #d4d4d8; --text-dim: #6b6b7b; --glow: rgba(201,162,39,0.15);
+            --mono: 'Share Tech Mono', monospace; --serif: 'Crimson Text', Georgia, serif;
+        }
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: var(--mono); min-height: 100vh;
+        }
+        body::after {
+            content:''; position:fixed; inset:0;
+            background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);
+            pointer-events:none; z-index:9999;
+        }
+        .container { max-width: 600px; margin: 0 auto; padding: 3rem 1.5rem; }
+
+        .back-link {
+            display: inline-block; margin-bottom: 2rem;
+            font-size: 0.75rem; color: var(--text-dim); text-decoration: none;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            border: 1px solid var(--border); padding: 0.4rem 0.8rem;
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .back-link:hover { color: var(--accent); border-color: var(--accent-dim); }
+
+        h1 {
+            font-size: 1.4rem; color: var(--accent); letter-spacing: 0.3em;
+            text-transform: uppercase; margin-bottom: 0.4rem;
+        }
+        .subtitle {
+            font-family: var(--serif); font-style: italic;
+            font-size: 0.9rem; color: var(--text-dim); margin-bottom: 2.5rem;
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+        label {
+            display: block; font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 0.2em; color: var(--text-dim); margin-bottom: 0.5rem;
+        }
+        input, select, textarea {
+            width: 100%; padding: 0.7rem 0.9rem;
+            background: var(--bg-card); border: 1px solid var(--border);
+            color: var(--text); font-family: var(--mono); font-size: 0.85rem;
+            outline: none; transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent-dim); }
+        textarea { resize: vertical; min-height: 100px; }
+        select { cursor: pointer; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b6b7b'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 0.8rem center;
+        }
+        select option { background: var(--bg); color: var(--text); }
+
+        .btn-submit {
+            display: inline-block; padding: 0.7rem 2rem;
+            background: transparent; border: 1px solid var(--accent-dim);
+            color: var(--accent); font-family: var(--mono); font-size: 0.8rem;
+            letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .btn-submit:hover {
+            background: rgba(201,162,39,0.08);
+            box-shadow: 0 0 15px var(--glow);
+        }
+
+        .msg-sent {
+            display: none; padding: 1rem; margin-top: 1rem;
+            border: 1px solid var(--accent-dim); color: var(--accent);
+            font-size: 0.8rem; text-align: center;
+        }
+        .msg-sent.visible { display: block; }
+
+        @media (max-width: 600px) { .container { padding: 2rem 1rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Retour à l'accueil</a>
+        <h1>Contact</h1>
+        <p class="subtitle">Soumets ta réponse. On vérifiera.</p>
+
+        <div id="form-area">
+            <div class="form-group">
+                <label for="pseudo">Pseudo</label>
+                <input type="text" id="pseudo" placeholder="Ton identifiant…" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="enigme">Énigme</label>
+                <select id="enigme">
+                    <option value="">— Sélectionner —</option>
+                    <option value="test_0">Tuto (test_0)</option>
+                    <option value="test_1">test_1</option>
+                    <option value="test_2">test_2</option>
+                    <option value="test_3">test_3</option>
+                    <option value="test_4">test_4</option>
+                    <option value="test_5">test_5</option>
+                    <option value="test_6">test_6</option>
+                    <option value="test_7">test_7</option>
+                    <option value="test_8">test_8</option>
+                    <option value="test_9">test_9</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="reponse">Réponse</label>
+                <textarea id="reponse" placeholder="Ta réponse ici…"></textarea>
+            </div>
+            <button class="btn-submit" id="btn-send">Envoyer</button>
+        </div>
+
+        <div class="msg-sent" id="msg-sent">
+            ▸ Transmission reçue. Résultat en attente d'analyse.
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('btn-send').addEventListener('click', function() {
+            const pseudo = document.getElementById('pseudo').value.trim();
+            const enigme = document.getElementById('enigme').value;
+            const reponse = document.getElementById('reponse').value.trim();
+            if (!pseudo || !enigme || !reponse) return;
+
+            const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSc2V15fdj7ej8z_Caox0vIUlhwgME18EAP1LiJNnQruXK0uzw/formResponse';
+            const data = new URLSearchParams();
+            data.append('entry.1277160546', pseudo);
+            data.append('entry.1245664584', enigme);
+            data.append('entry.877228539', reponse);
+
+            fetch(formUrl, { method: 'POST', mode: 'no-cors', body: data });
+
+            document.getElementById('msg-sent').classList.add('visible');
+            this.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

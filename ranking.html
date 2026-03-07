@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classement — AUPSCAEPM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Crimson+Text:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0f; --bg-card: #0f0f18; --border: #1a1a2e;
+            --accent: #c9a227; --accent-dim: #8a6e15;
+            --text: #d4d4d8; --text-dim: #6b6b7b; --glow: rgba(201,162,39,0.15);
+            --mono: 'Share Tech Mono', monospace; --serif: 'Crimson Text', Georgia, serif;
+        }
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: var(--mono); min-height: 100vh;
+        }
+        body::after {
+            content:''; position:fixed; inset:0;
+            background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);
+            pointer-events:none; z-index:9999;
+        }
+        .container { max-width: 750px; margin: 0 auto; padding: 3rem 1.5rem; }
+
+        .back-link {
+            display: inline-block; margin-bottom: 2rem;
+            font-size: 0.75rem; color: var(--text-dim); text-decoration: none;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            border: 1px solid var(--border); padding: 0.4rem 0.8rem;
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .back-link:hover { color: var(--accent); border-color: var(--accent-dim); }
+
+        h1 {
+            font-size: 1.4rem; color: var(--accent); letter-spacing: 0.3em;
+            text-transform: uppercase; margin-bottom: 0.4rem;
+        }
+        .subtitle {
+            font-family: var(--serif); font-style: italic;
+            font-size: 0.9rem; color: var(--text-dim); margin-bottom: 2.5rem;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em;
+            color: var(--accent-dim); text-align: left;
+            padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border);
+        }
+        tbody td {
+            padding: 0.7rem 0.8rem; font-size: 0.8rem;
+            border-bottom: 1px solid rgba(26,26,46,0.5);
+            color: var(--text-dim);
+        }
+        tbody tr:hover td { color: var(--text); background: rgba(201,162,39,0.03); }
+        .rank-num { color: var(--accent); font-size: 0.9rem; }
+
+        .empty-state {
+            text-align: center; padding: 3rem 1rem;
+            color: var(--text-dim); font-size: 0.85rem;
+        }
+        .empty-state span { display: block; font-size: 0.7rem; margin-top: 0.5rem; opacity: 0.5; }
+
+        @media (max-width: 600px) {
+            .container { padding: 2rem 1rem; }
+            thead th, tbody td { padding: 0.5rem; font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Retour à l'accueil</a>
+        <h1>Classement</h1>
+        <p class="subtitle">Les premiers à résoudre chaque épreuve.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Énigme</th>
+                    <th>Gagnant</th>
+                    <th>Temps</th>
+                </tr>
+            </thead>
+            <tbody id="ranking-body">
+                <!-- Populated by JS — replace the data array below to update -->
+            </tbody>
+        </table>
+        <div class="empty-state" id="empty" style="display:none;">
+            Aucun résultat pour le moment.
+            <span>Sois le premier.</span>
+        </div>
+    </div>
+
+    <script>
+        // ── Ranking data: edit this array to update the leaderboard ──
+        const rankings = [
+            // { enigme: 'test_0 (Tuto)', pseudo: 'alice', temps: '00:03:42' },
+            // { enigme: 'test_1', pseudo: 'bob', temps: '01:12:05' },
+        ];
+
+        const tbody = document.getElementById('ranking-body');
+        const empty = document.getElementById('empty');
+
+        if (rankings.length === 0) {
+            empty.style.display = 'block';
+        } else {
+            rankings.forEach((r, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="rank-num">${i + 1}</td>
+                    <td>${r.enigme}</td>
+                    <td>${r.pseudo}</td>
+                    <td>${r.temps}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
