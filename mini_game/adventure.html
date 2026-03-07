@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adventure - Atari 2600</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Press Start 2P', monospace;
+    overflow: hidden;
+  }
+
+  #cabinet {
+    position: relative;
+    background: #1a1a1a;
+    border: 6px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow:
+      0 0 40px rgba(0,0,0,0.8),
+      inset 0 0 60px rgba(0,0,0,0.5),
+      0 0 100px rgba(255,100,0,0.05);
+  }
+
+  #cabinet::before {
+    content: 'Adventure';
+    display: block;
+    text-align: center;
+    color: #ff6600;
+    font-size: 11px;
+    font-family: 'Press Start 2P', monospace;
+    margin-bottom: 12px;
+    text-shadow: 0 0 10px rgba(255,100,0,0.6);
+    letter-spacing: 2px;
+  }
+
+  #screen-wrap {
+    position: relative;
+    border: 3px solid #333;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: inset 0 0 30px rgba(0,0,0,1);
+  }
+
+  canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  /* CRT scanline overlay */
+  #screen-wrap::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.15) 0px,
+      rgba(0,0,0,0.15) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* CRT glow */
+  #screen-wrap::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    border-radius: 6px;
+    box-shadow: inset 0 0 50px rgba(50,255,50,0.03);
+    pointer-events: none;
+    z-index: 11;
+  }
+
+  #hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding: 6px 4px;
+  }
+
+  #hud span {
+    color: #cc5500;
+    font-size: 8px;
+    font-family: 'Press Start 2P', monospace;
+    text-shadow: 0 0 4px rgba(255,100,0,0.4);
+  }
+
+  #controls-hint {
+    text-align: center;
+    margin-top: 14px;
+    color: #444;
+    font-size: 7px;
+    font-family: 'Press Start 2P', monospace;
+    line-height: 1.8;
+  }
+
+  /* Mobile d-pad */
+  #mobile-controls {
+    display: none;
+    margin-top: 16px;
+    justify-content: center;
+    gap: 40px;
+  }
+
+  .dpad {
+    position: relative;
+    width: 120px;
+    height: 120px;
+  }
+
+  .dpad button {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: #2a2a2a;
+    border: 2px solid #444;
+    border-radius: 4px;
+    color: #ff6600;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+  }
+
+  .dpad button:active { background: #ff6600; color: #000; }
+  .dpad .up    { top: 0; left: 40px; }
+  .dpad .down  { bottom: 0; left: 40px; }
+  .dpad .left  { top: 40px; left: 0; }
+  .dpad .right { top: 40px; right: 0; }
+
+  .action-btn {
+    align-self: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #8b0000;
+    border: 3px solid #aa2222;
+    color: #ff6600;
+    font-size: 8px;
+    font-family: 'Press Start 2P', monospace;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+  }
+  .action-btn:active { background: #ff6600; color: #000; }
+
+  @media (max-width: 600px) {
+    #mobile-controls { display: flex; }
+    #controls-hint { display: none; }
+    #cabinet { padding: 12px; border-width: 4px; }
+    #cabinet::before { font-size: 8px; }
+  }
+
+  @media (pointer: coarse) {
+    #mobile-controls { display: flex; }
+    #controls-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cabinet">
+  <div id="screen-wrap">
+    <canvas id="game" width="320" height="240"></canvas>
+  </div>
+  <div id="hud">
+    <span id="hud-keys">KEYS: 0/3</span>
+    <span id="hud-room">ROOM 1</span>
+    <span id="hud-lives">♥♥♥</span>
+  </div>
+  <div id="controls-hint">
+    FLECHES: BOUGER &nbsp;|&nbsp; ESPACE: COUP D'EPEE<br>
+    TROUVE 3 CLES, TUE LES DRAGONS, PRENDS LE CALICE!
+  </div>
+  <div id="mobile-controls">
+    <div class="dpad">
+      <button class="up" data-dir="up">▲</button>
+      <button class="down" data-dir="down">▼</button>
+      <button class="left" data-dir="left">◀</button>
+      <button class="right" data-dir="right">▶</button>
+    </div>
+    <button class="action-btn" id="btn-action">EPEE</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const W = 320, H = 240;
+const TILE = 16;
+
+// ─── COLORS (Atari palette) ───
+const C = {
+  bg:       '#000000',
+  wall:     '#6B4226',
+  wallHi:   '#8B5A2B',
+  player:   '#FFD700',
+  playerHi: '#FFEC8B',
+  dragon:   '#CC0000',
+  dragonHi: '#FF4444',
+  key:      '#00CCFF',
+  chalice:  '#FFD700',
+  door:     '#444444',
+  doorOpen: '#2A6B2A',
+  text:     '#FFFFFF',
+  grass:    '#1A5C1A',
+  water:    '#0000AA',
+  bridge:   '#8B6914',
+};
+
+// ─── GAME STATE ───
+let state = 'title'; // title, play, win, dead
+let player = { x: 2, y: 7, dir: 0, keys: 0, lives: 3, hasCalice: false, invuln: 0, blink: 0, attacking: 0, attackCd: 0 };
+let currentRoom = 0;
+let frameCount = 0;
+let deathTimer = 0;
+let msgTimer = 0;
+let msgText = '';
+
+// ─── ROOM MAPS ─── (20x15 tiles, 0=floor, 1=wall, 2=water, 3=bridge)
+const ROOMS = [
+  // Room 0: Start - castle courtyard
+  { name: 'COUR DU CHATEAU', walls: [
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,1,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,
+    1,0,0,1,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,
+    1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,
+  ], exits: { left: 1, down: 2 }, items: [], dragons: [] },
+
+  // Room 1: Forest with key
+  { name: 'FORET SOMBRE', walls: [
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,
+    1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,1,0,0,1,
+    1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,1,
+    1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,
+    1,0,0,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,
+    1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  ], exits: { right: 0 }, items: [{ type:'key', x:16, y:2 }], dragons: [{ x:10, y:6, dx:1, dy:0 }] },
+
+  // Room 2: River crossing
+  { name: 'RIVIERE MAUDITE', walls: [
+    1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    2,2,2,2,2,2,3,3,2,2,2,2,2,2,2,3,3,2,2,2,
+    2,2,2,2,2,2,3,3,2,2,2,2,2,2,2,3,3,2,2,2,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    2,2,2,2,3,3,2,2,2,2,2,2,3,3,2,2,2,2,2,2,
+    2,2,2,2,3,3,2,2,2,2,2,2,3,3,2,2,2,2,2,2,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,
+  ], exits: { up: 0, down: 3 }, items: [{ type:'key', x:2, y:1 }], dragons: [{ x:14, y:8, dx:-1, dy:0 }] },
+
+  // Room 3: Dungeon with key
+  { name: 'DONJON DU DRAGON', walls: [
+    1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,
+    1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,
+    1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,1,
+    1,1,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,1,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,1,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,1,1,
+    1,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,
+    1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,
+  ], exits: { up: 2, down: 4 }, items: [{ type:'key', x:9, y:4 }], dragons: [{ x:3, y:6, dx:1, dy:0 }, { x:15, y:10, dx:-1, dy:0 }] },
+
+  // Room 4: Chalice room (final)
+  { name: 'SALLE DU CALICE', walls: [
+    1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,1,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,1,
+    1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,
+    1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,
+    1,0,0,1,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  ], exits: { up: 3 }, items: [{ type:'chalice', x:9, y:7 }], dragons: [{ x:5, y:9, dx:1, dy:1 }, { x:14, y:3, dx:-1, dy:1 }] },
+];
+
+// Deep clone initial state for reset
+const ROOMS_INIT = JSON.parse(JSON.stringify(ROOMS));
+
+// ─── INPUT ───
+const keys = {};
+let actionPressed = false;
+
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (e.key === ' ') actionPressed = true;
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+});
+document.addEventListener('keyup', e => keys[e.key] = false);
+
+// Mobile
+document.querySelectorAll('.dpad button').forEach(btn => {
+  const dir = btn.dataset.dir;
+  const kmap = { up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight' };
+  btn.addEventListener('touchstart', e => { e.preventDefault(); keys[kmap[dir]] = true; });
+  btn.addEventListener('touchend', e => { e.preventDefault(); keys[kmap[dir]] = false; });
+  btn.addEventListener('mousedown', e => { keys[kmap[dir]] = true; });
+  btn.addEventListener('mouseup', e => { keys[kmap[dir]] = false; });
+});
+document.getElementById('btn-action').addEventListener('touchstart', e => { e.preventDefault(); actionPressed = true; });
+document.getElementById('btn-action').addEventListener('mousedown', () => actionPressed = true);
+
+// ─── HELPERS ───
+function getTile(room, tx, ty) {
+  if (tx < 0 || tx >= 20 || ty < 0 || ty >= 15) return 0;
+  return room.walls[ty * 20 + tx];
+}
+
+function canMove(room, px, py) {
+  // pixel coords → check corners of 12x14 hitbox centered
+  const hx = 5, hy = 6, hw = 6, hh = 6;
+  const corners = [
+    [px + hx, py + hy],
+    [px + hx + hw, py + hy],
+    [px + hx, py + hy + hh],
+    [px + hx + hw, py + hy + hh],
+  ];
+  for (const [cx, cy] of corners) {
+    const tx = Math.floor(cx / TILE);
+    const ty = Math.floor(cy / TILE);
+    const t = getTile(room, tx, ty);
+    if (t === 1 || t === 2) return false;
+  }
+  return true;
+}
+
+function showMsg(text, dur = 90) {
+  msgText = text;
+  msgTimer = dur;
+}
+
+function resetGame() {
+  player = { x: 2 * TILE, y: 7 * TILE, dir: 0, keys: 0, lives: 3, hasCalice: false, invuln: 0, blink: 0, attacking: 0, attackCd: 0 };
+  currentRoom = 0;
+  // Reset rooms
+  for (let i = 0; i < ROOMS.length; i++) {
+    ROOMS[i].items = JSON.parse(JSON.stringify(ROOMS_INIT[i].items));
+    ROOMS[i].dragons = JSON.parse(JSON.stringify(ROOMS_INIT[i].dragons));
+    for (const d of ROOMS[i].dragons) { d.hp = 3; d.stunned = 0; }
+  }
+  state = 'play';
+  showMsg('TROUVE LES 3 CLES!', 120);
+}
+
+// ─── UPDATE ───
+function update() {
+  frameCount++;
+
+  if (state === 'title') {
+    if (keys[' '] || keys['Enter'] || actionPressed) {
+      actionPressed = false;
+      resetGame();
+    }
+    return;
+  }
+
+  if (state === 'win' || state === 'dead') {
+    deathTimer--;
+    if (deathTimer <= 0 && (keys[' '] || keys['Enter'] || actionPressed)) {
+      actionPressed = false;
+      state = 'title';
+    }
+    return;
+  }
+
+  // Player movement (slower, Atari-like)
+  const speed = 2;
+  if (frameCount % 2 === 0) {
+    // Anti-stuck safety: if currently inside a wall, nudge out
+    const room_m = ROOMS[currentRoom];
+    if (!canMove(room_m, player.x, player.y)) {
+      let escaped = false;
+      for (let nudge = 2; nudge <= 32 && !escaped; nudge += 2) {
+        for (const [ndx, ndy] of [[nudge,0],[-nudge,0],[0,nudge],[0,-nudge]]) {
+          if (canMove(room_m, player.x + ndx, player.y + ndy)) {
+            player.x += ndx;
+            player.y += ndy;
+            escaped = true;
+            break;
+          }
+        }
+      }
+    }
+
+    let nx = player.x, ny = player.y;
+    if (keys['ArrowUp'])    { ny -= speed; player.dir = 1; }
+    if (keys['ArrowDown'])  { ny += speed; player.dir = 3; }
+    if (keys['ArrowLeft'])  { nx -= speed; player.dir = 2; }
+    if (keys['ArrowRight']) { nx += speed; player.dir = 0; }
+
+    const room = ROOMS[currentRoom];
+    if (canMove(room, nx, player.y)) player.x = nx;
+    if (canMove(room, player.x, ny)) player.y = ny;
+  }
+
+  // Room transitions
+  const room = ROOMS[currentRoom];
+  const exits = room.exits;
+  if (player.x < -4 && exits.left !== undefined) {
+    currentRoom = exits.left; player.x = W - TILE - 2;
+  }
+  if (player.x > W - TILE + 4 && exits.right !== undefined) {
+    currentRoom = exits.right; player.x = 2;
+  }
+  if (player.y < -4 && exits.up !== undefined) {
+    currentRoom = exits.up; player.y = H - TILE - 2;
+  }
+  if (player.y > H - TILE + 4 && exits.down !== undefined) {
+    currentRoom = exits.down; player.y = 2;
+  }
+
+  // Item pickup
+  const cr = ROOMS[currentRoom];
+  const ptx = Math.floor((player.x + 8) / TILE);
+  const pty = Math.floor((player.y + 8) / TILE);
+  for (let i = cr.items.length - 1; i >= 0; i--) {
+    const item = cr.items[i];
+    if (Math.abs(ptx - item.x) <= 1 && Math.abs(pty - item.y) <= 1) {
+      if (item.type === 'key') {
+        player.keys++;
+        cr.items.splice(i, 1);
+        showMsg('CLE TROUVEE! (' + player.keys + '/3)');
+      } else if (item.type === 'chalice' && player.keys >= 3) {
+        player.hasCalice = true;
+        cr.items.splice(i, 1);
+        state = 'win';
+        deathTimer = 120;
+        showMsg('VICTOIRE!', 999);
+      } else if (item.type === 'chalice') {
+        showMsg('IL FAUT 3 CLES!', 60);
+      }
+    }
+  }
+
+  // ─── SWORD ATTACK ───
+  if ((actionPressed || keys[' ']) && player.attackCd <= 0 && state === 'play') {
+    player.attacking = 12; // attack lasts 12 frames
+    player.attackCd = 20;  // cooldown before next attack
+  }
+  if (player.attacking > 0) player.attacking--;
+  if (player.attackCd > 0) player.attackCd--;
+
+  // Sword hitbox (in tile coords)
+  let swordHit = null;
+  if (player.attacking > 0) {
+    const px = (player.x + 8) / TILE, py = (player.y + 8) / TILE;
+    const reach = 1.8;
+    if (player.dir === 0) swordHit = { x: px + reach, y: py, r: 1.3 }; // right
+    else if (player.dir === 2) swordHit = { x: px - reach, y: py, r: 1.3 }; // left
+    else if (player.dir === 1) swordHit = { x: px, y: py - reach, r: 1.3 }; // up
+    else swordHit = { x: px, y: py + reach, r: 1.3 }; // down
+  }
+
+  // Dragon AI
+  if (frameCount % 3 === 0) {
+    for (let di = cr.dragons.length - 1; di >= 0; di--) {
+      const d = cr.dragons[di];
+
+      // Check if sword hits this dragon
+      if (swordHit) {
+        const sdx = swordHit.x - d.x;
+        const sdy = swordHit.y - d.y;
+        const sdist = Math.sqrt(sdx*sdx + sdy*sdy);
+        if (sdist < swordHit.r) {
+          // Dragon takes a hit — big knockback and stun
+          if (!d.hp) d.hp = 3;
+          d.hp--;
+          d.stunned = 30;
+          const knockStr = 3;
+          d.x -= Math.sign(sdx) * knockStr;
+          d.y -= Math.sign(sdy) * knockStr;
+          // Clamp dragon to room bounds
+          d.x = Math.max(1, Math.min(18, d.x));
+          d.y = Math.max(1, Math.min(13, d.y));
+          if (d.hp <= 0) {
+            cr.dragons.splice(di, 1);
+            showMsg('DRAGON VAINCU!', 60);
+            continue;
+          } else {
+            showMsg('TOUCHE! (' + d.hp + ' PV)', 30);
+          }
+        }
+      }
+
+      // Skip movement if stunned
+      if (d.stunned > 0) { d.stunned--; continue; }
+
+      // Simple patrol + chase if near
+      const dx = (player.x + 8) / TILE - d.x;
+      const dy = (player.y + 8) / TILE - d.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+
+      if (dist < 6) {
+        // Chase but keep minimum distance so they don't stack on player
+        const chaseSpeed = 0.25;
+        if (dist > 1.5) {
+          d.x += Math.sign(dx) * chaseSpeed;
+          d.y += Math.sign(dy) * chaseSpeed;
+        } else {
+          // Circle around player instead of stacking
+          d.x += Math.sign(dy) * chaseSpeed * 0.5;
+          d.y -= Math.sign(dx) * chaseSpeed * 0.5;
+        }
+      } else {
+        // Patrol
+        d.x += d.dx * 0.2;
+        d.y += d.dy * 0.2;
+        const t = getTile(cr, Math.floor(d.x), Math.floor(d.y));
+        if (t === 1 || d.x < 1 || d.x > 18 || d.y < 1 || d.y > 13) {
+          d.dx = -d.dx;
+          d.dy = -d.dy;
+          d.x += d.dx * 0.5;
+          d.y += d.dy * 0.5;
+        }
+      }
+
+      // Collision with player — knockback player away
+      if (player.invuln <= 0) {
+        const px = (player.x + 8) / TILE, py = (player.y + 8) / TILE;
+        if (Math.abs(px - d.x) < 1.2 && Math.abs(py - d.y) < 1.2) {
+          player.lives--;
+          player.invuln = 60;
+          // Knockback player away from dragon — step by step to avoid walls
+          const kbDirX = Math.sign(px - d.x) || 1;
+          const kbDirY = Math.sign(py - d.y) || 1;
+          const kbSteps = 16;
+          const kbStep = 2;
+          for (let s = 0; s < kbSteps; s++) {
+            const tryX = player.x + kbDirX * kbStep;
+            const tryY = player.y + kbDirY * kbStep;
+            if (canMove(cr, tryX, player.y)) player.x = tryX;
+            if (canMove(cr, player.x, tryY)) player.y = tryY;
+          }
+          // Clamp player to screen
+          player.x = Math.max(0, Math.min(W - TILE, player.x));
+          player.y = Math.max(0, Math.min(H - TILE, player.y));
+          // Also push dragon back
+          d.x -= Math.sign(px - d.x) * 2;
+          d.y -= Math.sign(py - d.y) * 2;
+          d.x = Math.max(1, Math.min(18, d.x));
+          d.y = Math.max(1, Math.min(13, d.y));
+          d.stunned = 20;
+          if (player.lives <= 0) {
+            state = 'dead';
+            deathTimer = 120;
+            showMsg('GAME OVER', 999);
+          } else {
+            showMsg('TOUCHE! ♥x' + player.lives, 60);
+          }
+        }
+      }
+    }
+  }
+
+  if (player.invuln > 0) player.invuln--;
+  if (msgTimer > 0) msgTimer--;
+  actionPressed = false;
+}
+
+// ─── DRAW ───
+function drawPixelRect(x, y, w, h, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(Math.floor(x), Math.floor(y), w, h);
+}
+
+function drawPlayer(px, py) {
+  if (player.invuln > 0 && frameCount % 6 < 3) return; // blink
+
+  const x = Math.floor(px), y = Math.floor(py);
+  // Body
+  drawPixelRect(x+4, y+2, 8, 10, C.player);
+  // Head
+  drawPixelRect(x+5, y, 6, 4, C.playerHi);
+  // Legs
+  const legOff = (frameCount % 16 < 8) ? 0 : 2;
+  drawPixelRect(x+4, y+12, 3, 4, C.player);
+  drawPixelRect(x+9, y+12 - legOff, 3, 4 + legOff, C.player);
+  // Sword direction — bigger when attacking
+  const atk = player.attacking > 0;
+  const sc = atk ? '#FFFFFF' : '#CCCCCC';
+  const slen = atk ? 10 : 6;
+  const sw = atk ? 3 : 2;
+  if (player.dir === 0) drawPixelRect(x+14, y+3, slen, sw, sc);
+  else if (player.dir === 2) drawPixelRect(x-slen+2, y+3, slen, sw, sc);
+  else if (player.dir === 1) drawPixelRect(x+6, y-slen+2, sw, slen, sc);
+  else drawPixelRect(x+6, y+14, sw, slen, sc);
+  // Sword flash effect when attacking
+  if (atk && player.attacking > 6) {
+    ctx.fillStyle = 'rgba(255,255,200,0.6)';
+    if (player.dir === 0) ctx.fillRect(x+14, y, 14, 10);
+    else if (player.dir === 2) ctx.fillRect(x-12, y, 14, 10);
+    else if (player.dir === 1) ctx.fillRect(x, y-12, 10, 14);
+    else ctx.fillRect(x, y+14, 10, 14);
+  }
+}
+
+function drawDragon(d) {
+  const x = Math.floor(d.x * TILE), y = Math.floor(d.y * TILE);
+  // Blink white when stunned
+  if (d.stunned > 0 && frameCount % 4 < 2) {
+    drawPixelRect(x+2, y+1, 12, 12, '#FFFFFF');
+    return;
+  }
+  const flash = (frameCount % 20 < 10) ? C.dragon : C.dragonHi;
+  // Body
+  drawPixelRect(x+2, y+4, 12, 8, flash);
+  // Head
+  drawPixelRect(x+4, y+1, 8, 5, flash);
+  // Eyes
+  drawPixelRect(x+5, y+2, 2, 2, '#FFFFFF');
+  drawPixelRect(x+9, y+2, 2, 2, '#FFFFFF');
+  // Tail
+  drawPixelRect(x, y+8, 4, 3, flash);
+  drawPixelRect(x-2, y+9, 3, 2, flash);
+  // Wings flap
+  if (frameCount % 12 < 6) {
+    drawPixelRect(x+1, y, 3, 3, flash);
+    drawPixelRect(x+12, y, 3, 3, flash);
+  } else {
+    drawPixelRect(x+1, y+2, 3, 3, flash);
+    drawPixelRect(x+12, y+2, 3, 3, flash);
+  }
+}
+
+function drawKey(ix, iy) {
+  const x = ix * TILE, y = iy * TILE;
+  const glow = (frameCount % 30 < 15) ? C.key : '#00FFFF';
+  drawPixelRect(x+4, y+2, 8, 4, glow);
+  drawPixelRect(x+6, y+2, 4, 12, glow);
+  drawPixelRect(x+4, y+10, 3, 2, glow);
+  drawPixelRect(x+4, y+7, 3, 2, glow);
+}
+
+function drawChalice(ix, iy) {
+  const x = ix * TILE, y = iy * TILE;
+  const glow = (frameCount % 20 < 10) ? '#FFD700' : '#FFF8DC';
+  // Cup
+  drawPixelRect(x+2, y, 12, 2, glow);
+  drawPixelRect(x+3, y+2, 10, 6, glow);
+  drawPixelRect(x+5, y+8, 6, 2, glow);
+  // Stem
+  drawPixelRect(x+6, y+10, 4, 3, glow);
+  // Base
+  drawPixelRect(x+4, y+13, 8, 2, glow);
+}
+
+function drawRoom(room) {
+  for (let ty = 0; ty < 15; ty++) {
+    for (let tx = 0; tx < 20; tx++) {
+      const t = room.walls[ty * 20 + tx];
+      const x = tx * TILE, y = ty * TILE;
+      if (t === 1) {
+        const shade = ((tx + ty) % 2 === 0) ? C.wall : C.wallHi;
+        drawPixelRect(x, y, TILE, TILE, shade);
+        // Brick lines
+        ctx.fillStyle = '#3A2210';
+        ctx.fillRect(x, y + 7, TILE, 1);
+        if ((tx + ty) % 2 === 0) ctx.fillRect(x + 7, y, 1, TILE);
+        else ctx.fillRect(x + 3, y, 1, TILE);
+      } else if (t === 2) {
+        const wf = (frameCount + tx * 3 + ty * 7) % 30;
+        const wc = wf < 15 ? '#0000AA' : '#0022CC';
+        drawPixelRect(x, y, TILE, TILE, wc);
+        // Wave
+        ctx.fillStyle = '#3344DD';
+        ctx.fillRect(x + ((frameCount/4 + tx*5) % 16), y + 4, 4, 1);
+        ctx.fillRect(x + ((frameCount/4 + tx*5 + 8) % 16), y + 11, 4, 1);
+      } else if (t === 3) {
+        drawPixelRect(x, y, TILE, TILE, C.bridge);
+        ctx.fillStyle = '#5A4010';
+        ctx.fillRect(x, y + 4, TILE, 1);
+        ctx.fillRect(x, y + 10, TILE, 1);
+      }
+    }
+  }
+}
+
+function drawText(text, x, y, color = C.text, size = 8) {
+  ctx.fillStyle = '#000000';
+  ctx.font = size + 'px "Press Start 2P", monospace';
+  ctx.fillText(text, x + 1, y + 1);
+  ctx.fillStyle = color;
+  ctx.fillText(text, x, y);
+}
+
+function drawTitle() {
+  ctx.fillStyle = C.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Stars background
+  for (let i = 0; i < 40; i++) {
+    const sx = (i * 137 + frameCount * (i % 3 + 1) * 0.2) % W;
+    const sy = (i * 89) % H;
+    const bright = ((frameCount + i * 13) % 40 < 20) ? '#FFFFFF' : '#888888';
+    ctx.fillStyle = bright;
+    ctx.fillRect(Math.floor(sx), Math.floor(sy), 2, 2);
+  }
+
+  const bounce = Math.sin(frameCount * 0.05) * 4;
+  drawText('Adventure', 68, 50 + bounce, '#FF6600', 14);
+
+  // Animated chalice
+  const cy = 110 + Math.sin(frameCount * 0.08) * 6;
+  drawChalice(9, cy / TILE);
+
+  drawText('APPUIE SUR ESPACE', 52, 170, (frameCount % 60 < 30) ? '#FFFFFF' : '#666666', 8);
+  drawText('POUR COMMENCER', 68, 188, '#888888', 8);
+
+  drawText('5 SALLES - 3 CLES', 60, 218, '#CC5500', 7);
+  drawText('DES DRAGONS', 92, 232, '#CC0000', 7);
+}
+
+function draw() {
+  ctx.fillStyle = C.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  if (state === 'title') {
+    drawTitle();
+    return;
+  }
+
+  const room = ROOMS[currentRoom];
+  drawRoom(room);
+
+  // Items
+  for (const item of room.items) {
+    if (item.type === 'key') drawKey(item.x, item.y);
+    else if (item.type === 'chalice') drawChalice(item.x, item.y);
+  }
+
+  // Dragons
+  for (const d of room.dragons) drawDragon(d);
+
+  // Player
+  if (state === 'play' || state === 'win') {
+    drawPlayer(player.x, player.y);
+  }
+
+  // Message overlay
+  if (msgTimer > 0) {
+    const mw = msgText.length * 8 + 16;
+    const mx = (W - mw) / 2, my = 4;
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillRect(mx, my, mw, 18);
+    ctx.strokeStyle = '#FF6600';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(mx, my, mw, 18);
+    drawText(msgText, mx + 8, my + 13, '#FFD700', 8);
+  }
+
+  // Win/Dead overlays
+  if (state === 'win') {
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(0, 80, W, 80);
+    drawText('VICTOIRE!', 96, 115, '#FFD700', 16);
+    drawText('TU AS LE CALICE!', 56, 140, '#FFFFFF', 10);
+    if (deathTimer <= 0) drawText('ESPACE = MENU', 72, 155, (frameCount % 40 < 20) ? '#AAA' : '#555', 8);
+  }
+
+  if (state === 'dead') {
+    ctx.fillStyle = 'rgba(80,0,0,0.7)';
+    ctx.fillRect(0, 80, W, 80);
+    drawText('GAME OVER', 88, 115, '#FF0000', 16);
+    drawText('LES DRAGONS GAGNENT', 40, 140, '#CC5555', 8);
+    if (deathTimer <= 0) drawText('ESPACE = MENU', 72, 155, (frameCount % 40 < 20) ? '#AAA' : '#555', 8);
+  }
+
+  // Update HUD
+  document.getElementById('hud-keys').textContent = 'CLES: ' + player.keys + '/3';
+  document.getElementById('hud-room').textContent = room.name;
+  document.getElementById('hud-lives').textContent = '♥'.repeat(player.lives);
+}
+
+// ─── GAME LOOP ───
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+</body>
+</html>

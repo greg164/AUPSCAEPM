@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Space Invaders</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #020010;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Press Start 2P', monospace;
+    color: #00eaff;
+    overflow: hidden;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      transparent, transparent 2px,
+      rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .cabinet {
+    background: #0a0a1a;
+    border: 3px solid #00eaff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow:
+      0 0 30px rgba(0, 234, 255, 0.1),
+      inset 0 0 50px rgba(0,0,0,0.6);
+    position: relative;
+  }
+
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 10px;
+  }
+
+  .score { text-shadow: 0 0 8px rgba(0,234,255,0.6); }
+  .lives { color: #ff3366; text-shadow: 0 0 8px rgba(255,51,102,0.4); }
+  .wave { color: #ffcc00; text-shadow: 0 0 8px rgba(255,204,0,0.4); font-size: 8px; }
+
+  canvas {
+    display: block;
+    background: #030014;
+    border: 2px solid #0a1a2a;
+    image-rendering: pixelated;
+  }
+
+  .controls {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 7px;
+    color: #0a4a5a;
+    letter-spacing: 1px;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(2,0,16,0.9);
+    border-radius: 12px;
+    z-index: 10;
+    gap: 18px;
+  }
+
+  .overlay.hidden { display: none; }
+
+  .overlay h1 {
+    font-size: 18px;
+    text-shadow: 0 0 20px rgba(0,234,255,0.8);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .overlay .sub {
+    font-size: 9px;
+    color: #0a8a9a;
+    animation: blink 1s step-end infinite;
+  }
+
+  .overlay .final {
+    font-size: 11px;
+    color: #ffcc00;
+    text-shadow: 0 0 10px rgba(255,204,0,0.5);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .mobile-controls {
+    display: none;
+    margin-top: 14px;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .mobile-controls button {
+    width: 56px;
+    height: 56px;
+    background: #0a0a1a;
+    border: 2px solid #00eaff;
+    color: #00eaff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+
+  .mobile-controls button:active { background: #00eaff; color: #020010; }
+  .mobile-controls .fire-btn {
+    width: 80px;
+    font-size: 8px;
+    margin-left: 20px;
+    border-color: #ff3366;
+    color: #ff3366;
+  }
+  .mobile-controls .fire-btn:active { background: #ff3366; color: #020010; }
+
+  @media (pointer: coarse) {
+    .mobile-controls { display: flex; }
+    .controls { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cabinet">
+  <div class="hud">
+    <span class="score" id="score">SCORE: 0</span>
+    <span class="wave" id="wave">VAGUE 1</span>
+    <span class="lives" id="lives">♥♥♥</span>
+  </div>
+  <canvas id="game" width="420" height="500"></canvas>
+  <div class="controls">◄ ► DÉPLACER &nbsp; ESPACE TIRER</div>
+  <div class="mobile-controls">
+    <button ontouchstart="mobileLeft=true" ontouchend="mobileLeft=false">◄</button>
+    <button ontouchstart="mobileRight=true" ontouchend="mobileRight=false">►</button>
+    <button class="fire-btn" ontouchstart="mobileFire()">TIR</button>
+  </div>
+
+  <div class="overlay" id="startScreen">
+    <h1>👾 SPACE INVADERS</h1>
+    <p class="sub">APPUYEZ POUR JOUER</p>
+  </div>
+
+  <div class="overlay hidden" id="deathScreen">
+    <h1>GAME OVER</h1>
+    <p class="final" id="finalScore"></p>
+    <p class="sub">APPUYEZ POUR REJOUER</p>
+  </div>
+
+  <div class="overlay hidden" id="winScreen">
+    <h1>VICTOIRE !</h1>
+    <p class="final" id="winScore"></p>
+    <p class="sub">APPUYEZ POUR CONTINUER</p>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+let state = 'start';
+let score, lives, waveNum;
+let player, bullets, enemyBullets, invaders, stars, particles;
+let invaderDir, invaderSpeed, invaderTimer, invaderShootTimer;
+let keys = {};
+let mobileLeft = false, mobileRight = false;
+let lastTime = 0;
+
+function initStars() {
+  stars = Array.from({length: 60}, () => ({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    s: Math.random() * 1.5 + 0.5,
+    b: Math.random()
+  }));
+}
+
+function drawInvader(x, y, type) {
+  const s = 3;
+  const patterns = [
+    [[0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],[0,1,1,1,1,1,1,0],[1,1,0,1,1,0,1,1],[1,1,1,1,1,1,1,1],[0,0,1,0,0,1,0,0],[0,1,0,1,1,0,1,0],[1,0,1,0,0,1,0,1]],
+    [[0,0,1,0,0,0,1,0,0],[0,0,0,1,0,1,0,0,0],[0,0,1,1,1,1,1,0,0],[0,1,1,0,1,0,1,1,0],[1,1,1,1,1,1,1,1,1],[1,0,1,1,1,1,1,0,1],[1,0,1,0,0,0,1,0,1],[0,0,0,1,0,1,0,0,0]],
+    [[0,0,0,0,1,0,0,0,0],[0,0,0,1,1,1,0,0,0],[0,0,1,1,1,1,1,0,0],[0,1,1,0,1,0,1,1,0],[0,1,1,1,1,1,1,1,0],[0,0,0,1,0,1,0,0,0],[0,0,1,0,0,0,1,0,0],[0,1,0,0,0,0,0,1,0]],
+  ];
+  const colors = ['#ff3366', '#00eaff', '#44ff88'];
+  const p = patterns[type % 3];
+  ctx.fillStyle = colors[type % 3];
+  const pw = p[0].length;
+  const ox = x - (pw * s) / 2;
+  const oy = y - (p.length * s) / 2;
+  for (let r = 0; r < p.length; r++)
+    for (let c = 0; c < pw; c++)
+      if (p[r][c]) ctx.fillRect(ox + c * s, oy + r * s, s, s);
+}
+
+function drawPlayer(x, y) {
+  const s = 3;
+  const p = [[0,0,0,0,1,0,0,0,0],[0,0,0,1,1,1,0,0,0],[0,0,0,1,1,1,0,0,0],[0,1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1]];
+  ctx.fillStyle = '#00ff88';
+  ctx.shadowColor = '#00ff88';
+  ctx.shadowBlur = 6;
+  const ox = x - (9 * s) / 2;
+  const oy = y - (6 * s) / 2;
+  for (let r = 0; r < p.length; r++)
+    for (let c = 0; c < 9; c++)
+      if (p[r][c]) ctx.fillRect(ox + c * s, oy + r * s, s, s);
+  ctx.shadowBlur = 0;
+}
+
+function spawnWave(wave) {
+  invaders = [];
+  const rows = Math.min(4 + Math.floor(wave / 2), 6);
+  const cols = Math.min(8 + Math.floor(wave / 3), 11);
+  const gapX = 38, gapY = 34;
+  const startX = (W - (cols - 1) * gapX) / 2;
+  const startY = 50;
+  for (let r = 0; r < rows; r++)
+    for (let c = 0; c < cols; c++)
+      invaders.push({ x: startX + c * gapX, y: startY + r * gapY, type: r < 1 ? 0 : r < 3 ? 1 : 2, alive: true });
+  invaderDir = 1;
+  invaderSpeed = 0.4 + wave * 0.15;
+  invaderTimer = 0;
+  invaderShootTimer = 0;
+}
+
+function init(wave) {
+  waveNum = wave || 1;
+  if (!wave || wave === 1) { score = 0; lives = 3; }
+  player = { x: W / 2, y: H - 40 };
+  bullets = [];
+  enemyBullets = [];
+  particles = [];
+  spawnWave(waveNum);
+  updateHUD();
+}
+
+function updateHUD() {
+  document.getElementById('score').textContent = 'SCORE: ' + score;
+  document.getElementById('lives').textContent = '♥'.repeat(Math.max(0, lives));
+  document.getElementById('wave').textContent = 'VAGUE ' + waveNum;
+}
+
+function addParticles(x, y, color, count) {
+  for (let i = 0; i < count; i++)
+    particles.push({ x, y, vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4, life: 1, color, size: Math.random()*3+1 });
+}
+
+function shoot() {
+  if (bullets.length < 3) bullets.push({ x: player.x, y: player.y - 12, vy: -7 });
+}
+
+function mobileFire() {
+  if (state !== 'play') startGame(); else shoot();
+}
+
+function update(dt) {
+  if (state !== 'play') return;
+  const speed = 4;
+  if (keys['ArrowLeft'] || keys['q'] || keys['Q'] || mobileLeft) player.x -= speed;
+  if (keys['ArrowRight'] || keys['d'] || keys['D'] || mobileRight) player.x += speed;
+  player.x = Math.max(14, Math.min(W - 14, player.x));
+
+  bullets.forEach(b => b.y += b.vy);
+  bullets = bullets.filter(b => b.y > -10);
+  enemyBullets.forEach(b => { b.y += b.vy; b.x += (b.vx||0); });
+  enemyBullets = enemyBullets.filter(b => b.y < H + 10);
+
+  invaderTimer += invaderSpeed;
+  if (invaderTimer >= 1) {
+    invaderTimer = 0;
+    const alive = invaders.filter(i => i.alive);
+    const ratio = alive.length / invaders.length;
+    invaderSpeed = (0.4 + waveNum * 0.12) + (1 - ratio) * 0.5;
+    alive.forEach(inv => inv.x += invaderDir * 8);
+    if (alive.some(i => i.x > W - 20 || i.x < 20)) {
+      invaderDir *= -1;
+      alive.forEach(inv => inv.y += 8);
+    }
+    if (alive.some(i => i.y >= H - 60)) { lives = 0; die(); return; }
+  }
+
+  invaderShootTimer += dt;
+  if (invaderShootTimer > Math.max(0.4, 1.2 - waveNum * 0.08)) {
+    invaderShootTimer = 0;
+    const alive = invaders.filter(i => i.alive);
+    if (alive.length) {
+      const s = alive[Math.floor(Math.random() * alive.length)];
+      enemyBullets.push({ x: s.x, y: s.y + 10, vy: 3 + waveNum * 0.3, vx: (Math.random()-0.5)*0.5 });
+    }
+  }
+
+  bullets.forEach(b => {
+    invaders.forEach(inv => {
+      if (!inv.alive) return;
+      if (Math.abs(b.x - inv.x) < 12 && Math.abs(b.y - inv.y) < 12) {
+        inv.alive = false; b.y = -100;
+        score += inv.type === 0 ? 30 : inv.type === 1 ? 20 : 10;
+        addParticles(inv.x, inv.y, ['#ff3366','#00eaff','#44ff88'][inv.type], 12);
+        updateHUD();
+      }
+    });
+  });
+
+  enemyBullets.forEach(b => {
+    if (Math.abs(b.x - player.x) < 12 && Math.abs(b.y - player.y) < 10) {
+      b.y = H + 100; lives--;
+      addParticles(player.x, player.y, '#00ff88', 20);
+      updateHUD();
+      if (lives <= 0) { die(); return; }
+      player.x = W / 2;
+    }
+  });
+
+  particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life -= 0.03; });
+  particles = particles.filter(p => p.life > 0);
+
+  if (invaders.every(i => !i.alive)) {
+    state = 'win';
+    document.getElementById('winScore').textContent = 'SCORE: ' + score;
+    document.getElementById('winScreen').classList.remove('hidden');
+  }
+}
+
+function drawScene() {
+  ctx.fillStyle = '#030014';
+  ctx.fillRect(0, 0, W, H);
+
+  stars.forEach(s => {
+    s.b += 0.01;
+    ctx.fillStyle = `rgba(200,220,255,${(Math.sin(s.b*3)+1)/2*0.6+0.2})`;
+    ctx.fillRect(s.x, s.y, s.s, s.s);
+  });
+
+  ctx.strokeStyle = '#0a3a2a';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, H-16); ctx.lineTo(W, H-16); ctx.stroke();
+
+  invaders.forEach(inv => { if (inv.alive) drawInvader(inv.x, inv.y, inv.type); });
+  if (state === 'play') drawPlayer(player.x, player.y);
+
+  ctx.fillStyle = '#ffff66'; ctx.shadowColor = '#ffff66'; ctx.shadowBlur = 6;
+  bullets.forEach(b => ctx.fillRect(b.x-1.5, b.y, 3, 10));
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = '#ff3366'; ctx.shadowColor = '#ff3366'; ctx.shadowBlur = 5;
+  enemyBullets.forEach(b => ctx.fillRect(b.x-1.5, b.y, 3, 8));
+  ctx.shadowBlur = 0;
+
+  particles.forEach(p => {
+    ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, p.size, p.size);
+  });
+  ctx.globalAlpha = 1;
+}
+
+function die() {
+  state = 'dead';
+  document.getElementById('finalScore').textContent = 'SCORE: ' + score;
+  document.getElementById('deathScreen').classList.remove('hidden');
+}
+
+function startGame(wave) {
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('deathScreen').classList.add('hidden');
+  document.getElementById('winScreen').classList.add('hidden');
+  init(wave || 1);
+  state = 'play';
+}
+
+function gameLoop(ts) {
+  const dt = Math.min((ts - lastTime) / 1000, 0.05);
+  lastTime = ts;
+  update(dt);
+  drawScene();
+  requestAnimationFrame(gameLoop);
+}
+
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (e.key === ' ') {
+    e.preventDefault();
+    if (state === 'play') shoot();
+    else if (state === 'dead' || state === 'start') startGame();
+    else if (state === 'win') startGame(waveNum + 1);
+  }
+  if ((state === 'start' || state === 'dead') && ['ArrowLeft','ArrowRight'].includes(e.key)) startGame();
+  if (state === 'win' && ['ArrowLeft','ArrowRight'].includes(e.key)) startGame(waveNum + 1);
+});
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+document.getElementById('startScreen').addEventListener('click', () => startGame());
+document.getElementById('deathScreen').addEventListener('click', () => startGame());
+document.getElementById('winScreen').addEventListener('click', () => startGame(waveNum + 1));
+
+initStars();
+init();
+drawScene();
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>

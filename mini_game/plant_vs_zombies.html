@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌻 Plantes vs Squelettes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nunito:wght@700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1a0a2e;
+    overflow: hidden;
+    font-family: 'Nunito', sans-serif;
+    user-select: none;
+    height: 100vh;
+  }
+
+  #game-container {
+    position: relative;
+    width: 900px;
+    height: 600px;
+    margin: 0 auto;
+    overflow: hidden;
+    border: 3px solid #2a1a4e;
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(100, 50, 200, 0.3);
+  }
+
+  canvas { display: block; }
+
+  #ui-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 80%, transparent 100%);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 20px;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .ui-stat {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ui-stat .icon { font-size: 20px; }
+
+  #shop {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 64px;
+    background: linear-gradient(0deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.4) 80%, transparent 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    z-index: 10;
+  }
+
+  .shop-item {
+    width: 52px; height: 52px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .shop-item:hover { border-color: #ffd700; background: rgba(255,215,0,0.15); transform: scale(1.1); }
+  .shop-item.selected { border-color: #ffd700; background: rgba(255,215,0,0.25); box-shadow: 0 0 12px rgba(255,215,0,0.4); }
+  .shop-item.disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .shop-item .emoji { font-size: 24px; line-height: 1; }
+  .shop-item .cost {
+    font-size: 9px;
+    color: #ffd700;
+    font-weight: 900;
+    position: absolute;
+    bottom: 2px;
+  }
+
+  #start-screen, #game-over-screen {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, #1a0a2e 0%, #0d0518 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    gap: 20px;
+  }
+
+  #game-over-screen { display: none; }
+
+  .title {
+    font-family: 'Creepster', cursive;
+    font-size: 52px;
+    color: #4eff4e;
+    text-shadow: 0 0 20px rgba(78,255,78,0.5), 0 4px 8px rgba(0,0,0,0.8);
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    color: #b8a0d8;
+    font-size: 16px;
+    text-align: center;
+    max-width: 400px;
+    line-height: 1.5;
+  }
+
+  .btn-play {
+    margin-top: 10px;
+    padding: 14px 48px;
+    font-family: 'Creepster', cursive;
+    font-size: 28px;
+    color: #1a0a2e;
+    background: linear-gradient(135deg, #4eff4e, #2ecc71);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(78,255,78,0.4);
+  }
+
+  .btn-play:hover { transform: scale(1.08); box-shadow: 0 6px 30px rgba(78,255,78,0.6); }
+
+  .go-text {
+    font-family: 'Creepster', cursive;
+    font-size: 22px;
+    color: #ffd700;
+  }
+
+  .keys-hint {
+    color: #7a6a9a;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div id="game-container">
+  <canvas id="canvas" width="900" height="600"></canvas>
+
+  <div id="ui-overlay">
+    <div class="ui-stat"><span class="icon">☀️</span><span id="sun-count">100</span></div>
+    <div class="ui-stat"><span class="icon">🌊</span> Vague <span id="wave-count">1</span></div>
+    <div class="ui-stat"><span class="icon">💀</span> Kills <span id="kill-count">0</span></div>
+    <div class="ui-stat" style="margin-left:auto"><span class="icon">❤️</span> <span id="lives">3</span></div>
+  </div>
+
+  <div id="shop">
+    <div class="shop-item selected" data-type="sunflower" onclick="selectPlant('sunflower')">
+      <span class="emoji">🌻</span><span class="cost">50</span>
+    </div>
+    <div class="shop-item" data-type="peashooter" onclick="selectPlant('peashooter')">
+      <span class="emoji">🌿</span><span class="cost">100</span>
+    </div>
+    <div class="shop-item" data-type="wallnut" onclick="selectPlant('wallnut')">
+      <span class="emoji">🥜</span><span class="cost">75</span>
+    </div>
+    <div class="shop-item" data-type="iceshooter" onclick="selectPlant('iceshooter')">
+      <span class="emoji">❄️</span><span class="cost">150</span>
+    </div>
+    <div class="shop-item" data-type="bomb" onclick="selectPlant('bomb')">
+      <span class="emoji">💣</span><span class="cost">125</span>
+    </div>
+    <div class="shop-item" data-type="remove" onclick="selectPlant('remove')">
+      <span class="emoji">🗑️</span><span class="cost">0</span>
+    </div>
+  </div>
+
+  <div id="start-screen">
+    <div class="title">🌻 Plantes vs Squelettes 💀</div>
+    <div class="subtitle">Placez vos plantes pour défendre votre jardin contre les hordes de squelettes !</div>
+    <button class="btn-play" onclick="startGame()">JOUER</button>
+    <div class="keys-hint">Cliquez sur la grille pour placer vos plantes</div>
+  </div>
+
+  <div id="game-over-screen">
+    <div class="title" id="go-title">💀 Défaite !</div>
+    <div class="go-text" id="go-stats"></div>
+    <button class="btn-play" onclick="startGame()">REJOUER</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = 900, H = 600;
+
+// Grid config
+const COLS = 9, ROWS = 5;
+const GRID_X = 80, GRID_Y = 70;
+const CELL_W = 85, CELL_H = 95;
+
+const PLANT_DEFS = {
+  sunflower: { cost: 50, hp: 100, emoji: '🌻', type: 'sun' },
+  peashooter: { cost: 100, hp: 100, emoji: '🌿', type: 'shoot', dmg: 20, rate: 80, color: '#4eff4e' },
+  wallnut: { cost: 75, hp: 400, emoji: '🥜', type: 'wall' },
+  iceshooter: { cost: 150, hp: 100, emoji: '❄️', type: 'shoot', dmg: 15, rate: 100, slow: true, color: '#4ef0ff' },
+  bomb: { cost: 125, hp: 50, emoji: '💣', type: 'bomb' },
+};
+
+let selectedPlant = 'sunflower';
+let sun = 100;
+let lives = 3;
+let kills = 0;
+let wave = 1;
+let ticks = 0;
+let running = false;
+let plants = [];
+let zombies = [];
+let projectiles = [];
+let particles = [];
+let suns = [];
+let nextZombieSpawn = 120;
+let zombiesLeftInWave = 5;
+let waveDelay = 0;
+
+function selectPlant(type) {
+  selectedPlant = type;
+  document.querySelectorAll('.shop-item').forEach(el => {
+    el.classList.toggle('selected', el.dataset.type === type);
+  });
+}
+
+function updateUI() {
+  document.getElementById('sun-count').textContent = sun;
+  document.getElementById('wave-count').textContent = wave;
+  document.getElementById('kill-count').textContent = kills;
+  document.getElementById('lives').textContent = lives;
+
+  document.querySelectorAll('.shop-item').forEach(el => {
+    const type = el.dataset.type;
+    if (type === 'remove') return;
+    const def = PLANT_DEFS[type];
+    el.classList.toggle('disabled', def && sun < def.cost);
+  });
+}
+
+// Drawing helpers
+function drawGrass() {
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const x = GRID_X + c * CELL_W;
+      const y = GRID_Y + r * CELL_H;
+      const light = (r + c) % 2 === 0;
+      ctx.fillStyle = light ? 'rgba(34,120,34,0.5)' : 'rgba(28,100,28,0.5)';
+      ctx.fillRect(x, y, CELL_W, CELL_H);
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx.strokeRect(x, y, CELL_W, CELL_H);
+    }
+  }
+}
+
+function drawBackground() {
+  // Sky gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#1a3a1a');
+  grad.addColorStop(0.3, '#2a5a2a');
+  grad.addColorStop(1, '#1a3a1a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle moon
+  ctx.fillStyle = 'rgba(255,255,200,0.06)';
+  ctx.beginPath();
+  ctx.arc(780, 40, 30, 0, Math.PI * 2);
+  ctx.fill();
+
+  drawGrass();
+}
+
+function drawEmoji(emoji, x, y, size = 28, alpha = 1) {
+  ctx.globalAlpha = alpha;
+  ctx.font = `${size}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(emoji, x, y);
+  ctx.globalAlpha = 1;
+}
+
+function drawHP(x, y, hp, maxHP, w = 40) {
+  if (hp >= maxHP) return;
+  const ratio = hp / maxHP;
+  const bx = x - w / 2, by = y - 22;
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(bx, by, w, 5);
+  ctx.fillStyle = ratio > 0.5 ? '#4eff4e' : ratio > 0.25 ? '#ffd700' : '#ff4444';
+  ctx.fillRect(bx, by, w * ratio, 5);
+}
+
+// Game entities
+function addPlant(col, row, type) {
+  const def = PLANT_DEFS[type];
+  plants.push({
+    col, row, type,
+    hp: def.hp,
+    maxHP: def.hp,
+    emoji: def.emoji,
+    shootTimer: def.rate || 0,
+    sunTimer: type === 'sunflower' ? 300 : 0,
+    bombTimer: type === 'bomb' ? 180 : 0,
+    age: 0,
+  });
+}
+
+function spawnZombie(row) {
+  const waveHP = 80 + wave * 30;
+  const speed = 0.25 + Math.random() * 0.15 + wave * 0.02;
+  const isFast = Math.random() < 0.15 + wave * 0.02;
+  const isTank = Math.random() < 0.1 + wave * 0.015;
+
+  let emoji = '💀', hp = waveHP, spd = speed;
+  if (isTank) { emoji = '👹'; hp = waveHP * 2.5; spd *= 0.7; }
+  else if (isFast) { emoji = '👻'; hp = waveHP * 0.6; spd *= 1.6; }
+
+  zombies.push({
+    x: W + 20,
+    row,
+    hp,
+    maxHP: hp,
+    speed: spd,
+    baseSpeed: spd,
+    emoji,
+    attacking: false,
+    atkTimer: 0,
+    slowTimer: 0,
+  });
+}
+
+function spawnSun(x, y) {
+  suns.push({ x, y, vy: 0.5, life: 300, val: 25 });
+}
+
+// Click handling
+canvas.addEventListener('click', (e) => {
+  if (!running) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (W / rect.width);
+  const my = (e.clientY - rect.top) * (H / rect.height);
+
+  // Check sun pickup
+  for (let i = suns.length - 1; i >= 0; i--) {
+    const s = suns[i];
+    if (Math.abs(mx - s.x) < 20 && Math.abs(my - s.y) < 20) {
+      sun += s.val;
+      addParticles(s.x, s.y, '#ffd700', 5);
+      suns.splice(i, 1);
+      return;
+    }
+  }
+
+  // Grid placement
+  const col = Math.floor((mx - GRID_X) / CELL_W);
+  const row = Math.floor((my - GRID_Y) / CELL_H);
+  if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return;
+
+  const existing = plants.find(p => p.col === col && p.row === row);
+
+  if (selectedPlant === 'remove') {
+    if (existing) {
+      addParticles(GRID_X + col * CELL_W + CELL_W / 2, GRID_Y + row * CELL_H + CELL_H / 2, '#ff8800', 8);
+      plants = plants.filter(p => p !== existing);
+    }
+    return;
+  }
+
+  if (existing) return;
+
+  const def = PLANT_DEFS[selectedPlant];
+  if (sun < def.cost) return;
+
+  sun -= def.cost;
+  addPlant(col, row, selectedPlant);
+  addParticles(GRID_X + col * CELL_W + CELL_W / 2, GRID_Y + row * CELL_H + CELL_H / 2, '#4eff4e', 6);
+});
+
+function addParticles(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 4,
+      vy: (Math.random() - 0.5) * 4 - 1,
+      life: 25 + Math.random() * 15,
+      color,
+      size: 2 + Math.random() * 3,
+    });
+  }
+}
+
+// Game loop
+function update() {
+  ticks++;
+
+  // Wave management
+  if (zombiesLeftInWave > 0) {
+    nextZombieSpawn--;
+    if (nextZombieSpawn <= 0) {
+      const row = Math.floor(Math.random() * ROWS);
+      spawnZombie(row);
+      zombiesLeftInWave--;
+      nextZombieSpawn = Math.max(40, 120 - wave * 8) + Math.random() * 60;
+    }
+  } else if (zombies.length === 0) {
+    waveDelay++;
+    if (waveDelay > 180) {
+      wave++;
+      zombiesLeftInWave = 4 + wave * 2;
+      waveDelay = 0;
+    }
+  }
+
+  // Plants
+  for (const p of plants) {
+    p.age++;
+    const def = PLANT_DEFS[p.type];
+    const px = GRID_X + p.col * CELL_W + CELL_W / 2;
+    const py = GRID_Y + p.row * CELL_H + CELL_H / 2;
+
+    if (def.type === 'sun') {
+      p.sunTimer--;
+      if (p.sunTimer <= 0) {
+        spawnSun(px + (Math.random() - 0.5) * 30, py - 10);
+        p.sunTimer = 280 + Math.random() * 60;
+      }
+    }
+
+    if (def.type === 'shoot') {
+      const hasTarget = zombies.some(z => z.row === p.row && z.x > px);
+      if (hasTarget) {
+        p.shootTimer--;
+        if (p.shootTimer <= 0) {
+          projectiles.push({
+            x: px + 20, y: py,
+            row: p.row,
+            dmg: def.dmg,
+            slow: def.slow || false,
+            color: def.color,
+          });
+          p.shootTimer = def.rate;
+        }
+      }
+    }
+
+    if (def.type === 'bomb') {
+      p.bombTimer--;
+      if (p.bombTimer <= 0) {
+        // Explode in 3x3 area
+        for (const z of zombies) {
+          const zCol = Math.floor((z.x - GRID_X) / CELL_W);
+          if (Math.abs(zCol - p.col) <= 1 && Math.abs(z.row - p.row) <= 1) {
+            z.hp -= 200;
+            addParticles(z.x, GRID_Y + z.row * CELL_H + CELL_H / 2, '#ff4400', 6);
+          }
+        }
+        addParticles(px, py, '#ff8800', 20);
+        addParticles(px, py, '#ffd700', 15);
+        p.hp = 0;
+      }
+    }
+  }
+
+  // Projectiles
+  for (const b of projectiles) {
+    b.x += 5;
+    for (const z of zombies) {
+      if (z.row === b.row && Math.abs(z.x - b.x) < 25) {
+        z.hp -= b.dmg;
+        if (b.slow) z.slowTimer = 120;
+        addParticles(b.x, b.y, b.color, 3);
+        b.x = W + 100; // remove
+        break;
+      }
+    }
+  }
+  projectiles = projectiles.filter(b => b.x < W + 50);
+
+  // Zombies
+  for (const z of zombies) {
+    const speed = z.slowTimer > 0 ? z.baseSpeed * 0.4 : z.baseSpeed;
+    z.slowTimer = Math.max(0, z.slowTimer - 1);
+
+    // Check for plant collision
+    const zCenterY = GRID_Y + z.row * CELL_H + CELL_H / 2;
+    let blocked = false;
+    for (const p of plants) {
+      if (p.row !== z.row) continue;
+      const px = GRID_X + p.col * CELL_W + CELL_W / 2;
+      if (z.x - px < 30 && z.x - px > -10) {
+        blocked = true;
+        z.attacking = true;
+        z.atkTimer--;
+        if (z.atkTimer <= 0) {
+          p.hp -= 15;
+          z.atkTimer = 30;
+          addParticles(px, zCenterY, '#ff4444', 2);
+        }
+        break;
+      }
+    }
+
+    if (!blocked) {
+      z.attacking = false;
+      z.x -= speed;
+    }
+
+    if (z.x < GRID_X - 20) {
+      lives--;
+      z.hp = 0;
+      if (lives <= 0) { gameOver(false); return; }
+    }
+  }
+
+  // Remove dead
+  plants = plants.filter(p => p.hp > 0);
+  zombies = zombies.filter(z => {
+    if (z.hp <= 0) {
+      kills++;
+      addParticles(z.x, GRID_Y + z.row * CELL_H + CELL_H / 2, '#aa88ff', 10);
+      return false;
+    }
+    return true;
+  });
+
+  // Suns
+  for (const s of suns) {
+    s.y += s.vy;
+    s.life--;
+    if (s.life < 60) s.vy = 0;
+  }
+  suns = suns.filter(s => s.life > 0);
+
+  // Natural sun
+  if (ticks % 350 === 0) {
+    spawnSun(100 + Math.random() * 600, 80);
+  }
+
+  // Particles
+  for (const p of particles) {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.1;
+    p.life--;
+  }
+  particles = particles.filter(p => p.life > 0);
+
+  // Win check
+  if (wave >= 11 && zombies.length === 0 && zombiesLeftInWave === 0) {
+    gameOver(true);
+    return;
+  }
+}
+
+function draw() {
+  drawBackground();
+
+  // Plants
+  for (const p of plants) {
+    const px = GRID_X + p.col * CELL_W + CELL_W / 2;
+    const py = GRID_Y + p.row * CELL_H + CELL_H / 2 + 5;
+    const bounce = Math.sin(p.age * 0.05) * 2;
+    drawEmoji(p.emoji, px, py + bounce, 34);
+    drawHP(px, py - 15, p.hp, p.maxHP);
+
+    // Bomb countdown
+    if (p.type === 'bomb' && p.bombTimer > 0) {
+      ctx.fillStyle = '#ff4400';
+      ctx.font = 'bold 12px Nunito';
+      ctx.textAlign = 'center';
+      ctx.fillText(Math.ceil(p.bombTimer / 60) + 's', px, py - 25);
+    }
+  }
+
+  // Projectiles
+  for (const b of projectiles) {
+    ctx.fillStyle = b.color;
+    ctx.shadowColor = b.color;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  // Zombies
+  for (const z of zombies) {
+    const zy = GRID_Y + z.row * CELL_H + CELL_H / 2 + 5;
+    const wobble = z.attacking ? Math.sin(ticks * 0.3) * 3 : Math.sin(ticks * 0.08 + z.x * 0.1) * 2;
+    const alpha = z.slowTimer > 0 ? 0.7 : 1;
+
+    if (z.slowTimer > 0) {
+      ctx.fillStyle = 'rgba(78,240,255,0.15)';
+      ctx.beginPath();
+      ctx.arc(z.x, zy, 22, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    drawEmoji(z.emoji, z.x, zy + wobble, 36, alpha);
+    drawHP(z.x, zy - 18, z.hp, z.maxHP);
+  }
+
+  // Suns
+  for (const s of suns) {
+    const pulse = 1 + Math.sin(ticks * 0.1) * 0.08;
+    const alpha = s.life < 60 ? s.life / 60 : 1;
+    ctx.fillStyle = `rgba(255,215,0,${alpha * 0.2})`;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, 18 * pulse, 0, Math.PI * 2);
+    ctx.fill();
+    drawEmoji('☀️', s.x, s.y, 22 * pulse, alpha);
+  }
+
+  // Particles
+  for (const p of particles) {
+    ctx.globalAlpha = p.life / 40;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // Wave incoming text
+  if (waveDelay > 0 && waveDelay < 120) {
+    ctx.fillStyle = `rgba(255,215,0,${Math.min(1, (120 - waveDelay) / 30)})`;
+    ctx.font = 'bold 30px Creepster';
+    ctx.textAlign = 'center';
+    ctx.fillText(`Vague ${wave + 1} arrive...`, W / 2, H / 2 - 30);
+  }
+}
+
+function gameLoop() {
+  if (!running) return;
+  update();
+  draw();
+  updateUI();
+  requestAnimationFrame(gameLoop);
+}
+
+function startGame() {
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('game-over-screen').style.display = 'none';
+  sun = 100; lives = 3; kills = 0; wave = 1; ticks = 0;
+  plants = []; zombies = []; projectiles = []; particles = []; suns = [];
+  zombiesLeftInWave = 5; nextZombieSpawn = 120; waveDelay = 0;
+  selectedPlant = 'sunflower';
+  selectPlant('sunflower');
+  running = true;
+  gameLoop();
+}
+
+function gameOver(won) {
+  running = false;
+  const screen = document.getElementById('game-over-screen');
+  document.getElementById('go-title').textContent = won ? '🎉 Victoire !' : '💀 Défaite !';
+  document.getElementById('go-stats').textContent = `Vague ${wave} • ${kills} kills`;
+  screen.style.display = 'flex';
+}
+</script>
+</body>
+</html>
