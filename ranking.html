@@ -113,6 +113,23 @@
             <span>Sois le premier.</span>
         </div>
 
+        <!-- Section solutions non-valides -->
+        <div class="section-title">// solutions non-valides</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Énigme</th>
+                    <th>Proposition</th>
+                    <th>Commentaire</th>
+                </tr>
+            </thead>
+            <tbody id="nosolution-body"></tbody>
+        </table>
+        <div class="empty-state" id="nosolution-empty" style="display:none;">
+            Aucune proposition non-valide pour le moment.
+            <span>C'est un peu les Darwin Awards ici.</span>
+        </div>
+
         <!-- Section dino high scores -->
         <div class="section-title">// dino — high scores</div>
         <table>
@@ -156,6 +173,27 @@
             });
         }
 
+        // ── Registre des propositions non-valides ──
+        const nosolution = [
+            // { enigme: 'test_0', proposition: 'blabla', commentaire: 'pas OK' },
+        ];
+
+        const nosolutionBody = document.getElementById('nosolution-body');
+        const nosolutionEmpty = document.getElementById('nosolution-empty');
+
+        if (nosolution.length === 0) {
+            nosolutionEmpty.style.display = 'block';
+        } else {
+            nosolution.forEach((r, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${r.enigme}</td>
+                    <td>${r.proposition}</td>
+                    <td>${r.commentaire}</td>`;
+                nosolutionBody.appendChild(tr);
+            });
+        }
+        
         // ── Dino high scores (fetched from Google Apps Script) ──
         // ▼▼▼ MÊME URL QUE DANS dino.html ▼▼▼
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-B1yZDZJMuD7DFVe7wcLsWK9tRNkrTvEuLa38lMKo82yDa8xIea37bqlSBWesUtxuqA/exec';
