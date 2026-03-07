@@ -195,6 +195,11 @@ let hiScore = 0;
 let speed = 6;
 let frame = 0;
 let groundX = 0;
+// ── Delta time (normalise sur 60 FPS) ──
+let lastTime = 0;
+let dt = 1;
+const TARGET_FPS = 60;
+const TARGET_FRAME_MS = 1000 / TARGET_FPS;
 
 // ── Métriques anti-triche ──
 let gameStartTime = 0;
@@ -206,6 +211,9 @@ let scoreSubmitted = false;
 let easterProgress = 0;
 let easterDinoX = -50;
 let easterTextAlpha = 0;
+let runAnimAccum = 0;
+let wingAnimAccum = 0;
+let easterWalkAccum = 0;
 
 // ── Dino ──
 const DINO_H = 50;
@@ -236,15 +244,19 @@ const dino = {
   },
   update() {
     if (!this.grounded) {
-      this.vy += 0.65;
-      this.y += this.vy;
+      this.vy += 0.65 * dt;
+      this.y += this.vy * dt;
       if (this.y >= this.groundY) {
         this.y = this.groundY;
         this.vy = 0;
         this.grounded = true;
       }
     }
-    if (frame % 6 === 0) this.runFrame = 1 - this.runFrame;
+    runAnimAccum += dt;
+    if (runAnimAccum >= 6) {
+      this.runFrame = 1 - this.runFrame;
+      runAnimAccum -= 6;
+    }
   },
   draw(flipped) {
     ctx.save();
@@ -327,14 +339,20 @@ function spawnObstacle() {
 
 let nextSpawn = 90;
 function updateObstacles() {
-  nextSpawn--;
+  nextSpawn -= dt;
   if (nextSpawn <= 0) {
     spawnObstacle();
     nextSpawn = Math.floor(60 + Math.random() * 60 + 800 / speed);
   }
   for (const o of obstacles) {
-    o.x -= speed;
-    if (o.flying && frame % 10 === 0) o.wingFrame = 1 - (o.wingFrame || 0);
+      o.x -= speed * dt;
+      if (o.flying) {
+        o._wingAccum = (o._wingAccum || 0) + dt;
+        if (o._wingAccum >= 10) {
+          o.wingFrame = 1 - (o.wingFrame || 0);
+          o._wingAccum -= 10;
+        }
+      }
     // Compter les obstacles passés (dépassés par le dino)
     if (!o.counted && o.x + o.w < dino.x) {
       o.counted = true;
@@ -384,7 +402,7 @@ function initClouds() {
 }
 function updateClouds() {
   for (const c of clouds) {
-    c.x -= speed * 0.15;
+    c.x -= speed * 0.15 * dt;
     if (c.x + c.w < 0) { c.x = W + Math.random() * 100; c.y = 20 + Math.random() * 60; }
   }
 }
@@ -399,7 +417,7 @@ function drawClouds() {
 
 // ── Ground ──
 function drawGround(moving) {
-  if (moving) groundX = (groundX + speed) % 24;
+  if (moving) groundX = (groundX + speed * dt) % 24;
   ctx.fillStyle = '#535353';
   ctx.fillRect(0, GROUND_Y, W, 1);
   for (let x = -groundX; x < W; x += 24) {
@@ -426,7 +444,7 @@ function checkCollision() {
 
 // ── Score ──
 function updateScore() {
-  score += 0.15;
+  score += 0.15 * dt;
   scoreEl.textContent = Math.floor(score).toString().padStart(5, '0');
   if (Math.floor(score) > 0 && Math.floor(score) % 100 === 0 && Math.floor(score) !== Math.floor(score - 0.15)) {
     scoreEl.style.opacity = '0.2';
@@ -571,10 +589,20 @@ function resetGame() {
   initClouds();
   scoreEl.textContent = '00000';
   hideSubmitUI();
+  runAnimAccum = 0;
+  easterWalkAccum = 0;
+  lastTime = 0;
 }
 
 // ── Game loop ──
-function gameLoop() {
+function gameLoop(timestamp) {
+  // ── Delta time ──
+  if (lastTime === 0) lastTime = timestamp;
+  const elapsed = timestamp - lastTime;
+  lastTime = timestamp;
+  dt = elapsed / TARGET_FRAME_MS;
+  if (dt > 3) dt = 3; // clamp si onglet en arrière-plan
+
   ctx.clearRect(0, 0, W, H);
 
   if (state === 'running') {
@@ -608,9 +636,13 @@ function gameLoop() {
 
   } else if (state === 'easter_walk') {
     frame++;
-    dino.x -= 2.5;
-    if (frame % 6 === 0) dino.runFrame = 1 - dino.runFrame;
-    easterProgress = Math.min(1, easterProgress + 0.008);
+    dino.x -= 2.5 * dt;
+    easterWalkAccum += dt;
+    if (easterWalkAccum >= 6) {
+      dino.runFrame = 1 - dino.runFrame;
+      easterWalkAccum -= 6;
+    }
+    easterProgress = Math.min(1, easterProgress + 0.008 * dt);
     drawGround(false);
     drawClouds();
     dino.y = dino.groundY;
@@ -629,11 +661,15 @@ function gameLoop() {
     drawEasterRoom();
     const targetX = W / 2 - 22;
     if (easterDinoX < targetX) {
-      easterDinoX += 2;
-      if (frame % 6 === 0) dino.runFrame = 1 - dino.runFrame;
+      easterDinoX += 2 * dt;
+      easterWalkAccum += dt;
+      if (easterWalkAccum >= 6) {
+        dino.runFrame = 1 - dino.runFrame;
+        easterWalkAccum -= 6;
+      }
     } else {
       easterDinoX = targetX;
-      easterTextAlpha = Math.min(1, easterTextAlpha + 0.02);
+      easterTextAlpha = Math.min(1, easterTextAlpha + 0.02 * dt);
     }
     dino.x = easterDinoX;
     dino.y = dino.groundY;
