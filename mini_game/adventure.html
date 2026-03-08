@@ -226,16 +226,20 @@ const C = {
   grass:    '#1A5C1A',
   water:    '#0000AA',
   bridge:   '#8B6914',
+  egg:      '#F5F5DC',
+  eggHi:    '#FFFFF0',
 };
 
 // ─── GAME STATE ───
 let state = 'title'; // title, play, win, dead
-let player = { x: 2, y: 7, dir: 0, keys: 0, lives: 3, hasCalice: false, invuln: 0, blink: 0, attacking: 0, attackCd: 0 };
+let player = { x: 2, y: 7, dir: 0, keys: 0, lives: 3, hasCalice: false, hasEgg: false, invuln: 0, blink: 0, attacking: 0, attackCd: 0 };
 let currentRoom = 0;
 let frameCount = 0;
 let deathTimer = 0;
 let msgTimer = 0;
 let msgText = '';
+let bonusMsg = '';
+let bonusMsgTimer = 0;
 
 // ─── ROOM MAPS ─── (20x15 tiles, 0=floor, 1=wall, 2=water, 3=bridge)
 const ROOMS = [
@@ -267,7 +271,7 @@ const ROOMS = [
     1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,1,
     1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
     1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,
-    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,
     1,0,0,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,1,
     1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,
     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
@@ -275,7 +279,7 @@ const ROOMS = [
     1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-  ], exits: { right: 0 }, items: [{ type:'key', x:16, y:2 }], dragons: [{ x:10, y:6, dx:1, dy:0 }] },
+  ], exits: { right: 0, left: 5 }, items: [{ type:'key', x:16, y:2 }], dragons: [{ x:10, y:6, dx:1, dy:0 }] },
 
   // Room 2: River crossing
   { name: 'RIVIERE MAUDITE', walls: [
@@ -333,6 +337,82 @@ const ROOMS = [
     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   ], exits: { up: 3 }, items: [{ type:'chalice', x:9, y:7 }], dragons: [{ x:5, y:9, dx:1, dy:1 }, { x:14, y:3, dx:-1, dy:1 }] },
+
+  // Room 5: Crypt - accessible from room 1 (left) 
+  { name: 'CRYPTE OUBLIEE', walls: [
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,
+    1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
+    1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,1,
+    1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,
+    1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,
+  ], exits: { right: 1, down: 6 }, items: [], dragons: [{ x:9, y:3, dx:1, dy:1 }] },
+
+  // Room 6: Underground lake - accessible from room 5 (down)
+  { name: 'LAC SOUTERRAIN', walls: [
+    1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,2,2,2,2,2,2,2,2,2,0,0,0,0,0,1,
+    1,0,0,0,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,1,
+    1,0,0,0,2,2,2,0,0,3,3,0,0,2,2,0,0,0,0,1,
+    1,0,0,0,2,2,0,0,0,0,0,0,0,0,2,2,0,0,0,1,
+    1,0,0,0,2,2,0,0,0,0,0,0,0,0,2,2,0,0,0,1,
+    0,0,0,0,2,2,0,0,0,0,0,0,0,0,2,2,0,0,0,1,
+    1,0,0,0,2,2,0,0,0,0,0,0,0,0,2,2,0,0,0,1,
+    1,0,0,0,2,2,2,0,0,3,3,0,0,2,2,0,0,0,0,1,
+    1,0,0,0,0,2,2,2,2,2,2,2,2,2,0,0,0,0,0,1,
+    1,0,0,0,0,0,2,2,2,2,2,2,2,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  ], exits: { up: 5, left: 7 }, items: [], dragons: [{ x:2, y:12, dx:1, dy:0 }, { x:16, y:1, dx:-1, dy:0 }] },
+
+  // Room 7: Tower - accessible from room 6 (left)
+  { name: 'TOUR DE GARDE', walls: [
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,0,1,
+    1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,
+    1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,
+    1,0,0,1,0,0,0,1,1,0,0,1,1,0,0,0,1,0,0,1,
+    1,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,
+    1,0,0,1,0,0,0,1,1,0,0,1,1,0,0,0,1,0,0,1,
+    1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,
+    1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,
+    1,0,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  ], exits: { right: 6 }, items: [], dragons: [{ x:9, y:8, dx:1, dy:-1 }] },
+
+  // Room 8: HIDDEN ROOM - accessible from room 7 via secret passage (walk into specific wall)
+  { name: 'SALLE SECRETE', walls: [
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  ], exits: { right: 7 }, items: [{ type:'egg', x:9, y:7 }], dragons: [] },
 ];
 
 // Deep clone initial state for reset
@@ -391,8 +471,10 @@ function showMsg(text, dur = 90) {
 }
 
 function resetGame() {
-  player = { x: 2 * TILE, y: 7 * TILE, dir: 0, keys: 0, lives: 3, hasCalice: false, invuln: 0, blink: 0, attacking: 0, attackCd: 0 };
+  player = { x: 2 * TILE, y: 7 * TILE, dir: 0, keys: 0, lives: 3, hasCalice: false, hasEgg: false, invuln: 0, blink: 0, attacking: 0, attackCd: 0 };
   currentRoom = 0;
+  bonusMsg = '';
+  bonusMsgTimer = 0;
   // Reset rooms
   for (let i = 0; i < ROOMS.length; i++) {
     ROOMS[i].items = JSON.parse(JSON.stringify(ROOMS_INIT[i].items));
@@ -470,6 +552,19 @@ function update() {
     currentRoom = exits.down; player.y = 2;
   }
 
+  // Secret passage: in Room 7 (Tour de Garde), walk into the left wall at row 7
+  // The inner tower left wall at tile (3,7) hides a passage to Room 8
+  if (currentRoom === 7) {
+    const ptxS = Math.floor((player.x + 8) / TILE);
+    const ptyS = Math.floor((player.y + 8) / TILE);
+    if (ptxS <= 3 && ptyS >= 6 && ptyS <= 8 && keys['ArrowLeft']) {
+      currentRoom = 8;
+      player.x = W - TILE - 4;
+      player.y = 7 * TILE;
+      showMsg('PASSAGE SECRET!', 90);
+    }
+  }
+
   // Item pickup
   const cr = ROOMS[currentRoom];
   const ptx = Math.floor((player.x + 8) / TILE);
@@ -481,6 +576,12 @@ function update() {
         player.keys++;
         cr.items.splice(i, 1);
         showMsg('CLE TROUVEE! (' + player.keys + '/3)');
+      } else if (item.type === 'egg') {
+        player.hasEgg = true;
+        cr.items.splice(i, 1);
+        bonusMsg = 'Bonus A : 42 c\'est la reponse a la grande question sur la vie, l\'Univers et le reste';
+        bonusMsgTimer = 360;
+        showMsg('OEUF SECRET TROUVE!', 120);
       } else if (item.type === 'chalice' && player.keys >= 3) {
         player.hasCalice = true;
         cr.items.splice(i, 1);
@@ -615,6 +716,7 @@ function update() {
 
   if (player.invuln > 0) player.invuln--;
   if (msgTimer > 0) msgTimer--;
+  if (bonusMsgTimer > 0) bonusMsgTimer--;
   actionPressed = false;
 }
 
@@ -705,13 +807,33 @@ function drawChalice(ix, iy) {
   drawPixelRect(x+4, y+13, 8, 2, glow);
 }
 
+function drawEgg(ix, iy) {
+  const x = ix * TILE, y = iy * TILE;
+  const glow = (frameCount % 24 < 12) ? C.egg : C.eggHi;
+  const sparkle = (frameCount % 40 < 5) ? '#FFD700' : null;
+  // Egg shape (oval)
+  drawPixelRect(x+5, y+1, 6, 2, glow);
+  drawPixelRect(x+3, y+3, 10, 4, glow);
+  drawPixelRect(x+4, y+7, 8, 4, glow);
+  drawPixelRect(x+5, y+11, 6, 2, glow);
+  drawPixelRect(x+6, y+13, 4, 1, glow);
+  // Small dot/sparkle
+  if (sparkle) {
+    drawPixelRect(x+6, y+4, 2, 2, sparkle);
+  }
+}
+
 function drawRoom(room) {
   for (let ty = 0; ty < 15; ty++) {
     for (let tx = 0; tx < 20; tx++) {
       const t = room.walls[ty * 20 + tx];
       const x = tx * TILE, y = ty * TILE;
       if (t === 1) {
-        const shade = ((tx + ty) % 2 === 0) ? C.wall : C.wallHi;
+        // Secret passage hint in Room 7: wall at (3,7) flickers subtly
+        let shade = ((tx + ty) % 2 === 0) ? C.wall : C.wallHi;
+        if (currentRoom === 7 && tx === 3 && ty >= 6 && ty <= 8 && frameCount % 120 < 8) {
+          shade = '#5A3A1A'; // subtle different shade as a hint
+        }
         drawPixelRect(x, y, TILE, TILE, shade);
         // Brick lines
         ctx.fillStyle = '#3A2210';
@@ -767,8 +889,8 @@ function drawTitle() {
   drawText('APPUIE SUR ESPACE', 52, 170, (frameCount % 60 < 30) ? '#FFFFFF' : '#666666', 8);
   drawText('POUR COMMENCER', 68, 188, '#888888', 8);
 
-  drawText('5 SALLES - 3 CLES', 60, 218, '#CC5500', 7);
-  drawText('DES DRAGONS', 92, 232, '#CC0000', 7);
+  drawText('9 SALLES - 3 CLES', 60, 218, '#CC5500', 7);
+  drawText('DES DRAGONS + SECRET', 48, 232, '#CC0000', 7);
 }
 
 function draw() {
@@ -787,6 +909,7 @@ function draw() {
   for (const item of room.items) {
     if (item.type === 'key') drawKey(item.x, item.y);
     else if (item.type === 'chalice') drawChalice(item.x, item.y);
+    else if (item.type === 'egg') drawEgg(item.x, item.y);
   }
 
   // Dragons
@@ -807,6 +930,24 @@ function draw() {
     ctx.lineWidth = 1;
     ctx.strokeRect(mx, my, mw, 18);
     drawText(msgText, mx + 8, my + 13, '#FFD700', 8);
+  }
+
+  // Message
+  if (bonusMsgTimer > 0) {
+    const alpha = Math.min(1, bonusMsgTimer / 30);
+    ctx.fillStyle = `rgba(0,0,80,${0.9 * alpha})`;
+    ctx.fillRect(8, 50, W - 16, 70);
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(8, 50, W - 16, 70);
+    const tc = `rgba(255,215,0,${alpha})`;
+    drawText('Bonus A : 42 c\'est la reponse', 16, 68, tc, 6);
+    drawText('a la grande question sur la', 16, 82, tc, 6);
+    drawText('vie, l\'Univers et le reste', 16, 96, tc, 6);
+    // Sparkle effect
+    if (frameCount % 10 < 5) {
+      drawText('*', 280 + Math.sin(frameCount*0.2)*10, 60 + Math.cos(frameCount*0.15)*15, '#FFFFFF', 8);
+    }
   }
 
   // Win/Dead overlays

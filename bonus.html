@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AUPSCAEPM</title>
-    <meta name="description" content="AUPSCAEPM — Quelque chose se cache ici. À toi de trouver quoi. Énigmes, puzzles et mystères.">
-    <meta name="keywords" content="AUPSCAEPM, énigmes, puzzles, jeu">
+    <title>AUPSCAEPM — Bonus</title>
+    <meta name="description" content="AUPSCAEPM — Mini-jeux bonus. Détends-toi entre deux énigmes.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Crimson+Text:ital@0;1&display=swap" rel="stylesheet">
     <style>
@@ -59,25 +58,6 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
             pointer-events: none;
             z-index: 9998;
-        }
-
-        /* ── Timer block (top-right) ── */
-        .timer-block {
-            position: fixed;
-            top: 1rem;
-            right: 1.5rem;
-            text-align: right;
-            z-index: 100;
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            letter-spacing: 0.05em;
-        }
-        .timer-block .label { opacity: 0.6; }
-        .timer-block .elapsed {
-            color: var(--accent);
-            font-size: 1rem;
-            margin-top: 0.2rem;
-            letter-spacing: 0.15em;
         }
 
         /* ── Layout ── */
@@ -137,12 +117,6 @@
             overflow-x: auto;
             animation: fadeUp 1.2s ease-out;
         }
-        .readme-block a {
-            color: var(--accent);
-            text-decoration: none;
-            border-bottom: 1px dotted var(--accent-dim);
-        }
-        .readme-block a:hover { border-bottom-color: var(--accent); }
 
         /* ── Tile grid ── */
         .grid {
@@ -189,10 +163,9 @@
             z-index: 1;
             text-align: center;
         }
-        .tile .tile-index {
+        .tile .tile-icon {
             display: block;
             font-size: 1.8rem;
-            color: var(--accent);
             line-height: 1;
             margin-bottom: 0.3rem;
         }
@@ -202,9 +175,6 @@
             text-transform: uppercase;
             letter-spacing: 0.15em;
         }
-
-        .tile.tile-tuto { border-color: var(--accent-dim); }
-        .tile.tile-tuto .tile-index { font-size: 1rem; }
 
         /* ── Navigation links ── */
         .nav-links {
@@ -313,20 +283,12 @@
 
         /* ── Responsive ── */
         @media (max-width: 600px) {
-            .container { padding: 5rem 1rem 2rem; }
+            .container { padding: 3rem 1rem 2rem; }
             .grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; }
-            .timer-block { font-size: 0.65rem; top: 0.5rem; right: 0.8rem; }
-            .timer-block .elapsed { font-size: 0.85rem; }
         }
     </style>
 </head>
 <body>
-
-    <!-- Timer -->
-    <div class="timer-block">
-        <div class="label">Invitation envoyée le : <strong id="invite-time"></strong></div>
-        <div class="elapsed" id="elapsed">--:--:--</div>
-    </div>
 
     <!-- Vortex portal animation -->
     <div class="vortex-overlay" id="vortex">
@@ -338,44 +300,36 @@
             <div class="vortex-ring"></div>
             <div class="vortex-ring"></div>
         </div>
-        <div class="vortex-text">ENTERING&hellip;</div>
+        <div class="vortex-text">LOADING&hellip;</div>
     </div>
 
     <div class="container">
 
         <!-- Header -->
         <header>
-            <h1>AUPSCAEPM</h1>
-            <p class="subtitle">Quelque chose se cache ici. À toi de trouver quoi.</p>
+            <h1>BONUS</h1>
+            <p class="subtitle">Pause récréative entre deux énigmes.</p>
         </header>
 
-        <!-- README block -->
+        <!-- Intro block -->
         <section>
-            <div class="section-label">// transmission interceptée</div>
-            <div class="readme-block">AUPSCAEPM
-
-NDMHA FG ME FDAGHQ XM BADFQ P'QZFDQQ PG VQG
-OTMCGQ QZUYYQ OAZFUQZF GZ QMEFQD QSS
-M FAU PQ FDAGHQD PQ CGAU UX E'MSUF
-EU FG BQZEQE QZ MHAUD FDAGHQ GZ QZHAUQ-XQ YAU
-QZ GFUXUEMZF XQ RADYGXMUDQ PQ OAZFMOF QZ NME PQ OQFFQ BMSQ
-OTMCGQ QMEFQD QSS FDAGHQ QSMX GZ HQDDQ ARRADF M XM EAUDQQ
-UX RMGPDM QFDQ XQ BDQYUQD M FDAGHQD BAGD YQDUFQD XM DQOAYBQZEQ
-MYGEQ-FAU NUQZ QF VQ FQ EAGTMUFQ NAZZQ OTMZOQ
-
-<a href="https://github.com/greg164/AUPSCAEPM" target="_blank" rel="noopener">https://github.com/greg164/AUPSCAEPM</a></div>
+            <div class="section-label">// salle d'arcade</div>
+            <div class="readme-block">Tu as bien mérité une pause.
+Ici, juste 12 mini-jeux pour te détendre.
+Ou pour te rendre fou, peut-être que des easter eggs sont cachés quelque part.
+Amuse-toi bien, et n'oublie pas : les épreuves t'attendent toujours.</div>
         </section>
 
-        <!-- Enigma grid -->
+        <!-- Mini-games grid -->
         <section>
-            <div class="section-label">// énigmes disponibles</div>
+            <div class="section-label">// mini-jeux disponibles</div>
             <div class="grid" id="grid"></div>
         </section>
 
         <!-- Navigation -->
         <nav class="nav-links">
-            <a href="bonus.html">Bonus</a>
-            <a href="contact.html">Contact</a>           
+            <a href="index.html">Accueil</a>
+            <a href="contact.html">Contact</a>
             <a href="ranking.html">Classement</a>
         </nav>
 
@@ -383,61 +337,31 @@ MYGEQ-FAU NUQZ QF VQ FQ EAGTMUFQ NAZZQ OTMZOQ
     </div>
 
     <script>
-        /* ── Timer ── */
-        // ▼▼▼ MODIFIE CETTE LIGNE QUAND TU ENVOIES L'INVITATION ▼▼▼
-        const INVITE_DATE = '2025-07-15T20:00:00';
-        // ▲▲▲ Format : AAAA-MM-JJTHH:MM:SS ▲▲▲
-
-        const invite = new Date(INVITE_DATE);
-        const inviteTimeEl = document.getElementById('invite-time');
-        const elapsedEl = document.getElementById('elapsed');
-
-        // Affiche la date d'invitation
-        inviteTimeEl.textContent = invite.toLocaleDateString('fr-FR', {
-            day: 'numeric', month: 'long', year: 'numeric'
-        }) + ' à ' + invite.toLocaleTimeString('fr-FR', {
-            hour: '2-digit', minute: '2-digit'
-        });
-
-        function updateTimer() {
-            const now = new Date();
-            let diff = Math.floor((now - invite) / 1000);
-            if (diff < 0) {
-                elapsedEl.textContent = 'PAS ENCORE';
-                return;
-            }
-            const d = Math.floor(diff / 86400);
-            const h = String(Math.floor((diff % 86400) / 3600)).padStart(2, '0');
-            const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
-            const s = String(diff % 60).padStart(2, '0');
-            elapsedEl.textContent = (d > 0 ? d + 'j ' : '') + h + ':' + m + ':' + s;
-        }
-        updateTimer();
-        setInterval(updateTimer, 1000);
-
         /* ── Build tiles ── */
-        const enigmas = [
-            { id: 0, file: 'cesar.txt',    label: 'test_0',   tuto: true },
-            { id: 1, file: 'poe.png',      label: 'test_1' },
-            { id: 2, file: 'dino.html',    label: 'test_2' },
-            { id: 3, file: 'friendship.pdf', label: 'test_3' },
-            { id: 4, file: 'jack.json',    label: 'test_4' },
-            { id: 5, file: 'explications.html',  label: 'test_5' },
-            { id: 6, file: 'buzz.jpg',     label: 'test_6' },
-            { id: 7, file: 'grid.md',      label: 'test_7' },
-            { id: 8, file: 'goodbye.pdf', label: 'test_8' },
-            { id: 9, file: 'classic.txt',  label: 'test_9' },
+        const games = [
+            { file: 'snake.html',              label: 'Snake',             icon: '🐍' },
+            { file: 'tetris.html',             label: 'Tetris',            icon: '🧱' },
+            { file: 'breakout.html',           label: 'Breakout',          icon: '🧨' },
+            { file: 'invaders.html',           label: 'Invaders',          icon: '👾' },
+            { file: 'doom.html',               label: 'Doom',              icon: '🔫' },
+            { file: 'minecraft.html',          label: 'Minecraft',         icon: '⛏️' },
+            { file: 'donkey_kong.html',        label: 'Donkey Kong',       icon: '🦍' },
+            { file: 'fruit_ninja.html',        label: 'Fruit Ninja',       icon: '🍉' },
+            { file: 'poker.html',              label: 'Poker',             icon: '🃏' },
+            { file: 'adventure.html',          label: 'Adventure',         icon: '⚔️' },
+            { file: 'micro_machine.html',      label: 'Micro Machine',     icon: '🏎️' },
+            { file: 'plant_vs_zombies.html',   label: 'Plants vs Zombies', icon: '🌻' },
         ];
 
         const grid = document.getElementById('grid');
-        enigmas.forEach(e => {
+        games.forEach(g => {
             const a = document.createElement('a');
-            a.className = 'tile' + (e.tuto ? ' tile-tuto' : '');
-            a.href = `test_${e.id}/${e.file}`;
+            a.className = 'tile';
+            a.href = `mini_game/${g.file}`;
             a.innerHTML = `
                 <span class="tile-label">
-                    <span class="tile-index">${e.tuto ? '▸ TUTORIAL' : e.id}</span>
-                    <span class="tile-name">${e.label}</span>
+                    <span class="tile-icon">${g.icon}</span>
+                    <span class="tile-name">${g.label}</span>
                 </span>`;
             a.addEventListener('click', handleTileClick);
             grid.appendChild(a);
