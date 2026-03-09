@@ -147,6 +147,11 @@
   .dpad .left  { left: 0; top: 50%; transform: translateY(-50%); }
   .dpad .right { right: 0; top: 50%; transform: translateY(-50%); }
 
+  @media (max-width: 460px) {
+    .arcade { padding: 10px; }
+    canvas { width: calc(100vw - 36px); height: auto; }
+  }
+
   @media (pointer: coarse) {
     .dpad { display: block; }
     .controls { display: none; }

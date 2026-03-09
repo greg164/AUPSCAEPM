@@ -9,6 +9,7 @@
   body {
     background: #0a0a1a;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
@@ -88,6 +89,78 @@
     letter-spacing: 1px;
   }
   button.btn:hover { background: #0dd; }
+
+  /* Mobile controls */
+  .touch-controls {
+    display: none;
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
+    gap: 10px;
+  }
+  .touch-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  .touch-btn {
+    background: #1a1a2e;
+    border: 2px solid #333;
+    border-radius: 10px;
+    color: #0ff;
+    font-size: 24px;
+    font-family: inherit;
+    width: 68px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    transition: background .1s;
+  }
+  .touch-btn:active, .touch-btn.active {
+    background: #0ff;
+    color: #000;
+  }
+  .touch-btn.wide {
+    flex: 1;
+    max-width: 160px;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+  .touch-btn.pause-btn {
+    width: 50px;
+    font-size: 16px;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 600px) {
+    body { padding: 8px; }
+    .game-wrapper {
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .side-panel {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      min-width: unset;
+    }
+    .panel-box { padding: 8px 12px; }
+    .panel-box h3 { font-size: 9px; margin-bottom: 4px; }
+    .panel-box .value { font-size: 16px; }
+    .controls { display: none; }
+    .touch-controls { display: flex; flex-direction: column; gap: 10px; padding-top: 6px; }
+  }
+  @media (max-width: 360px) {
+    .touch-btn { width: 58px; height: 50px; font-size: 20px; }
+  }
 </style>
 </head>
 <body>
@@ -121,6 +194,19 @@
   </div>
 </div>
 
+<div class="touch-controls" id="touch-controls">
+  <div class="touch-row">
+    <button class="touch-btn" data-action="left">←</button>
+    <button class="touch-btn" data-action="rotate">↻</button>
+    <button class="touch-btn" data-action="right">→</button>
+    <button class="touch-btn pause-btn" data-action="pause">⏸</button>
+  </div>
+  <div class="touch-row">
+    <button class="touch-btn wide" data-action="down">↓ Soft</button>
+    <button class="touch-btn wide" data-action="drop">⤓ Drop</button>
+  </div>
+</div>
+
 <div id="overlay">
   <h2 id="overlay-title">Mini Tetris</h2>
   <p id="overlay-msg">Appuie sur Start pour jouer</p>
@@ -129,11 +215,18 @@
 
 <script>
 (() => {
-  const COLS = 10, ROWS = 20, BLOCK = 28;
+  const COLS = 10, ROWS = 20;
+  // Responsive block size
+  function calcBlockSize() {
+    if (window.innerWidth <= 600) {
+      const maxW = Math.min(window.innerWidth - 20, 340);
+      return Math.floor(maxW / COLS);
+    }
+    return 28; // desktop default
+  }
+  let BLOCK = calcBlockSize();
   const canvas = document.getElementById('board');
   const ctx = canvas.getContext('2d');
-  canvas.width = COLS * BLOCK;
-  canvas.height = ROWS * BLOCK;
 
   const nextCanvas = document.getElementById('next-piece');
   const nextCtx = nextCanvas.getContext('2d');
@@ -158,7 +251,16 @@
     [[1,1,0],[0,1,1]]                  // Z
   ];
 
-  let board, piece, next, score, lines, level, paused, gameOver, dropTimer, lastTime;
+  let board = null, piece = null, next = null, score = 0, lines = 0, level = 1, paused = false, gameOver = false, dropTimer = null, lastTime = 0;
+
+  function resizeCanvas() {
+    BLOCK = calcBlockSize();
+    canvas.width = COLS * BLOCK;
+    canvas.height = ROWS * BLOCK;
+    if (board) draw();
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
 
   function createBoard() {
     return Array.from({length: ROWS}, () => Array(COLS).fill(0));
@@ -369,6 +471,89 @@
     draw();
     e.preventDefault();
   });
+
+  // ---- Touch controls ----
+  function doAction(action) {
+    if (gameOver || !piece) return;
+    if (action === 'pause') {
+      paused = !paused;
+      if (!paused) { lastTime = performance.now(); update(); }
+      return;
+    }
+    if (paused) return;
+    switch (action) {
+      case 'left':
+        if (valid(piece.shape, piece.x - 1, piece.y)) piece.x--;
+        break;
+      case 'right':
+        if (valid(piece.shape, piece.x + 1, piece.y)) piece.x++;
+        break;
+      case 'down':
+        if (valid(piece.shape, piece.x, piece.y + 1)) { piece.y++; score += 1; scoreEl.textContent = score; }
+        break;
+      case 'rotate': {
+        const rotated = rotate(piece.shape);
+        for (const kick of [0, -1, 1, -2, 2]) {
+          if (valid(rotated, piece.x + kick, piece.y)) {
+            piece.shape = rotated;
+            piece.x += kick;
+            break;
+          }
+        }
+        break;
+      }
+      case 'drop':
+        while (valid(piece.shape, piece.x, piece.y + 1)) { piece.y++; score += 2; }
+        lock();
+        scoreEl.textContent = score;
+        break;
+    }
+    draw();
+  }
+
+  // Auto-repeat for directional buttons
+  let touchInterval = null;
+  const REPEAT_ACTIONS = new Set(['left', 'right', 'down']);
+
+  document.querySelectorAll('.touch-btn').forEach(btn => {
+    const action = btn.dataset.action;
+
+    function startAction(e) {
+      e.preventDefault();
+      btn.classList.add('active');
+      doAction(action);
+      if (REPEAT_ACTIONS.has(action)) {
+        clearInterval(touchInterval);
+        touchInterval = setInterval(() => doAction(action), 100);
+      }
+    }
+    function stopAction(e) {
+      e.preventDefault();
+      btn.classList.remove('active');
+      clearInterval(touchInterval);
+      touchInterval = null;
+    }
+
+    btn.addEventListener('touchstart', startAction, { passive: false });
+    btn.addEventListener('touchend', stopAction, { passive: false });
+    btn.addEventListener('touchcancel', stopAction, { passive: false });
+    // Mouse fallback for testing
+    btn.addEventListener('mousedown', startAction);
+    btn.addEventListener('mouseup', stopAction);
+    btn.addEventListener('mouseleave', stopAction);
+  });
+
+  // Prevent zoom on double-tap
+  document.addEventListener('touchstart', e => {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', e => {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) e.preventDefault();
+    lastTouchEnd = now;
+  }, false);
 })();
 </script>
 </body>
