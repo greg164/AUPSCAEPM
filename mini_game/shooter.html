@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shooter</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    overflow: hidden;
+    font-family: 'Press Start 2P', monospace;
+    cursor: crosshair;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #game-container {
+    position: relative;
+    width: 800px;
+    height: 600px;
+  }
+
+  canvas {
+    display: block;
+    image-rendering: pixelated;
+    border: 2px solid #333;
+  }
+
+  #hud {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, rgba(80,0,0,0.8));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 30px;
+    pointer-events: none;
+  }
+
+  .hud-item {
+    color: #ccc;
+    font-size: 10px;
+    text-shadow: 0 0 6px #f00;
+    text-align: center;
+  }
+  .hud-item .val {
+    font-size: 22px;
+    color: #ff3333;
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #aa0000;
+    margin-top: 4px;
+  }
+
+  #crosshair {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px; height: 20px;
+    pointer-events: none;
+  }
+  #crosshair::before, #crosshair::after {
+    content: '';
+    position: absolute;
+    background: rgba(255,50,50,0.8);
+  }
+  #crosshair::before {
+    width: 2px; height: 100%;
+    left: 50%; transform: translateX(-50%);
+  }
+  #crosshair::after {
+    width: 100%; height: 2px;
+    top: 50%; transform: translateY(-50%);
+  }
+
+  #weapon {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    transition: transform 0.05s;
+  }
+
+  #damage-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(200,0,0,0.6) 100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+  }
+
+  #start-screen, #death-screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    color: #cc0000;
+    text-align: center;
+  }
+  #start-screen h1 {
+    font-size: 48px;
+    text-shadow: 0 0 20px #ff0000, 0 0 40px #aa0000, 0 0 80px #660000;
+    margin-bottom: 30px;
+    letter-spacing: 12px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  #start-screen p, #death-screen p {
+    font-size: 10px;
+    color: #888;
+    margin: 6px 0;
+    line-height: 1.8;
+  }
+  .start-btn {
+    margin-top: 30px;
+    padding: 14px 40px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    background: #8b0000;
+    color: #fff;
+    border: 2px solid #ff3333;
+    cursor: pointer;
+    text-shadow: 0 0 6px #ff0000;
+    transition: all 0.2s;
+  }
+  .start-btn:hover {
+    background: #cc0000;
+    box-shadow: 0 0 20px rgba(255,0,0,0.5);
+  }
+
+  #death-screen {
+    display: none;
+  }
+  #death-screen h1 {
+    font-size: 36px;
+    color: #cc0000;
+    text-shadow: 0 0 20px #ff0000;
+    margin-bottom: 15px;
+  }
+  #death-screen .val {
+    font-size: 20px;
+    color: #ff3333;
+    margin: 10px 0 20px;
+  }
+
+  #minimap {
+    position: absolute;
+    top: 10px; right: 10px;
+    border: 1px solid #550000;
+    opacity: 0.7;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .flash { animation: gunFlash 0.08s ease-out; }
+  @keyframes gunFlash {
+    0% { filter: brightness(3); }
+    100% { filter: brightness(1); }
+  }
+</style>
+</head>
+<body>
+
+<div id="game-container">
+  <canvas id="game" width="800" height="600"></canvas>
+  <canvas id="minimap" width="120" height="120"></canvas>
+  <div id="crosshair"></div>
+  <div id="damage-overlay"></div>
+
+  <div id="hud">
+    <div class="hud-item"><div>HEALTH</div><div class="val" id="hud-hp">100</div></div>
+    <div class="hud-item"><div>KILLS</div><div class="val" id="hud-kills">0</div></div>
+    <div class="hud-item"><div>AMMO</div><div class="val" id="hud-ammo">50</div></div>
+  </div>
+
+  <div id="start-screen">
+    <h1>SHOOTER</h1>
+    <p>ZQSD / WASD - Se déplacer</p>
+    <p>SOURIS - Regarder</p>
+    <p>CLIC GAUCHE - Tirer</p>
+    <button class="start-btn" id="btn-start">JOUER</button>
+  </div>
+
+  <div id="death-screen">
+    <h1>VOUS ETES MORT</h1>
+    <p>KILLS</p>
+    <div class="val" id="final-kills">0</div>
+    <button class="start-btn" id="btn-restart">REJOUER</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const miniCtx = document.getElementById('minimap').getContext('2d');
+const W = 800, H = 600;
+
+// ---------- MAP ----------
+const MAP_W = 16, MAP_H = 16;
+const map = [
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,0,0,2,2,0,0,0,0,0,3,3,0,0,0,1,
+  1,0,0,2,0,0,0,0,0,0,0,3,0,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,0,0,0,0,0,3,3,3,0,0,0,0,0,0,1,
+  1,0,0,0,0,0,3,0,3,0,0,0,0,0,0,1,
+  1,0,0,0,0,0,3,0,3,0,0,0,0,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,0,0,2,0,0,0,0,0,0,0,2,0,0,0,1,
+  1,0,0,2,2,0,0,0,0,0,2,2,0,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+];
+
+const wallColors = {
+  1: {r:100, g:100, b:100},
+  2: {r:140, g:60,  b:60},
+  3: {r:60,  g:100, b:60},
+};
+
+// ---------- PLAYER ----------
+let player = { x:2.5, y:2.5, angle:0, hp:100, ammo:50, kills:0 };
+let keys = {};
+let mouseX = 0;
+let shooting = false;
+let shootTimer = 0;
+let weaponBob = 0;
+let running = false;
+
+// ---------- ENEMIES ----------
+let enemies = [];
+const ENEMY_SPEED = 0.012;
+const ENEMY_DAMAGE = 8;
+const ENEMY_HP = 3;
+
+function spawnEnemies(count) {
+  enemies = [];
+  for (let i = 0; i < count; i++) {
+    let ex, ey;
+    do {
+      ex = 1.5 + Math.random() * (MAP_W - 3);
+      ey = 1.5 + Math.random() * (MAP_H - 3);
+    } while (map[Math.floor(ey) * MAP_W + Math.floor(ex)] !== 0 ||
+             Math.hypot(ex - player.x, ey - player.y) < 4);
+    enemies.push({ x: ex, y: ey, hp: ENEMY_HP, alive: true, hitTimer: 0, attackTimer: 0 });
+  }
+}
+
+// ---------- RAYCASTING ----------
+const FOV = Math.PI / 3;
+const NUM_RAYS = W;
+const MAX_DIST = 20;
+
+function castRay(ox, oy, angle) {
+  const sin = Math.sin(angle), cos = Math.cos(angle);
+  const dx = cos * 0.02, dy = sin * 0.02;
+  let x = ox, y = oy;
+  for (let i = 0; i < MAX_DIST / 0.02; i++) {
+    x += dx; y += dy;
+    const mx = Math.floor(x), my = Math.floor(y);
+    if (mx < 0 || mx >= MAP_W || my < 0 || my >= MAP_H) return { dist: MAX_DIST, type: 1, side: 0 };
+    const cell = map[my * MAP_W + mx];
+    if (cell > 0) {
+      const dist = Math.hypot(x - ox, y - oy);
+      // determine side for shading
+      const prevX = x - dx, prevY = y - dy;
+      const side = (Math.floor(prevX) !== mx) ? 0 : 1;
+      return { dist, type: cell, side };
+    }
+  }
+  return { dist: MAX_DIST, type: 0, side: 0 };
+}
+
+const zBuffer = new Float64Array(NUM_RAYS);
+
+function renderWalls() {
+  // Sky
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, H / 2);
+  skyGrad.addColorStop(0, '#1a0a0a');
+  skyGrad.addColorStop(1, '#330000');
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, W, H / 2);
+
+  // Floor
+  const floorGrad = ctx.createLinearGradient(0, H / 2, 0, H);
+  floorGrad.addColorStop(0, '#1a1a1a');
+  floorGrad.addColorStop(1, '#0a0a0a');
+  ctx.fillStyle = floorGrad;
+  ctx.fillRect(0, H / 2, W, H / 2);
+
+  for (let i = 0; i < NUM_RAYS; i++) {
+    const rayAngle = player.angle - FOV / 2 + (i / NUM_RAYS) * FOV;
+    const hit = castRay(player.x, player.y, rayAngle);
+    const corrDist = hit.dist * Math.cos(rayAngle - player.angle);
+    zBuffer[i] = corrDist;
+
+    const wallH = Math.min(H * 1.2, H / corrDist);
+    const top = (H - wallH) / 2;
+
+    const c = wallColors[hit.type] || wallColors[1];
+    const shade = Math.max(0.15, 1 - corrDist / MAX_DIST);
+    const sideShade = hit.side === 1 ? 0.7 : 1;
+    const r = Math.floor(c.r * shade * sideShade);
+    const g = Math.floor(c.g * shade * sideShade);
+    const b = Math.floor(c.b * shade * sideShade);
+
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fillRect(i, top, 1, wallH);
+
+    // Simple vertical stripe texture
+    if (wallH > 20) {
+      ctx.fillStyle = `rgba(0,0,0,0.08)`;
+      for (let s = top; s < top + wallH; s += 8) {
+        ctx.fillRect(i, s, 1, 1);
+      }
+    }
+  }
+}
+
+// ---------- SPRITES (enemies) ----------
+function renderEnemies() {
+  // Sort by distance (far first)
+  const sorted = enemies
+    .filter(e => e.alive || e.hitTimer > 0)
+    .map(e => ({ ...e, dist: Math.hypot(e.x - player.x, e.y - player.y) }))
+    .sort((a, b) => b.dist - a.dist);
+
+  for (const e of sorted) {
+    const dx = e.x - player.x, dy = e.y - player.y;
+    const angle = Math.atan2(dy, dx) - player.angle;
+    // Normalize
+    let a = angle;
+    while (a > Math.PI) a -= 2 * Math.PI;
+    while (a < -Math.PI) a += 2 * Math.PI;
+
+    if (Math.abs(a) > FOV / 2 + 0.2) continue;
+
+    const corrDist = e.dist * Math.cos(angle - (angle - a));
+    const screenX = (0.5 + a / FOV) * W;
+    const spriteH = Math.min(H, H / corrDist * 0.8);
+    const spriteW = spriteH * 0.6;
+    const top = (H - spriteH) / 2;
+
+    // Check z-buffer (approximate)
+    const startCol = Math.max(0, Math.floor(screenX - spriteW / 2));
+    const endCol = Math.min(W - 1, Math.floor(screenX + spriteW / 2));
+    let visible = false;
+    for (let c = startCol; c <= endCol; c += 4) {
+      if (corrDist < zBuffer[c]) { visible = true; break; }
+    }
+    if (!visible) continue;
+
+    const shade = Math.max(0.2, 1 - corrDist / MAX_DIST);
+
+    // Draw enemy as a simple demon shape
+    ctx.save();
+    ctx.globalAlpha = e.alive ? 1 : Math.max(0, e.hitTimer / 15);
+
+    // Body
+    const br = Math.floor((e.hitTimer > 0 ? 255 : 180) * shade);
+    const bg = Math.floor((e.hitTimer > 0 ? 50 : 40) * shade);
+    const bb = Math.floor(40 * shade);
+    ctx.fillStyle = `rgb(${br},${bg},${bb})`;
+
+    // Torso
+    const tw = spriteW * 0.6, th = spriteH * 0.5;
+    ctx.fillRect(screenX - tw / 2, top + spriteH * 0.25, tw, th);
+
+    // Head
+    const hw = spriteW * 0.35, hh = spriteH * 0.22;
+    ctx.fillRect(screenX - hw / 2, top + spriteH * 0.05, hw, hh);
+
+    // Eyes (red glow)
+    const eyeSize = Math.max(2, spriteW * 0.07);
+    ctx.fillStyle = `rgba(255,0,0,${shade})`;
+    ctx.shadowColor = '#ff0000';
+    ctx.shadowBlur = 8 * shade;
+    ctx.fillRect(screenX - hw * 0.25, top + spriteH * 0.13, eyeSize, eyeSize);
+    ctx.fillRect(screenX + hw * 0.1, top + spriteH * 0.13, eyeSize, eyeSize);
+    ctx.shadowBlur = 0;
+
+    // Arms
+    ctx.fillStyle = `rgb(${br},${bg},${bb})`;
+    const aw = spriteW * 0.15;
+    ctx.fillRect(screenX - tw / 2 - aw, top + spriteH * 0.3, aw, th * 0.7);
+    ctx.fillRect(screenX + tw / 2, top + spriteH * 0.3, aw, th * 0.7);
+
+    // Horns
+    ctx.fillStyle = `rgb(${Math.floor(120*shade)},${Math.floor(80*shade)},${Math.floor(30*shade)})`;
+    const hornW = spriteW * 0.08;
+    ctx.beginPath();
+    ctx.moveTo(screenX - hw * 0.35, top + spriteH * 0.07);
+    ctx.lineTo(screenX - hw * 0.55, top - spriteH * 0.05);
+    ctx.lineTo(screenX - hw * 0.15, top + spriteH * 0.07);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(screenX + hw * 0.35, top + spriteH * 0.07);
+    ctx.lineTo(screenX + hw * 0.55, top - spriteH * 0.05);
+    ctx.lineTo(screenX + hw * 0.15, top + spriteH * 0.07);
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+// ---------- WEAPON ----------
+function drawWeapon() {
+  const bobX = Math.sin(weaponBob) * 6;
+  const bobY = Math.abs(Math.cos(weaponBob)) * 4;
+  const baseX = W / 2 + bobX;
+  const baseY = H - 10 + bobY + (shootTimer > 0 ? -15 : 0);
+
+  ctx.save();
+  // Barrel
+  ctx.fillStyle = '#555';
+  ctx.fillRect(baseX - 8, baseY - 120, 16, 80);
+  ctx.fillStyle = '#444';
+  ctx.fillRect(baseX - 6, baseY - 130, 12, 20);
+  // Grip
+  ctx.fillStyle = '#665544';
+  ctx.fillRect(baseX - 12, baseY - 40, 24, 50);
+  ctx.fillStyle = '#554433';
+  ctx.fillRect(baseX - 10, baseY - 35, 20, 40);
+  // Muzzle flash
+  if (shootTimer > 3) {
+    ctx.fillStyle = `rgba(255,200,50,${shootTimer / 6})`;
+    ctx.beginPath();
+    ctx.arc(baseX, baseY - 135, 15 + Math.random() * 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = `rgba(255,100,0,${shootTimer / 8})`;
+    ctx.beginPath();
+    ctx.arc(baseX, baseY - 135, 8 + Math.random() * 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ---------- MINIMAP ----------
+function renderMinimap() {
+  const S = 120, cs = S / MAP_W;
+  miniCtx.fillStyle = 'rgba(0,0,0,0.8)';
+  miniCtx.fillRect(0, 0, S, S);
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      if (map[y * MAP_W + x] > 0) {
+        miniCtx.fillStyle = '#553333';
+        miniCtx.fillRect(x * cs, y * cs, cs, cs);
+      }
+    }
+  }
+  // Player
+  miniCtx.fillStyle = '#0f0';
+  miniCtx.fillRect(player.x * cs - 2, player.y * cs - 2, 4, 4);
+  // Direction
+  miniCtx.strokeStyle = '#0f0';
+  miniCtx.beginPath();
+  miniCtx.moveTo(player.x * cs, player.y * cs);
+  miniCtx.lineTo(player.x * cs + Math.cos(player.angle) * 10, player.y * cs + Math.sin(player.angle) * 10);
+  miniCtx.stroke();
+  // Enemies
+  for (const e of enemies) {
+    if (!e.alive) continue;
+    miniCtx.fillStyle = '#f00';
+    miniCtx.fillRect(e.x * cs - 1.5, e.y * cs - 1.5, 3, 3);
+  }
+}
+
+// ---------- GAME LOGIC ----------
+function move(dt) {
+  const speed = 0.04 * dt;
+  const rotSpeed = 0.002 * mouseX;
+  player.angle += rotSpeed;
+  mouseX = 0;
+
+  let mx = 0, my = 0;
+  if (keys['w'] || keys['z']) { mx += Math.cos(player.angle) * speed; my += Math.sin(player.angle) * speed; }
+  if (keys['s'])              { mx -= Math.cos(player.angle) * speed; my -= Math.sin(player.angle) * speed; }
+  if (keys['a'] || keys['q']) { mx += Math.cos(player.angle - Math.PI/2) * speed; my += Math.sin(player.angle - Math.PI/2) * speed; }
+  if (keys['d'])              { mx += Math.cos(player.angle + Math.PI/2) * speed; my += Math.sin(player.angle + Math.PI/2) * speed; }
+
+  if (mx !== 0 || my !== 0) weaponBob += 0.1 * dt;
+
+  // Collision
+  const margin = 0.2;
+  const nx = player.x + mx, ny = player.y + my;
+  if (map[Math.floor(player.y) * MAP_W + Math.floor(nx + margin * Math.sign(mx))] === 0) player.x = nx;
+  if (map[Math.floor(ny + margin * Math.sign(my)) * MAP_W + Math.floor(player.x)] === 0) player.y = ny;
+}
+
+function shoot() {
+  if (player.ammo <= 0 || shootTimer > 0) return;
+  player.ammo--;
+  shootTimer = 6;
+  document.getElementById('hud-ammo').textContent = player.ammo;
+
+  // Check if hitting an enemy near crosshair
+  let bestDist = Infinity, bestEnemy = null;
+  for (const e of enemies) {
+    if (!e.alive) continue;
+    const dx = e.x - player.x, dy = e.y - player.y;
+    const dist = Math.hypot(dx, dy);
+    let angle = Math.atan2(dy, dx) - player.angle;
+    while (angle > Math.PI) angle -= 2 * Math.PI;
+    while (angle < -Math.PI) angle += 2 * Math.PI;
+    if (Math.abs(angle) < 0.15 && dist < bestDist) {
+      // Check wall occlusion
+      const wallHit = castRay(player.x, player.y, Math.atan2(dy, dx));
+      if (wallHit.dist > dist) {
+        bestDist = dist;
+        bestEnemy = e;
+      }
+    }
+  }
+  if (bestEnemy) {
+    bestEnemy.hp--;
+    bestEnemy.hitTimer = 8;
+    if (bestEnemy.hp <= 0) {
+      bestEnemy.alive = false;
+      bestEnemy.hitTimer = 15;
+      player.kills++;
+      document.getElementById('hud-kills').textContent = player.kills;
+      // Spawn replacement
+      setTimeout(() => spawnOne(), 2000);
+    }
+  }
+}
+
+function spawnOne() {
+  let ex, ey, attempts = 0;
+  do {
+    ex = 1.5 + Math.random() * (MAP_W - 3);
+    ey = 1.5 + Math.random() * (MAP_H - 3);
+    attempts++;
+  } while ((map[Math.floor(ey) * MAP_W + Math.floor(ex)] !== 0 ||
+            Math.hypot(ex - player.x, ey - player.y) < 5) && attempts < 50);
+  enemies.push({ x: ex, y: ey, hp: ENEMY_HP, alive: true, hitTimer: 0, attackTimer: 0 });
+}
+
+function updateEnemies(dt) {
+  const overlay = document.getElementById('damage-overlay');
+  let takingDamage = false;
+
+  for (const e of enemies) {
+    if (e.hitTimer > 0) e.hitTimer -= 0.2 * dt;
+    if (!e.alive) continue;
+
+    const dx = player.x - e.x, dy = player.y - e.y;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist > 0.5) {
+      const nx = dx / dist, ny = dy / dist;
+      const newX = e.x + nx * ENEMY_SPEED * dt;
+      const newY = e.y + ny * ENEMY_SPEED * dt;
+      if (map[Math.floor(e.y) * MAP_W + Math.floor(newX)] === 0) e.x = newX;
+      if (map[Math.floor(newY) * MAP_W + Math.floor(e.x)] === 0) e.y = newY;
+    }
+
+    if (dist < 1) {
+      e.attackTimer += dt;
+      if (e.attackTimer > 30) {
+        player.hp -= ENEMY_DAMAGE;
+        e.attackTimer = 0;
+        takingDamage = true;
+        document.getElementById('hud-hp').textContent = Math.max(0, player.hp);
+      }
+    }
+  }
+
+  overlay.style.opacity = takingDamage ? '0.6' : '0';
+}
+
+function dropAmmo() {
+  if (Math.random() < 0.005) {
+    player.ammo = Math.min(99, player.ammo + 5);
+    document.getElementById('hud-ammo').textContent = player.ammo;
+  }
+}
+
+// ---------- MAIN LOOP ----------
+let gameState = 'menu'; // menu, playing, dead
+let lastTime = 0;
+
+function gameLoop(time) {
+  const dt = Math.min(3, (time - lastTime) / 16.67);
+  lastTime = time;
+
+  if (gameState === 'playing') {
+    move(dt);
+    updateEnemies(dt);
+    if (shootTimer > 0) shootTimer -= dt;
+    if (shooting && shootTimer <= 0) shoot();
+    dropAmmo();
+
+    if (player.hp <= 0) {
+      gameState = 'dead';
+      document.getElementById('final-kills').textContent = player.kills;
+      document.getElementById('death-screen').style.display = 'flex';
+      document.exitPointerLock();
+    }
+
+    renderWalls();
+    renderEnemies();
+    drawWeapon();
+    renderMinimap();
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+// ---------- CONTROLS ----------
+document.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+document.addEventListener('mousemove', e => {
+  if (document.pointerLockElement === canvas) {
+    mouseX = e.movementX;
+  }
+});
+document.addEventListener('mousedown', e => { if (e.button === 0) shooting = true; });
+document.addEventListener('mouseup', e => { if (e.button === 0) shooting = false; });
+
+function startGame() {
+  player = { x: 2.5, y: 2.5, angle: 0, hp: 100, ammo: 50, kills: 0 };
+  keys = {};
+  shooting = false;
+  shootTimer = 0;
+  weaponBob = 0;
+  document.getElementById('hud-hp').textContent = 100;
+  document.getElementById('hud-kills').textContent = 0;
+  document.getElementById('hud-ammo').textContent = 50;
+  spawnEnemies(6);
+  gameState = 'playing';
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('death-screen').style.display = 'none';
+  canvas.requestPointerLock();
+}
+
+document.getElementById('btn-start').addEventListener('click', startGame);
+document.getElementById('btn-restart').addEventListener('click', startGame);
+
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
