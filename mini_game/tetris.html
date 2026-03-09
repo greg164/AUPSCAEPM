@@ -15,6 +15,7 @@
     min-height: 100vh;
     font-family: 'Courier New', monospace;
     color: #fff;
+    overflow: hidden;
   }
   .game-wrapper {
     display: flex;
@@ -111,7 +112,7 @@
     font-size: 24px;
     font-family: inherit;
     width: 68px;
-    height: 58px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -139,24 +140,30 @@
 
   /* Mobile responsive */
   @media (max-width: 600px) {
-    body { padding: 8px; }
+    body {
+      padding: 4px;
+      min-height: unset;
+      height: 100vh;
+      height: 100dvh;
+      justify-content: space-evenly;
+    }
     .game-wrapper {
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 4px;
     }
     .side-panel {
       flex-direction: row;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       min-width: unset;
     }
-    .panel-box { padding: 8px 12px; }
-    .panel-box h3 { font-size: 9px; margin-bottom: 4px; }
-    .panel-box .value { font-size: 16px; }
+    .panel-box { padding: 4px 10px; }
+    .panel-box h3 { font-size: 9px; margin-bottom: 2px; }
+    .panel-box .value { font-size: 14px; }
     .controls { display: none; }
-    .touch-controls { display: flex; flex-direction: column; gap: 10px; padding-top: 6px; }
+    .touch-controls { display: flex; flex-direction: column; gap: 6px; padding-top: 2px; }
   }
   @media (max-width: 360px) {
     .touch-btn { width: 58px; height: 50px; font-size: 20px; }
@@ -220,7 +227,11 @@
   function calcBlockSize() {
     if (window.innerWidth <= 600) {
       const maxW = Math.min(window.innerWidth - 20, 340);
-      return Math.floor(maxW / COLS);
+      const blockFromWidth = Math.floor(maxW / COLS);
+      // Reserve space for: score panel (~50px) + touch controls (~130px) + gaps (~20px)
+      const availableH = window.innerHeight - 200;
+      const blockFromHeight = Math.floor(availableH / ROWS);
+      return Math.max(10, Math.min(blockFromWidth, blockFromHeight));
     }
     return 28; // desktop default
   }

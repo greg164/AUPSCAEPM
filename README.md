@@ -1,13 +1,13 @@
-AUPSCAEPM
+EASTER EGG HUNTER
+Plusieurs easter eggs sont cachés ici. À toi de les trouver.
 
-NDMHA FG ME FDAGHQ XM BADFQ P'QZFDQQ PG VQG
-OTMCGQ QZUYYQ OAZFUQZF GZ QMEFQD QSS
-M FAU PQ FDAGHQD PQ CGAU UX E'MSUF
-EU FG BQZEQE QZ MHAUD FDAGHQ GZ QZHAUQ-XQ YAU
-QZ GFUXUEMZF XQ RADYGXMUDQ PQ OAZFMOF QZ NME PQ OQFFQ BMSQ
-OTMCGQ QMEFQD QSS FDAGHQ QSMX GZ HQDDQ ARRADF M XM EAUDQQ
-UX RMGPDM QFDQ XQ BDQYUQD M FDAGHQD BAGD YQDUFQD XM DQOAYBQZEQ
-MYGEQ-FAU NUQZ QF VQ FQ EAGTMUFQ NAZZQ OTMZOQ
+// règles du jeu
+Vous avez accès à une série d'énigmes que j'ai conçu spécialement pour l'occasion.
+Certaines d'entre elles sont faciles, d'autres sont très difficiles.
+Pour chaque énigme, le premier qui m'enverra une solution valide sera inscrit au classement.
+Le formulaire de contact du site vous permet de m'envoyer vos propositions.
+
+DISCLAIMER : Ne jouez pas pendant vos heures de travail ;)
 
 https://github.com/greg164/AUPSCAEPM
 
