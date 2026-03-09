@@ -25,6 +25,7 @@
     border: 4px solid #333;
     border-radius: 12px;
     padding: 16px;
+    max-width: 100vw;
     box-shadow:
       0 0 30px rgba(255, 50, 50, 0.15),
       inset 0 0 60px rgba(0,0,0,0.5);
@@ -66,17 +67,25 @@
     letter-spacing: 1px;
   }
 
+  /* ── MOBILE CONTROLS ── */
   .mobile-controls {
     display: none;
-    gap: 12px;
     padding: 10px 0;
     justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .mobile-controls .dpad {
+    position: relative;
+    width: 130px;
+    height: 130px;
   }
 
   .mobile-controls button {
     font-family: 'Press Start 2P', monospace;
     font-size: 16px;
-    width: 52px; height: 52px;
+    width: 42px; height: 42px;
     background: #1a1a2e;
     color: #aaa;
     border: 2px solid #444;
@@ -84,12 +93,37 @@
     cursor: pointer;
     -webkit-user-select: none;
     user-select: none;
+    touch-action: manipulation;
+    position: absolute;
   }
   .mobile-controls button:active { background: #e63946; color: #fff; border-color: #e63946; }
+
+  .mobile-controls .btn-up    { top: 0; left: 50%; transform: translateX(-50%); }
+  .mobile-controls .btn-down  { bottom: 0; left: 50%; transform: translateX(-50%); }
+  .mobile-controls .btn-left  { left: 0; top: 50%; transform: translateY(-50%); }
+  .mobile-controls .btn-right { right: 0; top: 50%; transform: translateY(-50%); }
+
+  .mobile-controls .btn-jump {
+    position: relative;
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    font-size: 10px;
+    background: #1a1a2e;
+    color: #f4d35e;
+    border: 2px solid #f4d35e;
+  }
+  .mobile-controls .btn-jump:active { background: #f4d35e; color: #1a1a2e; }
 
   @media (pointer: coarse) {
     .mobile-controls { display: flex; }
     .controls-info { display: none; }
+  }
+
+  @media (max-width: 480px) {
+    .cabinet { padding: 8px; border-width: 3px; }
+    canvas { width: calc(100vw - 30px); height: auto; }
+    .header { font-size: 11px; padding: 4px 0; }
+    .hud { font-size: 8px; }
   }
 </style>
 </head>
@@ -103,11 +137,15 @@
     <span>LIVES <span class="lives-val" id="lives">♥♥♥</span></span>
   </div>
   <canvas id="game" width="448" height="512"></canvas>
-  <div class="controls-info">← → MOVE &nbsp; SPACE JUMP</div>
+  <div class="controls-info">← → MOVE &nbsp; ↑↓ CLIMB &nbsp; SPACE JUMP</div>
   <div class="mobile-controls">
-    <button id="btnL">◀</button>
-    <button id="btnR">▶</button>
-    <button id="btnJ">▲</button>
+    <div class="dpad">
+      <button class="btn-up" id="btnU">▲</button>
+      <button class="btn-down" id="btnD">▼</button>
+      <button class="btn-left" id="btnL">◀</button>
+      <button class="btn-right" id="btnR">▶</button>
+    </div>
+    <button class="btn-jump" id="btnJ">JUMP</button>
   </div>
 </div>
 
@@ -144,12 +182,11 @@ let deathTimer = 0;
 let winTimer = 0;
 
 // ── NIVEAUX (plateformes) ──
-// Chaque plateforme: { x, y, w, slope } slope = pente par pixel
 const platforms = [];
 const ladders = [];
 const barrels = [];
 let barrelTimer = 0;
-const BARREL_INTERVAL = 75; // frames entre tonneaux
+const BARREL_INTERVAL = 75;
 
 function buildLevel() {
   platforms.length = 0;
@@ -157,27 +194,26 @@ function buildLevel() {
   barrels.length = 0;
   barrelTimer = 0;
 
-  const pH = 14; // hauteur plateforme
+  const pH = 14;
   const levels = [
-    { y: 488, x: 0, w: W, slope: 0 },             // sol (pleine largeur)
-    { y: 408, x: 10, w: 428, slope: -0.03 },       // 1 - très large
-    { y: 328, x: 20, w: 408, slope: 0.03 },        // 2
-    { y: 248, x: 40, w: 368, slope: -0.03 },       // 3
-    { y: 168, x: 60, w: 328, slope: 0.03 },        // 4
-    { y: 100, x: 120, w: 200, slope: 0 },           // top (princesse)
+    { y: 488, x: 0, w: W, slope: 0 },
+    { y: 408, x: 10, w: 428, slope: -0.03 },
+    { y: 328, x: 20, w: 408, slope: 0.03 },
+    { y: 248, x: 40, w: 368, slope: -0.03 },
+    { y: 168, x: 60, w: 328, slope: 0.03 },
+    { y: 100, x: 120, w: 200, slope: 0 },
   ];
 
   levels.forEach(l => {
     platforms.push({ x: l.x, y: l.y, w: l.w, h: pH, slope: l.slope });
   });
 
-  // Échelles entre plateformes — une seule par niveau, alternées
   const ladderDefs = [
-    { x: 390, y1: 488, y2: 408 },   // sol → 1 : à droite
-    { x: 60,  y1: 408, y2: 328 },   // 1 → 2 : à gauche
-    { x: 340, y1: 328, y2: 248 },   // 2 → 3 : à droite
-    { x: 80,  y1: 248, y2: 168 },   // 3 → 4 : à gauche
-    { x: 220, y1: 168, y2: 100 },   // 4 → top : au centre
+    { x: 390, y1: 488, y2: 408 },
+    { x: 60,  y1: 408, y2: 328 },
+    { x: 340, y1: 328, y2: 248 },
+    { x: 80,  y1: 248, y2: 168 },
+    { x: 220, y1: 168, y2: 100 },
   ];
 
   ladderDefs.forEach(l => {
@@ -191,7 +227,7 @@ const player = {
   w: 20, h: 28,
   onGround: false,
   climbing: false,
-  facing: 1, // 1 = droite, -1 = gauche
+  facing: 1,
   frame: 0,
 };
 
@@ -227,6 +263,8 @@ window.addEventListener('keyup', e => { keys[e.code] = false; });
 function setupMobile() {
   const btnL = document.getElementById('btnL');
   const btnR = document.getElementById('btnR');
+  const btnU = document.getElementById('btnU');
+  const btnD = document.getElementById('btnD');
   const btnJ = document.getElementById('btnJ');
 
   const press = (code) => { keys[code] = true; if (state === 'title' || state === 'gameover') startGame(); };
@@ -236,6 +274,10 @@ function setupMobile() {
   btnL.addEventListener('touchend', e => { e.preventDefault(); release('ArrowLeft'); });
   btnR.addEventListener('touchstart', e => { e.preventDefault(); press('ArrowRight'); });
   btnR.addEventListener('touchend', e => { e.preventDefault(); release('ArrowRight'); });
+  btnU.addEventListener('touchstart', e => { e.preventDefault(); press('ArrowUp'); });
+  btnU.addEventListener('touchend', e => { e.preventDefault(); release('ArrowUp'); });
+  btnD.addEventListener('touchstart', e => { e.preventDefault(); press('ArrowDown'); });
+  btnD.addEventListener('touchend', e => { e.preventDefault(); release('ArrowDown'); });
   btnJ.addEventListener('touchstart', e => { e.preventDefault(); press('Space'); });
   btnJ.addEventListener('touchend', e => { e.preventDefault(); release('Space'); });
 }
@@ -288,28 +330,25 @@ function updateBarrels() {
   if (barrelTimer >= BARREL_INTERVAL) {
     barrelTimer = 0;
     spawnBarrel();
-    dk.frame = 10; // animation de lancer
+    dk.frame = 10;
   }
   if (dk.frame > 0) dk.frame--;
 
   for (let i = barrels.length - 1; i >= 0; i--) {
     const b = barrels[i];
-    b.vy += 0.4; // gravité
+    b.vy += 0.4;
     b.x += b.vx;
     b.y += b.vy;
     b.roll += b.vx * 0.1;
 
-    // Collision plateformes
     const onP = isOnPlatform(b);
     if (onP) {
       b.y = onP.surfaceY - b.h;
       b.vy = 0;
       b.onGround = true;
       b.currentPlat = onP.plat;
-      // Direction selon pente
       b.vx = onP.plat.slope < 0 ? 3.5 : onP.plat.slope > 0 ? -3.5 : b.vx;
     } else {
-      // Le tonneau vient de quitter une plateforme → tombe droit
       if (b.onGround) {
         b.vx = 0;
       }
@@ -317,7 +356,6 @@ function updateBarrels() {
       b.currentPlat = null;
     }
 
-    // Peut tomber dans une échelle (aléatoire)
     const onL = isOnLadder(b);
     if (onL && b.onGround && Math.random() < 0.012) {
       b.vy = 2;
@@ -325,18 +363,15 @@ function updateBarrels() {
       b.currentPlat = null;
     }
 
-    // Hors écran (seulement en bas)
     if (b.y > H + 20) {
       barrels.splice(i, 1);
       continue;
     }
 
-    // Collision joueur
     if (state === 'playing') {
       if (rectsOverlap(player, b)) {
         playerDie();
       }
-      // Saut par-dessus = points
       if (!b.scored && player.y + player.h < b.y && Math.abs(player.x - b.x) < 30 && !player.onGround) {
         b.scored = true;
         score += 100;
@@ -369,13 +404,11 @@ function updatePlayer() {
 
     player.y += player.vy;
 
-    // Sorti de l'échelle ?
     if (!isOnLadder(player)) {
       player.climbing = false;
       player.vy = 0;
     }
 
-    // Arrivé sur une plateforme en haut
     const onP = isOnPlatform(player);
     if (onP && player.vy < 0) {
       player.y = onP.surfaceY - player.h;
@@ -383,30 +416,25 @@ function updatePlayer() {
       player.vy = 0;
     }
   } else {
-    // Mouvement horizontal
     if (keys['ArrowLeft']) { player.vx = -spd; player.facing = -1; player.frame += 0.15; }
     else if (keys['ArrowRight']) { player.vx = spd; player.facing = 1; player.frame += 0.15; }
     else { player.vx = 0; }
 
-    // Monter échelle
     if (keys['ArrowUp'] && ladder) {
       player.climbing = true;
       player.x = ladder.x + ladder.w / 2 - player.w / 2;
       player.vy = 0;
     }
 
-    // Saut
     if (keys['Space'] && player.onGround) {
       player.vy = jumpForce;
       player.onGround = false;
     }
 
-    // Gravité
     player.vy += gravity;
     player.x += player.vx;
     player.y += player.vy;
 
-    // Collision plateformes
     const onP = isOnPlatform(player);
     if (onP) {
       player.y = onP.surfaceY - player.h;
@@ -416,17 +444,14 @@ function updatePlayer() {
       player.onGround = false;
     }
 
-    // Limites écran
     if (player.x < 0) player.x = 0;
     if (player.x + player.w > W) player.x = W - player.w;
   }
 
-  // Tombé dans le vide
   if (player.y > H + 50) {
     playerDie();
   }
 
-  // Atteint la princesse ?
   if (rectsOverlap(player, princess)) {
     state = 'win';
     winTimer = 180;
@@ -457,11 +482,9 @@ function drawPixelRect(x, y, w, h, color) {
 
 function drawPlatforms() {
   for (const p of platforms) {
-    // Dessiner en suivant la pente
     for (let px = 0; px < p.w; px += 2) {
       const py = getPlatformYAt(p, p.x + px);
       drawPixelRect(p.x + px, py, 2, p.h, C.girder);
-      // Détail rivet
       if (px % 16 === 0) {
         drawPixelRect(p.x + px + 2, py + 2, 4, 4, C.girderHi);
       }
@@ -471,10 +494,8 @@ function drawPlatforms() {
 
 function drawLadders() {
   for (const l of ladders) {
-    // Montants
     drawPixelRect(l.x, l.y, 3, l.h, C.ladder);
     drawPixelRect(l.x + l.w - 3, l.y, 3, l.h, C.ladder);
-    // Barreaux
     for (let ry = 0; ry < l.h; ry += 14) {
       drawPixelRect(l.x, l.y + ry, l.w, 2, C.ladder);
     }
@@ -486,25 +507,18 @@ function drawPlayer() {
   const f = Math.floor(p.frame) % 2;
 
   if (state === 'dead') {
-    // Animation mort : clignotement
     if (Math.floor(deathTimer / 5) % 2 === 0) return;
   }
 
-  // Corps
   drawPixelRect(p.x + 4, p.y + 10, 12, 12, C.player);
-  // Tête
   drawPixelRect(p.x + 5, p.y + 2, 10, 10, '#ffcc99');
-  // Casquette
   drawPixelRect(p.x + 3, p.y, 14, 5, C.playerHat);
-  // Yeux
   drawPixelRect(p.x + (p.facing === 1 ? 11 : 7), p.y + 5, 2, 2, '#000');
-  // Jambes (animation)
   if (p.climbing) {
     const lf = Math.floor(p.frame) % 2;
     drawPixelRect(p.x + 4, p.y + 22, 5, 6, C.player);
     drawPixelRect(p.x + 11, p.y + 22 - lf * 4, 5, 6, C.player);
   } else if (!p.onGround) {
-    // En l'air
     drawPixelRect(p.x + 2, p.y + 22, 6, 6, C.player);
     drawPixelRect(p.x + 12, p.y + 22, 6, 6, C.player);
   } else {
@@ -517,25 +531,18 @@ function drawDK() {
   const d = dk;
   const throwing = d.frame > 0;
 
-  // Corps
   drawPixelRect(d.x + 4, d.y + 16, 40, 28, C.dk);
-  // Tête
   drawPixelRect(d.x + 10, d.y, 28, 20, C.dk);
-  // Visage
   drawPixelRect(d.x + 16, d.y + 4, 16, 12, C.dkFace);
-  // Yeux
   drawPixelRect(d.x + 18, d.y + 6, 4, 4, '#000');
   drawPixelRect(d.x + 26, d.y + 6, 4, 4, '#000');
-  // Bouche
   drawPixelRect(d.x + 20, d.y + 12, 8, 3, '#8B0000');
-  // Bras
   if (throwing) {
     drawPixelRect(d.x + 40, d.y + 10, 10, 8, C.dk);
   } else {
     drawPixelRect(d.x - 4, d.y + 18, 8, 12, C.dk);
     drawPixelRect(d.x + 44, d.y + 18, 8, 12, C.dk);
   }
-  // Pieds
   drawPixelRect(d.x + 6, d.y + 44, 14, 6, C.dk);
   drawPixelRect(d.x + 28, d.y + 44, 14, 6, C.dk);
 }
@@ -543,16 +550,11 @@ function drawDK() {
 function drawPrincess() {
   const p = princess;
   const bob = Math.sin(Date.now() * 0.004) * 2;
-  // Robe
   drawPixelRect(p.x + 2, p.y + 10 + bob, 16, 18, C.princess);
-  // Tête
   drawPixelRect(p.x + 4, p.y + 2 + bob, 12, 10, '#ffcc99');
-  // Cheveux
   drawPixelRect(p.x + 2, p.y + bob, 16, 5, C.princessHair);
-  // Yeux
   drawPixelRect(p.x + 7, p.y + 5 + bob, 2, 2, '#000');
   drawPixelRect(p.x + 12, p.y + 5 + bob, 2, 2, '#000');
-  // HELP!
   ctx.fillStyle = '#fff';
   ctx.font = '7px "Press Start 2P"';
   ctx.fillText('HELP!', p.x - 6, p.y - 6 + bob);
@@ -563,7 +565,6 @@ function drawBarrels() {
     ctx.save();
     ctx.translate(b.x + b.w / 2, b.y + b.h / 2);
     ctx.rotate(b.roll);
-    // Tonneau
     drawPixelRect(-b.w / 2, -b.h / 2, b.w, b.h, C.barrel);
     drawPixelRect(-b.w / 2, -b.h / 2 + 3, b.w, 3, C.barrelBand);
     drawPixelRect(-b.w / 2, b.h / 2 - 6, b.w, 3, C.barrelBand);
@@ -643,7 +644,6 @@ function drawWin() {
   ctx.font = '9px "Press Start 2P"';
   ctx.fillText('(Star Wars)', W / 2, 330);
 
-  // Coeurs
   ctx.fillStyle = C.princess;
   ctx.font = '20px "Press Start 2P"';
   const hBlink = Math.floor(Date.now() / 300) % 2;
@@ -684,7 +684,6 @@ function draw() {
   ctx.fillRect(0, 0, W, H);
 
   if (state === 'title') {
-    // Dessiner le niveau en fond
     drawPlatforms();
     drawLadders();
     drawDK();

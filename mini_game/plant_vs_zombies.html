@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>🌻 Plantes vs Squelettes</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nunito:wght@700;900&display=swap');
@@ -15,13 +15,16 @@
     font-family: 'Nunito', sans-serif;
     user-select: none;
     height: 100vh;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   #game-container {
     position: relative;
     width: 900px;
     height: 600px;
-    margin: 0 auto;
     overflow: hidden;
     border: 3px solid #2a1a4e;
     border-radius: 12px;
@@ -114,6 +117,8 @@
     color: #4eff4e;
     text-shadow: 0 0 20px rgba(78,255,78,0.5), 0 4px 8px rgba(0,0,0,0.8);
     letter-spacing: 2px;
+    text-align: center;
+    padding: 0 10px;
   }
 
   .subtitle {
@@ -200,6 +205,18 @@
 </div>
 
 <script>
+// ── Responsive scaling ──
+function resizeGame() {
+  const container = document.getElementById('game-container');
+  const scaleX = window.innerWidth / 900;
+  const scaleY = window.innerHeight / 600;
+  const scale = Math.min(scaleX, scaleY, 1); // never scale up beyond 1
+  container.style.transform = `scale(${scale})`;
+  container.style.transformOrigin = 'center center';
+}
+resizeGame();
+window.addEventListener('resize', resizeGame);
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const W = 900, H = 600;
@@ -270,7 +287,6 @@ function drawGrass() {
 }
 
 function drawBackground() {
-  // Sky gradient
   const grad = ctx.createLinearGradient(0, 0, 0, H);
   grad.addColorStop(0, '#1a3a1a');
   grad.addColorStop(0.3, '#2a5a2a');
@@ -278,7 +294,6 @@ function drawBackground() {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 
-  // Subtle moon
   ctx.fillStyle = 'rgba(255,255,200,0.06)';
   ctx.beginPath();
   ctx.arc(780, 40, 30, 0, Math.PI * 2);
@@ -462,7 +477,6 @@ function update() {
     if (def.type === 'bomb') {
       p.bombTimer--;
       if (p.bombTimer <= 0) {
-        // Explode in 3x3 area
         for (const z of zombies) {
           const zCol = Math.floor((z.x - GRID_X) / CELL_W);
           if (Math.abs(zCol - p.col) <= 1 && Math.abs(z.row - p.row) <= 1) {
@@ -485,7 +499,7 @@ function update() {
         z.hp -= b.dmg;
         if (b.slow) z.slowTimer = 120;
         addParticles(b.x, b.y, b.color, 3);
-        b.x = W + 100; // remove
+        b.x = W + 100;
         break;
       }
     }
@@ -497,7 +511,6 @@ function update() {
     const speed = z.slowTimer > 0 ? z.baseSpeed * 0.4 : z.baseSpeed;
     z.slowTimer = Math.max(0, z.slowTimer - 1);
 
-    // Check for plant collision
     const zCenterY = GRID_Y + z.row * CELL_H + CELL_H / 2;
     let blocked = false;
     for (const p of plants) {
@@ -528,7 +541,6 @@ function update() {
     }
   }
 
-  // Remove dead
   plants = plants.filter(p => p.hp > 0);
   zombies = zombies.filter(z => {
     if (z.hp <= 0) {
@@ -547,7 +559,6 @@ function update() {
   }
   suns = suns.filter(s => s.life > 0);
 
-  // Natural sun
   if (ticks % 350 === 0) {
     spawnSun(100 + Math.random() * 600, 80);
   }
@@ -561,7 +572,6 @@ function update() {
   }
   particles = particles.filter(p => p.life > 0);
 
-  // Win check
   if (wave >= 11 && zombies.length === 0 && zombiesLeftInWave === 0) {
     gameOver(true);
     return;
@@ -571,7 +581,6 @@ function update() {
 function draw() {
   drawBackground();
 
-  // Plants
   for (const p of plants) {
     const px = GRID_X + p.col * CELL_W + CELL_W / 2;
     const py = GRID_Y + p.row * CELL_H + CELL_H / 2 + 5;
@@ -579,7 +588,6 @@ function draw() {
     drawEmoji(p.emoji, px, py + bounce, 34);
     drawHP(px, py - 15, p.hp, p.maxHP);
 
-    // Bomb countdown
     if (p.type === 'bomb' && p.bombTimer > 0) {
       ctx.fillStyle = '#ff4400';
       ctx.font = 'bold 12px Nunito';
@@ -588,7 +596,6 @@ function draw() {
     }
   }
 
-  // Projectiles
   for (const b of projectiles) {
     ctx.fillStyle = b.color;
     ctx.shadowColor = b.color;
@@ -599,7 +606,6 @@ function draw() {
     ctx.shadowBlur = 0;
   }
 
-  // Zombies
   for (const z of zombies) {
     const zy = GRID_Y + z.row * CELL_H + CELL_H / 2 + 5;
     const wobble = z.attacking ? Math.sin(ticks * 0.3) * 3 : Math.sin(ticks * 0.08 + z.x * 0.1) * 2;
@@ -616,7 +622,6 @@ function draw() {
     drawHP(z.x, zy - 18, z.hp, z.maxHP);
   }
 
-  // Suns
   for (const s of suns) {
     const pulse = 1 + Math.sin(ticks * 0.1) * 0.08;
     const alpha = s.life < 60 ? s.life / 60 : 1;
@@ -627,7 +632,6 @@ function draw() {
     drawEmoji('☀️', s.x, s.y, 22 * pulse, alpha);
   }
 
-  // Particles
   for (const p of particles) {
     ctx.globalAlpha = p.life / 40;
     ctx.fillStyle = p.color;
@@ -637,7 +641,6 @@ function draw() {
   }
   ctx.globalAlpha = 1;
 
-  // Wave incoming text
   if (waveDelay > 0 && waveDelay < 120) {
     ctx.fillStyle = `rgba(255,215,0,${Math.min(1, (120 - waveDelay) / 30)})`;
     ctx.font = 'bold 30px Creepster';
